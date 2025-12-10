@@ -1,0 +1,19 @@
+// Export all entities from a single file
+export { Client } from './client.entity';
+export { ExpenseCategory } from './expense-category.entity';
+export { Expense } from './expense.entity';
+export { Income } from './income.entity';
+export { Labor } from './labor.entity';
+export { LaborCost } from './labor-cost.entity';
+export { LaborCostWorker } from './labor-cost-worker.entity';
+export { MiningSite } from './mining-site.entity';
+export { Partner } from './partner.entity';
+export { PartnerPayout } from './partner-payout.entity';
+export { ProfitDistribution } from './profit-distribution.entity';
+export { SiteSupervisor } from './site-supervisor.entity';
+export { TruckDelivery } from './truck-delivery.entity';
+export { User } from './user.entity';
+export { UserRole } from './user-role.entity';
+export { UserAssignedRole } from './user-assigned-role.entity';
+export { Equipment } from './equipment.entity';
+export { Production } from './production.entity';

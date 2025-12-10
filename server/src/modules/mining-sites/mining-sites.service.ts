@@ -1,0 +1,43 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MiningSite } from '../../entities/mining-site.entity';
+import { CreateMiningSiteDto, UpdateMiningSiteDto } from './dto';
+
+@Injectable()
+export class MiningSitesService {
+  constructor(
+    @InjectRepository(MiningSite)
+    private readonly repository: Repository<MiningSite>,
+  ) {}
+
+  async create(createDto: CreateMiningSiteDto): Promise<MiningSite> {
+    const entity = this.repository.create(createDto);
+    return await this.repository.save(entity);
+  }
+
+  async findAll(): Promise<MiningSite[]> {
+    return await this.repository.find({
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findOne(id: number): Promise<MiningSite> {
+    const entity = await this.repository.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException(`Mining Site with ID ${id} not found`);
+    }
+    return entity;
+  }
+
+  async update(id: number, updateDto: UpdateMiningSiteDto): Promise<MiningSite> {
+    const entity = await this.findOne(id);
+    Object.assign(entity, updateDto);
+    return await this.repository.save(entity);
+  }
+
+  async remove(id: number): Promise<void> {
+    const entity = await this.findOne(id);
+    await this.repository.remove(entity);
+  }
+}
