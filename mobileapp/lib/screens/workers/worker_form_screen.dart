@@ -23,8 +23,17 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
   late TextEditingController _teamController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
+  late TextEditingController _fatherNameController;
+  late TextEditingController _addressController;
+  late TextEditingController _mobileNumberController;
+  late TextEditingController _emergencyNumberController;
+  late TextEditingController _dailyWageController;
+  late TextEditingController _notesController;
+  late TextEditingController _otherDetailController;
   
   DateTime _selectedHireDate = DateTime.now();
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
   String _selectedStatus = 'active';
   bool _isActive = true;
   int? _selectedSupervisorId;
@@ -44,6 +53,13 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     _teamController = TextEditingController(text: widget.worker?.team ?? '');
     _phoneController = TextEditingController(text: widget.worker?.phone ?? '');
     _emailController = TextEditingController(text: widget.worker?.email ?? '');
+    _fatherNameController = TextEditingController(text: widget.worker?.fatherName ?? '');
+    _addressController = TextEditingController(text: widget.worker?.address ?? '');
+    _mobileNumberController = TextEditingController(text: widget.worker?.mobileNumber ?? '');
+    _emergencyNumberController = TextEditingController(text: widget.worker?.emergencyNumber ?? '');
+    _dailyWageController = TextEditingController(text: widget.worker?.dailyWage?.toString() ?? '');
+    _notesController = TextEditingController(text: widget.worker?.notes ?? '');
+    _otherDetailController = TextEditingController(text: widget.worker?.otherDetail ?? '');
     
     if (_isEditMode) {
       _selectedStatus = widget.worker!.status;
@@ -54,6 +70,20 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
           _selectedHireDate = DateTime.parse(widget.worker!.hireDate!);
         } catch (e) {
           _selectedHireDate = DateTime.now();
+        }
+      }
+      if (widget.worker!.startDate != null) {
+        try {
+          _selectedStartDate = DateTime.parse(widget.worker!.startDate!);
+        } catch (e) {
+          _selectedStartDate = null;
+        }
+      }
+      if (widget.worker!.endDate != null) {
+        try {
+          _selectedEndDate = DateTime.parse(widget.worker!.endDate!);
+        } catch (e) {
+          _selectedEndDate = null;
         }
       }
     }
@@ -87,6 +117,30 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     }
   }
 
+  Future<void> _selectStartDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedStartDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => _selectedStartDate = picked);
+    }
+  }
+
+  Future<void> _selectEndDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedEndDate ?? DateTime.now(),
+      firstDate: _selectedStartDate ?? DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() => _selectedEndDate = picked);
+    }
+  }
+
   Future<void> _saveWorker() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -115,6 +169,29 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
         isActive: _isActive,
         hireDate: _selectedHireDate.toIso8601String().split('T')[0],
         supervisorId: _selectedSupervisorId,
+        fatherName: _fatherNameController.text.trim().isEmpty 
+            ? null 
+            : _fatherNameController.text.trim(),
+        address: _addressController.text.trim().isEmpty 
+            ? null 
+            : _addressController.text.trim(),
+        mobileNumber: _mobileNumberController.text.trim().isEmpty 
+            ? null 
+            : _mobileNumberController.text.trim(),
+        emergencyNumber: _emergencyNumberController.text.trim().isEmpty 
+            ? null 
+            : _emergencyNumberController.text.trim(),
+        startDate: _selectedStartDate?.toIso8601String().split('T')[0],
+        endDate: _selectedEndDate?.toIso8601String().split('T')[0],
+        dailyWage: _dailyWageController.text.trim().isEmpty 
+            ? null 
+            : double.tryParse(_dailyWageController.text.trim()),
+        notes: _notesController.text.trim().isEmpty 
+            ? null 
+            : _notesController.text.trim(),
+        otherDetail: _otherDetailController.text.trim().isEmpty 
+            ? null 
+            : _otherDetailController.text.trim(),
       );
 
       if (_isEditMode) {
@@ -259,6 +336,73 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
                       enabled: !_isLoading,
                     ),
                   ),
+                  
+                  const Divider(height: 1),
+                  
+                  // Father Name
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _fatherNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Father Name',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
+                  // Mobile Number
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _mobileNumberController,
+                      decoration: const InputDecoration(
+                        labelText: 'Mobile Number',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      enabled: !_isLoading,
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
+                  // Emergency Number
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _emergencyNumberController,
+                      decoration: const InputDecoration(
+                        labelText: 'Emergency Number',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      enabled: !_isLoading,
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
+                  // Address
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _addressController,
+                      decoration: const InputDecoration(
+                        labelText: 'Address',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      maxLines: 2,
+                      enabled: !_isLoading,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -347,6 +491,88 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
                   
                   const Divider(height: 1),
                   
+                  // Daily Wage
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _dailyWageController,
+                      decoration: const InputDecoration(
+                        labelText: 'Daily Wage',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        prefixText: 'Rs. ',
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      enabled: !_isLoading,
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
+                  // Start Date Picker
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: InkWell(
+                      onTap: _isLoading ? null : _selectStartDate,
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Start Date',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _selectedStartDate != null 
+                                  ? DateFormat('MMM dd, yyyy').format(_selectedStartDate!)
+                                  : 'Not set',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: _selectedStartDate != null ? Colors.black : AppColors.textSecondary,
+                              ),
+                            ),
+                            const Icon(Icons.calendar_today, size: 20, color: AppColors.textSecondary),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
+                  // End Date Picker
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: InkWell(
+                      onTap: _isLoading ? null : _selectEndDate,
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'End Date',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _selectedEndDate != null 
+                                  ? DateFormat('MMM dd, yyyy').format(_selectedEndDate!)
+                                  : 'Not set',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: _selectedEndDate != null ? Colors.black : AppColors.textSecondary,
+                              ),
+                            ),
+                            const Icon(Icons.calendar_today, size: 20, color: AppColors.textSecondary),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
                   // Status Dropdown
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -419,6 +645,64 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
                           activeColor: AppColors.success,
                         ),
                       ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+
+            // ADDITIONAL INFORMATION Section
+            const Text(
+              'ADDITIONAL INFORMATION',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  // Notes
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _notesController,
+                      decoration: const InputDecoration(
+                        labelText: 'Notes',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        hintText: 'Any additional notes about this worker',
+                      ),
+                      maxLines: 3,
+                      enabled: !_isLoading,
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
+                  // Other Details
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _otherDetailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Other Details',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        hintText: 'Any other relevant information',
+                      ),
+                      maxLines: 3,
+                      enabled: !_isLoading,
                     ),
                   ),
                 ],

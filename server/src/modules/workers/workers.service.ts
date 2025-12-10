@@ -27,6 +27,15 @@ export class LaborsService {
       photoUrl: null, // Not in current schema
       supervisorId: worker.supervisorId,
       supervisorName: worker.supervisor?.name || null,
+      fatherName: worker.fatherName,
+      address: worker.address,
+      mobileNumber: worker.mobileNumber,
+      emergencyNumber: worker.emergencyNumber,
+      startDate: worker.startDate,
+      endDate: worker.endDate,
+      dailyWage: worker.dailyWage ? parseFloat(worker.dailyWage) : null,
+      notes: worker.notes,
+      otherDetail: worker.otherDetail,
     };
   }
 
@@ -38,9 +47,17 @@ export class LaborsService {
       phone: workerData.phone,
       status: workerData.status || 'active',
       onboardingDate: workerData.hireDate,
-      startDate: workerData.hireDate || new Date().toISOString().split('T')[0],
+      startDate: workerData.startDate || workerData.hireDate || new Date().toISOString().split('T')[0],
       siteId: 1, // Default site ID - should be updated based on your business logic
       supervisorId: workerData.supervisorId || null,
+      fatherName: workerData.fatherName || null,
+      address: workerData.address || null,
+      mobileNumber: workerData.mobileNumber || null,
+      emergencyNumber: workerData.emergencyNumber || null,
+      endDate: workerData.endDate || null,
+      dailyWage: workerData.dailyWage ? workerData.dailyWage.toString() : null,
+      notes: workerData.notes || null,
+      otherDetail: workerData.otherDetail || null,
     };
   }
 

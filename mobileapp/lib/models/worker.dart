@@ -1,17 +1,28 @@
 class Worker {
   final int? id;
   final String fullName;
-  final String? employeeId;
+  final String? employeeId; // CNIC
   final String? role;
   final String? team;
   final String? phone;
   final String? email;
   final String status; // 'active', 'inactive'
   final bool isActive;
-  final String? hireDate;
+  final String? hireDate; // onboarding_date
   final String? photoUrl;
   final int? supervisorId;
   final String? supervisorName;
+  
+  // Additional fields from database
+  final String? fatherName;
+  final String? address;
+  final String? mobileNumber;
+  final String? emergencyNumber;
+  final String? startDate;
+  final String? endDate;
+  final double? dailyWage;
+  final String? notes;
+  final String? otherDetail;
 
   Worker({
     this.id,
@@ -27,6 +38,15 @@ class Worker {
     this.photoUrl,
     this.supervisorId,
     this.supervisorName,
+    this.fatherName,
+    this.address,
+    this.mobileNumber,
+    this.emergencyNumber,
+    this.startDate,
+    this.endDate,
+    this.dailyWage,
+    this.notes,
+    this.otherDetail,
   });
 
   factory Worker.fromJson(Map<String, dynamic> json) {
@@ -44,6 +64,15 @@ class Worker {
       photoUrl: json['photoUrl'] as String? ?? json['photo_url'] as String?,
       supervisorId: json['supervisorId'] as int? ?? json['supervisor_id'] as int?,
       supervisorName: json['supervisorName'] as String? ?? json['supervisor_name'] as String?,
+      fatherName: json['fatherName'] as String? ?? json['father_name'] as String?,
+      address: json['address'] as String?,
+      mobileNumber: json['mobileNumber'] as String? ?? json['mobile_number'] as String?,
+      emergencyNumber: json['emergencyNumber'] as String? ?? json['emergency_number'] as String?,
+      startDate: json['startDate'] as String? ?? json['start_date'] as String?,
+      endDate: json['endDate'] as String? ?? json['end_date'] as String?,
+      dailyWage: json['dailyWage'] != null ? (json['dailyWage'] as num).toDouble() : null,
+      notes: json['notes'] as String?,
+      otherDetail: json['otherDetail'] as String? ?? json['other_detail'] as String?,
     );
   }
 
@@ -62,6 +91,15 @@ class Worker {
       'photoUrl': photoUrl,
       'supervisorId': supervisorId,
       'supervisorName': supervisorName,
+      'fatherName': fatherName,
+      'address': address,
+      'mobileNumber': mobileNumber,
+      'emergencyNumber': emergencyNumber,
+      'startDate': startDate,
+      'endDate': endDate,
+      'dailyWage': dailyWage,
+      'notes': notes,
+      'otherDetail': otherDetail,
     };
   }
 
@@ -78,6 +116,15 @@ class Worker {
       'hireDate': hireDate,
       'photoUrl': photoUrl,
       'supervisorId': supervisorId,
+      'fatherName': fatherName,
+      'address': address,
+      'mobileNumber': mobileNumber,
+      'emergencyNumber': emergencyNumber,
+      'startDate': startDate,
+      'endDate': endDate,
+      'dailyWage': dailyWage,
+      'notes': notes,
+      'otherDetail': otherDetail,
     };
   }
 }
