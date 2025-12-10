@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { LaborCosts } from "./LaborCosts.entity";
-import { Labor } from "./Labor.entity";
+import { Worker } from "./Worker.entity";
 
 @Index("labor_cost_workers_pkey", ["id"], { unique: true })
 @Index("UQ_5aba3b98daab87c536e9c7d58dc", ["laborCostId", "laborId"], {
@@ -28,7 +28,7 @@ export class LaborCostWorkers {
   @JoinColumn([{ name: "labor_cost_id", referencedColumnName: "id" }])
   laborCost: LaborCosts;
 
-  @ManyToOne(() => Labor, (labor) => labor.laborCostWorkers)
+  @ManyToOne(() => Worker, (worker) => worker.laborCostWorkers)
   @JoinColumn([{ name: "labor_id", referencedColumnName: "id" }])
-  labor: Labor;
+  worker: Worker;
 }

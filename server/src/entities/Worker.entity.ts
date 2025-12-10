@@ -15,7 +15,7 @@ import { LaborCostWorkers } from "./LaborCostWorkers.entity";
 @Index("labor_pkey", ["id"], { unique: true })
 @Index("idx_labor_site", ["siteId"], {})
 @Entity("workers", { schema: "coal_mining" })
-export class Labor {
+export class Worker {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
@@ -110,13 +110,13 @@ export class Labor {
   @OneToMany(() => Expenses, (expenses) => expenses.labor)
   expenses: Expenses[];
 
-  @ManyToOne(() => MiningSites, (miningSites) => miningSites.labors)
+  @ManyToOne(() => MiningSites, (miningSites) => miningSites.workers)
   @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])
   site: MiningSites;
 
   @OneToMany(
     () => LaborCostWorkers,
-    (laborCostWorkers) => laborCostWorkers.labor
+    (laborCostWorkers) => laborCostWorkers.worker
   )
   laborCostWorkers: LaborCostWorkers[];
 }

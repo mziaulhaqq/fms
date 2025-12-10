@@ -1,35 +1,35 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Labor } from '../../entities/Labor.entity';
+import { Worker } from '../../entities/Worker.entity';
 import { CreateLaborDto, UpdateLaborDto } from './dto';
 
 @Injectable()
 export class LaborsService {
   constructor(
-    @InjectRepository(Labor)
-    private readonly repository: Repository<Labor>,
+    @InjectRepository(Worker)
+    private readonly repository: Repository<Worker>,
   ) {}
 
-  // Transform Labor entity to match mobile app's Worker model
-  private transformToWorkerModel(labor: Labor) {
+  // Transform Worker entity to match mobile app's Worker model
+  private transformToWorkerModel(worker: Worker) {
     return {
-      id: labor.id,
-      fullName: labor.name,
-      employeeId: labor.cnic, // Using CNIC as employee ID
+      id: worker.id,
+      fullName: worker.name,
+      employeeId: worker.cnic, // Using CNIC as employee ID
       role: null, // Not in current schema
       team: null, // Not in current schema
-      phone: labor.phone,
+      phone: worker.phone,
       email: null, // Not in current schema
-      status: labor.status, // 'active' or 'inactive'
-      isActive: labor.status === 'active',
-      hireDate: labor.onboardingDate || labor.startDate,
+      status: worker.status, // 'active' or 'inactive'
+      isActive: worker.status === 'active',
+      hireDate: worker.onboardingDate || worker.startDate,
       photoUrl: null, // Not in current schema
-      supervisedBy: labor.supervisedBy,
+      supervisedBy: worker.supervisedBy,
     };
   }
 
-  // Transform mobile app's Worker data to Labor entity
+  // Transform mobile app's Worker data to Worker entity
   private transformFromWorkerModel(workerData: any) {
     return {
       name: workerData.fullName,
@@ -45,8 +45,8 @@ export class LaborsService {
 
   async create(createDto: CreateLaborDto): Promise<any> {
     const laborData = this.transformFromWorkerModel(createDto);
-    const entity = this.repository.create(laborData as Partial<Labor>);
-    const saved: Labor = await this.repository.save(entity);
+    const entity = this.repository.create(laborData as Partial<Worker>);
+    const saved: Worker = await this.repository.save(entity);
     return this.transformToWorkerModel(saved);
   }
 
@@ -72,7 +72,7 @@ export class LaborsService {
     }
     const laborData = this.transformFromWorkerModel(updateDto);
     Object.assign(entity, laborData);
-    const saved: Labor = await this.repository.save(entity);
+    const saved: Worker = await this.repository.save(entity);
     return this.transformToWorkerModel(saved);
   }
 

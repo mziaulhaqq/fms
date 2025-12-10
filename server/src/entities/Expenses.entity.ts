@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { ExpenseCategories } from "./ExpenseCategories.entity";
 import { Users } from "./Users.entity";
-import { Labor } from "./Labor.entity";
+import { Worker } from "./Worker.entity";
 import { Partners } from "./Partners.entity";
 import { MiningSites } from "./MiningSites.entity";
 
@@ -96,9 +96,9 @@ export class Expenses {
   @JoinColumn([{ name: "created_by", referencedColumnName: "id" }])
   createdBy: Users;
 
-  @ManyToOne(() => Labor, (labor) => labor.expenses)
+  @ManyToOne(() => Worker, (worker) => worker.expenses)
   @JoinColumn([{ name: "labor_id", referencedColumnName: "id" }])
-  labor: Labor;
+  labor: Worker;
 
   @ManyToOne(() => Partners, (partners) => partners.expenses)
   @JoinColumn([{ name: "partner_id", referencedColumnName: "id" }])

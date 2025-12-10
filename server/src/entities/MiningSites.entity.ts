@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 import { Expenses } from "./Expenses.entity";
 import { Income } from "./Income.entity";
-import { Labor } from "./Labor.entity";
+import { Worker } from "./Worker.entity";
 import { LaborCosts } from "./LaborCosts.entity";
 import { Partners } from "./Partners.entity";
 import { SiteSupervisors } from "./SiteSupervisors.entity";
@@ -49,8 +49,8 @@ export class MiningSites {
   @OneToMany(() => Income, (income) => income.site)
   incomes: Income[];
 
-  @OneToMany(() => Labor, (labor) => labor.site)
-  labors: Labor[];
+  @OneToMany(() => Worker, (worker) => worker.site)
+  workers: Worker[];
 
   @OneToMany(() => LaborCosts, (laborCosts) => laborCosts.site)
   laborCosts: LaborCosts[];
