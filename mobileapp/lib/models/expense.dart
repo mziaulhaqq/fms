@@ -1,57 +1,76 @@
 class Expense {
   final int? id;
-  final int? siteId;
+  final int siteId;
   final int? categoryId;
-  final String amount;
-  final String date;
-  final String? description;
-  final String? paidTo;
-  final String? paymentMethod;
-  final String? receiptNumber;
+  final String expenseDate;
+  final double amount;
+  final String? notes;
+  final int? laborCostId;
   final String? createdAt;
   final String? updatedAt;
 
+  // Navigation properties (for display)
+  final String? siteName;
+  final String? categoryName;
+
   Expense({
     this.id,
-    this.siteId,
+    required this.siteId,
     this.categoryId,
+    required this.expenseDate,
     required this.amount,
-    required this.date,
-    this.description,
-    this.paidTo,
-    this.paymentMethod,
-    this.receiptNumber,
+    this.notes,
+    this.laborCostId,
     this.createdAt,
     this.updatedAt,
+    this.siteName,
+    this.categoryName,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
     return Expense(
       id: json['id'],
-      siteId: json['siteId'],
-      categoryId: json['categoryId'],
-      amount: json['amount']?.toString() ?? '0',
-      date: json['date'] ?? '',
-      description: json['description'],
-      paidTo: json['paidTo'],
-      paymentMethod: json['paymentMethod'],
-      receiptNumber: json['receiptNumber'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
+      siteId: json['siteId'] ?? json['site_id'] ?? 0,
+      categoryId: json['categoryId'] ?? json['category_id'],
+      expenseDate: json['expenseDate'] ?? json['expense_date'] ?? '',
+      amount: _parseAmount(json['amount']),
+      notes: json['notes'],
+      laborCostId: json['laborCostId'] ?? json['labor_cost_id'],
+      createdAt: json['createdAt'] ?? json['created_at'],
+      updatedAt: json['updatedAt'] ?? json['updated_at'],
+      siteName: json['site']?['name'] ?? json['siteName'],
+      categoryName: json['category']?['name'] ?? json['categoryName'],
     );
+  }
+
+  static double _parseAmount(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      if (siteId != null) 'siteId': siteId,
+      'siteId': siteId,
       if (categoryId != null) 'categoryId': categoryId,
+      'expenseDate': expenseDate,
       'amount': amount,
-      'date': date,
-      if (description != null) 'description': description,
-      if (paidTo != null) 'paidTo': paidTo,
-      if (paymentMethod != null) 'paymentMethod': paymentMethod,
-      if (receiptNumber != null) 'receiptNumber': receiptNumber,
+      if (notes != null && notes!.isNotEmpty) 'notes': notes,
+      if (laborCostId != null) 'laborCostId': laborCostId,
+    };
+  }
+
+  Map<String, dynamic> toJsonRequest() {
+    return {
+      'siteId': siteId,
+      if (categoryId != null) 'categoryId': categoryId,
+      'expenseDate': expenseDate,
+      'amount': amount,
+      if (notes != null && notes!.isNotEmpty) 'notes': notes,
+      if (laborCostId != null) 'laborCostId': laborCostId,
     };
   }
 }

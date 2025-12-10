@@ -5,6 +5,9 @@ import '../auth/login_screen.dart';
 import '../clients/clients_list_screen.dart';
 import '../expense_categories/expense_categories_list_screen.dart';
 import '../expenses/expenses_list_screen.dart';
+import '../mining_sites/mining_sites_list_screen.dart';
+import '../equipment/equipment_list_screen.dart';
+import '../income/income_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -111,6 +114,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const ExpensesListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on, color: AppColors.primary),
+              title: const Text('Mining Sites'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MiningSitesListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.build, color: AppColors.primary),
+              title: const Text('Equipment'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EquipmentListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet, color: AppColors.primary),
+              title: const Text('Income'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const IncomeListScreen(),
                   ),
                 );
               },

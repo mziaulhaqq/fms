@@ -8,6 +8,7 @@ class ApiConfig {
   static const String expenses = '/expenses';
   static const String equipment = '/equipment';
   static const String miningSites = '/mining-sites';
+  static const String income = '/income';
   static const String workers = '/workers';
   
   // Timeouts

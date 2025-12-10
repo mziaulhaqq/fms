@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../models/expense_category.dart';
 import '../../services/expense_category_service.dart';
 import 'expense_category_form_screen.dart';
+import 'expense_category_detail_screen.dart';
 
 class ExpenseCategoriesListScreen extends StatefulWidget {
   const ExpenseCategoriesListScreen({super.key});
@@ -265,11 +266,14 @@ class _ExpenseCategoriesListScreenState
                   : SmartRefresher(
                       controller: _refreshController,
                       onRefresh: _onRefresh,
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: _buildCategoryTable(),
-                        ),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: _categories.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final category = _categories[index];
+                          return _buildCategoryCard(category);
+                        },
                       ),
                     ),
       floatingActionButton: _categories.isNotEmpty
@@ -281,278 +285,125 @@ class _ExpenseCategoriesListScreenState
     );
   }
 
-  Widget _buildCategoryTable() {
+  Widget _buildCategoryCard(ExpenseCategory category) {
     return Card(
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          // Table Header
-          Container(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+      child: InkWell(
+        onTap: () => _navigateToDetail(category),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              // Avatar with first letter
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: AppColors.primary,
+                child: Text(
+                  category.name.isNotEmpty ? category.name[0].toUpperCase() : 'C',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 50,
-                    child: Text(
-                      '#',
-                      style: TextStyle(
-                        color: AppColors.textOnPrimary,
+              const SizedBox(width: 16),
+              // Category info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category.name,
+                      style: const TextStyle(
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        letterSpacing: 0.5,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                  ),
-                  const Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Category Name',
-                      style: TextStyle(
-                        color: AppColors.textOnPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // Use shorter text on narrow screens
-                        final headerText = constraints.maxWidth < 150 ? 'Info' : 'Description';
-                        return Text(
-                          headerText,
+                    if (category.description != null && category.description!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          category.description!,
                           style: const TextStyle(
-                            color: AppColors.textOnPrimary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            letterSpacing: 0.5,
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
                           ),
-                        );
-                      },
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              // Menu button
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    _navigateToForm(category);
+                  } else if (value == 'delete') {
+                    _deleteCategory(category);
+                  } else if (value == 'view') {
+                    _navigateToDetail(category);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'view',
+                    child: Row(
+                      children: [
+                        Icon(Icons.visibility, size: 18, color: AppColors.primary),
+                        SizedBox(width: 12),
+                        Text('View Details'),
+                      ],
                     ),
                   ),
-                  const SizedBox(
-                    width: 110,
-                    child: Text(
-                      'Actions',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.textOnPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        letterSpacing: 0.5,
-                      ),
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 18, color: AppColors.secondary),
+                        SizedBox(width: 12),
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 18, color: AppColors.error),
+                        SizedBox(width: 12),
+                        Text('Delete'),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          // Table Rows
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _categories.length,
-            separatorBuilder: (context, index) => Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.border.withOpacity(0.3),
-            ),
-            itemBuilder: (context, index) {
-              final category = _categories[index];
-              return _buildCategoryRow(category, index);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryRow(ExpenseCategory category, int index) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _navigateToForm(category),
-        hoverColor: AppColors.secondary.withOpacity(0.05),
-        splashColor: AppColors.secondary.withOpacity(0.1),
-        child: Container(
-          decoration: BoxDecoration(
-            color: index.isEven ? Colors.white : const Color(0xFFF8F9FA),
-            border: Border(
-              bottom: BorderSide(
-                color: AppColors.border.withOpacity(0.1),
-                width: 0.5,
-              ),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Index Badge
-                SizedBox(
-                  width: 50,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.secondary, Color(0xFFE67E22)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.secondary.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      '${index + 1}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-                // Category Name
-                Expanded(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          category.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: AppColors.textPrimary,
-                            letterSpacing: 0.2,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        if (category.id != null)
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'ID: ${category.id}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.primary.withOpacity(0.8),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Description with Tooltip
-                Expanded(
-                  flex: 2,
-                  child: Tooltip(
-                    message: category.description ?? 'No description',
-                    waitDuration: const Duration(milliseconds: 500),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        category.description ?? 'No description',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: category.description != null
-                              ? AppColors.textPrimary
-                              : AppColors.textSecondary,
-                          fontStyle: category.description != null
-                              ? FontStyle.normal
-                              : FontStyle.italic,
-                          height: 1.4,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-                // Actions
-                SizedBox(
-                  width: 110,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Edit Button
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 18),
-                          color: AppColors.secondary,
-                          onPressed: () => _navigateToForm(category),
-                          tooltip: 'Edit Category',
-                          padding: const EdgeInsets.all(8),
-                          constraints: const BoxConstraints(),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Delete Button
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.error.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18),
-                          color: AppColors.error,
-                          onPressed: () => _deleteCategory(category),
-                          tooltip: 'Delete Category',
-                          padding: const EdgeInsets.all(8),
-                          constraints: const BoxConstraints(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  void _navigateToDetail(ExpenseCategory category) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExpenseCategoryDetailScreen(category: category),
+      ),
+    );
+    if (result == true) {
+      _loadCategories();
+    }
   }
 
   @override
