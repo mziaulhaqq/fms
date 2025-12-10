@@ -15,13 +15,21 @@ class ClientsListScreen extends StatefulWidget {
 class _ClientsListScreenState extends State<ClientsListScreen> {
   final _clientService = ClientService();
   List<Client> _clients = [];
+  List<Client> _filteredClients = [];
   bool _isLoading = false;
   String? _error;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadClients();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadClients() async {
@@ -31,9 +39,10 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
     });
 
     try {
-      final clients = await _clientService.getClients();
+      final clients = await _clientService.getAllClients();
       setState(() {
         _clients = clients;
+        _filteredClients = clients;
         _isLoading = false;
       });
     } catch (e) {
@@ -44,250 +53,228 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
     }
   }
 
-  Future<void> _deleteClient(Client client) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete ${client.businessName}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && client.id != null) {
-      try {
-        await _clientService.deleteClient(client.id!);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Client deleted successfully')),
-          );
-          _loadClients();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to delete client: $e'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
+  void _filterClients(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredClients = _clients;
+      } else {
+        _filteredClients = _clients.where((client) {
+          return client.businessName.toLowerCase().contains(query.toLowerCase()) ||
+              client.ownerName.toLowerCase().contains(query.toLowerCase());
+        }).toList();
       }
-    }
+    });
+  }
+
+  Future<void> _navigateToDetail(Client client) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ClientDetailScreen(client: client)),
+    );
+    if (result == true) _loadClients();
+  }
+
+  Future<void> _navigateToForm([Client? client]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ClientFormScreen(client: client)),
+    );
+    if (result == true) _loadClients();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
-        title: const Text('Clients'),
         backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textOnPrimary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.secondary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Client Management',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: AppColors.secondary, size: 28),
+            onPressed: () => _navigateToForm(),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const ClientFormScreen(),
+      body: Column(
+        children: [
+          // Search Bar
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            color: AppColors.primary,
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Search Clients',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.5)),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: _filterClients,
             ),
-          );
-          if (result == true) {
-            _loadClients();
-          }
-        },
-        backgroundColor: AppColors.secondary,
-        child: const Icon(Icons.add),
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadClients,
-        child: _buildBody(),
+          ),
+          
+          // Client List
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(0),
+                  topRight: Radius.circular(0),
+                ),
+              ),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? _buildErrorWidget()
+                      : _filteredClients.isEmpty
+                          ? _buildEmptyWidget()
+                          : _buildClientList(),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
-            const SizedBox(height: 16),
-            Text(
-              'Error loading clients',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadClients,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_clients.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.business_outlined,
-              size: 64,
-              color: AppColors.textSecondary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No clients yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Tap the + button to add your first client',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ],
-        ),
-      );
-    }
-
+  Widget _buildClientList() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _clients.length,
+      itemCount: _filteredClients.length,
       itemBuilder: (context, index) {
-        final client = _clients[index];
+        final client = _filteredClients[index];
+        // Get first 2 letters for avatar
+        String initials = client.businessName.length >= 2
+            ? client.businessName.substring(0, 2).toUpperCase()
+            : client.businessName.substring(0, 1).toUpperCase();
+        
         return Card(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 16),
           elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            leading: CircleAvatar(
-              backgroundColor: AppColors.primary,
-              child: Text(
-                client.businessName.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.textOnPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+          color: const Color(0xFF3D5467), // Darker card background like screenshot
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => _navigateToDetail(client),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  // Large circular avatar
+                  CircleAvatar(
+                    radius: 36,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    child: Text(
+                      initials,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  // Client info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          client.businessName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Active Projects: ${client.id ?? 0}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Chevron
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.white.withOpacity(0.5),
+                    size: 28,
+                  ),
+                ],
               ),
             ),
-            title: Text(
-              client.businessName,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text('Owner: ${client.ownerName}'),
-                if (client.ownerContact != null)
-                  Text('Contact: ${client.ownerContact}'),
-              ],
-            ),
-            trailing: PopupMenuButton(
-              icon: const Icon(Icons.more_vert),
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'view',
-                  child: Row(
-                    children: [
-                      Icon(Icons.visibility, size: 20),
-                      SizedBox(width: 8),
-                      Text('View Details'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit, size: 20),
-                      SizedBox(width: 8),
-                      Text('Edit'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete, size: 20, color: AppColors.error),
-                      SizedBox(width: 8),
-                      Text('Delete', style: TextStyle(color: AppColors.error)),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) async {
-                switch (value) {
-                  case 'view':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ClientDetailScreen(client: client),
-                      ),
-                    );
-                    break;
-                  case 'edit':
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ClientFormScreen(client: client),
-                      ),
-                    );
-                    if (result == true) {
-                      _loadClients();
-                    }
-                    break;
-                  case 'delete':
-                    _deleteClient(client);
-                    break;
-                }
-              },
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ClientDetailScreen(client: client),
-                ),
-              );
-            },
           ),
         );
       },
+    );
+  }
+
+  Widget _buildEmptyWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.business_outlined,
+            size: 64,
+            color: AppColors.textSecondary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No clients yet',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap the + button to add your first client',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+          const SizedBox(height: 16),
+          Text('Error: $_error'),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _loadClients,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
     );
   }
 }

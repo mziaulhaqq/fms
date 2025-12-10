@@ -16,6 +16,9 @@ class ClientService {
     }
   }
 
+  // Alias for consistency with other services
+  Future<List<Client>> getAllClients() => getClients();
+
   // Get client by ID
   Future<Client> getClientById(int id) async {
     try {

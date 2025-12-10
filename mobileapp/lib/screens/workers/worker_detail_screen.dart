@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
-import '../../models/expense.dart';
-import '../../services/expense_service.dart';
-import 'expense_form_screen.dart';
+import '../../models/worker.dart';
+import '../../services/worker_service.dart';
+import 'worker_form_screen.dart';
 
-class ExpenseDetailScreen extends StatefulWidget {
-  final Expense expense;
+class WorkerDetailScreen extends StatefulWidget {
+  final Worker worker;
 
-  const ExpenseDetailScreen({super.key, required this.expense});
+  const WorkerDetailScreen({super.key, required this.worker});
 
   @override
-  State<ExpenseDetailScreen> createState() => _ExpenseDetailScreenState();
+  State<WorkerDetailScreen> createState() => _WorkerDetailScreenState();
 }
 
-class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
-  final ExpenseService _expenseService = ExpenseService();
-  late Expense _expense;
+class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
+  final WorkerService _workerService = WorkerService();
+  late Worker _worker;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _expense = widget.expense;
+    _worker = widget.worker;
   }
 
-  Future<void> _deleteExpense() async {
+  Future<void> _deleteWorker() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -34,10 +34,10 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
           children: [
             Icon(Icons.warning_rounded, color: AppColors.error),
             SizedBox(width: 12),
-            Text('Delete Expense'),
+            Text('Delete Worker'),
           ],
         ),
-        content: Text('Are you sure you want to delete this expense of \$${_expense.amount.toStringAsFixed(2)}?'),
+        content: Text('Are you sure you want to delete ${_worker.fullName}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -55,11 +55,11 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
     if (confirmed == true) {
       setState(() => _isLoading = true);
       try {
-        await _expenseService.deleteExpense(_expense.id!);
+        await _workerService.deleteWorker(_worker.id!);
         if (mounted) {
           Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Expense deleted successfully')),
+            const SnackBar(content: Text('Worker deleted successfully')),
           );
         }
       } catch (e) {
@@ -77,30 +77,37 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ExpenseFormScreen(expense: _expense),
+        builder: (_) => WorkerFormScreen(worker: _worker),
       ),
     );
     if (result == true && mounted) {
       try {
-        final updated = await _expenseService.getExpenseById(_expense.id!);
-        setState(() => _expense = updated);
+        final updated = await _workerService.getWorkerById(_worker.id!);
+        setState(() => _worker = updated);
       } catch (e) {
         // Keep existing data
       }
     }
   }
 
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return DateFormat('MMM dd, yyyy').format(date);
-    } catch (e) {
-      return dateStr;
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'on shift':
+        return AppColors.success;
+      case 'on leave':
+        return AppColors.secondary;
+      case 'off duty':
+      default:
+        return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    String initials = _worker.fullName.length >= 2
+        ? _worker.fullName.substring(0, 2).toUpperCase()
+        : _worker.fullName.substring(0, 1).toUpperCase();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -111,7 +118,7 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Expense Details',
+          'Worker Details',
           style: TextStyle(color: Colors.white),
         ),
         actions: [
@@ -121,7 +128,7 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: AppColors.secondary),
-            onPressed: _isLoading ? null : _deleteExpense,
+            onPressed: _isLoading ? null : _deleteWorker,
           ),
         ],
       ),
@@ -131,28 +138,67 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Large amount header
+                  // Header with Photo
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    padding: const EdgeInsets.symmetric(vertical: 32),
                     color: Colors.white,
                     child: Column(
                       children: [
-                        const Text(
-                          'Amount',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: AppColors.primary.withOpacity(0.1),
+                          backgroundImage: _worker.photoUrl != null 
+                              ? NetworkImage(_worker.photoUrl!)
+                              : null,
+                          child: _worker.photoUrl == null
+                              ? Text(
+                                  initials,
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 32,
+                                  ),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _worker.fullName,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '\$${_expense.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.error,
+                        if (_worker.role != null) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            _worker.role!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        // Status Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(_worker.status).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _getStatusColor(_worker.status).withOpacity(0.3),
+                            ),
+                          ),
+                          child: Text(
+                            _worker.status,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: _getStatusColor(_worker.status),
+                            ),
                           ),
                         ),
                       ],
@@ -161,14 +207,14 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
                   
                   const SizedBox(height: 20),
                   
-                  // DETAILS Section
+                  // PERSONAL INFORMATION Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'DETAILS',
+                          'PERSONAL INFORMATION',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -184,13 +230,17 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
                           ),
                           child: Column(
                             children: [
-                              _buildDetailRow('Category', _expense.categoryName ?? 'Uncategorized'),
-                              const Divider(height: 1),
-                              _buildDetailRow('Date', _formatDate(_expense.expenseDate)),
-                              const Divider(height: 1),
-                              _buildDetailRow('Payment Method', 'Cash'), // Placeholder
-                              const Divider(height: 1),
-                              _buildDetailRow('Project/Site', _expense.siteName ?? 'Site #${_expense.siteId}'),
+                              if (_worker.employeeId != null)
+                                _buildDetailRow('Employee ID', _worker.employeeId!),
+                              if (_worker.employeeId != null) const Divider(height: 1),
+                              if (_worker.email != null)
+                                _buildDetailRow('Email', _worker.email!),
+                              if (_worker.email != null) const Divider(height: 1),
+                              if (_worker.phone != null)
+                                _buildDetailRow('Phone', _worker.phone!),
+                              if (_worker.phone != null) const Divider(height: 1),
+                              if (_worker.team != null)
+                                _buildDetailRow('Team', _worker.team!),
                             ],
                           ),
                         ),
@@ -200,53 +250,14 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
                   
                   const SizedBox(height: 24),
                   
-                  // NOTES Section
-                  if (_expense.notes != null && _expense.notes!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'NOTES',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textSecondary,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _expense.notes!,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: AppColors.textPrimary,
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // ATTACHMENTS Section
+                  // EMPLOYMENT DETAILS Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'ATTACHMENTS',
+                          'EMPLOYMENT DETAILS',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -256,27 +267,16 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
                         ),
                         const SizedBox(height: 12),
                         Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
                             children: [
-                              Icon(
-                                Icons.image_outlined,
-                                size: 48,
-                                color: AppColors.textSecondary.withOpacity(0.3),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'No attachments',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary.withOpacity(0.7),
-                                ),
-                              ),
+                              if (_worker.hireDate != null)
+                                _buildDetailRow('Hire Date', _formatDate(_worker.hireDate!)),
+                              if (_worker.hireDate != null) const Divider(height: 1),
+                              _buildDetailRow('Status', _worker.isActive ? 'Active' : 'Inactive'),
                             ],
                           ),
                         ),
@@ -318,5 +318,14 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
   }
 }

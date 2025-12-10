@@ -123,229 +123,209 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     }
   }
 
+  // Group expenses by date
+  Map<String, List<Expense>> _groupExpensesByDate() {
+    final Map<String, List<Expense>> grouped = {};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    for (var expense in _expenses) {
+      final expenseDate = DateTime.parse(expense.expenseDate);
+      final dateOnly = DateTime(
+        expenseDate.year,
+        expenseDate.month,
+        expenseDate.day,
+      );
+
+      String dateKey;
+      if (dateOnly == today) {
+        dateKey = 'Today, ${DateFormat('MMM dd').format(expenseDate)}';
+      } else if (dateOnly == yesterday) {
+        dateKey = 'Yesterday, ${DateFormat('MMM dd').format(expenseDate)}';
+      } else {
+        dateKey = DateFormat('EEEE, MMM dd').format(expenseDate);
+      }
+
+      if (!grouped.containsKey(dateKey)) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey]!.add(expense);
+    }
+
+    return grouped;
+  }
+
+  IconData _getCategoryIcon(String? categoryName) {
+    if (categoryName == null) return Icons.category;
+    
+    final name = categoryName.toLowerCase();
+    if (name.contains('fuel')) return Icons.local_gas_station;
+    if (name.contains('food') || name.contains('meal')) return Icons.restaurant;
+    if (name.contains('tool') || name.contains('equipment')) return Icons.build;
+    if (name.contains('maintenance')) return Icons.handyman;
+    if (name.contains('salary') || name.contains('wage')) return Icons.attach_money;
+    if (name.contains('transport')) return Icons.local_shipping;
+    
+    return Icons.category;
+  }
+
+  Color _getCategoryColor(String? categoryName) {
+    if (categoryName == null) return AppColors.primary;
+    
+    final name = categoryName.toLowerCase();
+    if (name.contains('fuel')) return Colors.blue;
+    if (name.contains('food') || name.contains('meal')) return Colors.orange;
+    if (name.contains('tool') || name.contains('equipment')) return Colors.green;
+    if (name.contains('maintenance')) return Colors.purple;
+    if (name.contains('salary') || name.contains('wage')) return AppColors.success;
+    if (name.contains('transport')) return Colors.teal;
+    
+    return AppColors.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Expenses'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _navigateToForm(),
-            tooltip: 'Add Expense',
-          ),
-        ],
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.secondary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Expense Management',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _navigateToForm(),
+        backgroundColor: AppColors.secondary,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          'New Expense',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: AppColors.error),
-                      const SizedBox(height: 16),
-                      Text('Error: $_error'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadExpenses,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
+              ? _buildErrorWidget()
               : _expenses.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.receipt_long_outlined,
-                              size: 80, color: AppColors.textSecondary),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No expenses found',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () => _navigateToForm(),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add First Expense'),
-                          ),
-                        ],
-                      ),
-                    )
-                  : SmartRefresher(
-                      controller: _refreshController,
-                      onRefresh: _onRefresh,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: _expenses.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final expense = _expenses[index];
-                          return _buildExpenseCard(expense);
-                        },
-                      ),
-                    ),
-      floatingActionButton: _expenses.isNotEmpty
-          ? FloatingActionButton(
-              onPressed: () => _navigateToForm(),
-              child: const Icon(Icons.add),
-            )
-          : null,
+                  ? _buildEmptyWidget()
+                  : _buildExpensesList(),
+    );
+  }
+
+  Widget _buildExpensesList() {
+    final groupedExpenses = _groupExpensesByDate();
+    
+    return SmartRefresher(
+      controller: _refreshController,
+      onRefresh: _onRefresh,
+      child: ListView.builder(
+        padding: const EdgeInsets.only(bottom: 80),
+        itemCount: groupedExpenses.length,
+        itemBuilder: (context, index) {
+          final dateKey = groupedExpenses.keys.elementAt(index);
+          final expenses = groupedExpenses[dateKey]!;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Date header
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                child: Text(
+                  dateKey,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              
+              // Expense items for this date
+              ...expenses.map((expense) => _buildExpenseCard(expense)),
+            ],
+          );
+        },
+      ),
     );
   }
 
   Widget _buildExpenseCard(Expense expense) {
-    final dateStr = _formatDate(expense.expenseDate);
+    final categoryIcon = _getCategoryIcon(expense.categoryName);
+    final categoryColor = _getCategoryColor(expense.categoryName);
     
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () => _navigateToDetail(expense),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _navigateToDetail(expense),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              // Icon
+              // Category icon
               Container(
-                padding: const EdgeInsets.all(12),
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: categoryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.receipt_long,
-                  color: AppColors.error,
-                  size: 28,
+                child: Icon(
+                  categoryIcon,
+                  color: categoryColor,
+                  size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              // Expense info
+              
+              // Expense details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            expense.categoryName ?? 'Uncategorized',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '\$${expense.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      expense.categoryName ?? 'Uncategorized',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on,
-                            size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            expense.siteName ?? 'Site #${expense.siteId}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ),
-                        Icon(Icons.calendar_today,
-                            size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
-                        Text(
-                          dateStr,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
                     if (expense.notes != null && expense.notes!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6.0),
-                        child: Text(
-                          expense.notes!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        expense.notes!,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                   ],
                 ),
               ),
-              // Menu button
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              
+              // Amount in red
+              Text(
+                '-\$${expense.amount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.error,
                 ),
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    _navigateToForm(expense);
-                  } else if (value == 'delete') {
-                    _deleteExpense(expense);
-                  } else if (value == 'view') {
-                    _navigateToDetail(expense);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'view',
-                    child: Row(
-                      children: [
-                        Icon(Icons.visibility, size: 18, color: AppColors.primary),
-                        SizedBox(width: 12),
-                        Text('View Details'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit, size: 18, color: AppColors.secondary),
-                        SizedBox(width: 12),
-                        Text('Edit'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, size: 18, color: AppColors.error),
-                        SizedBox(width: 12),
-                        Text('Delete'),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
@@ -354,13 +334,52 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     );
   }
 
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return DateFormat('MMM dd, yyyy').format(date);
-    } catch (e) {
-      return dateStr;
-    }
+  Widget _buildEmptyWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: AppColors.textSecondary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No expenses yet',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap the + button to add your first expense',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+          const SizedBox(height: 16),
+          Text('Error: $_error'),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _loadExpenses,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

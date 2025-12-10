@@ -8,6 +8,7 @@ import '../expenses/expenses_list_screen.dart';
 import '../mining_sites/mining_sites_list_screen.dart';
 import '../equipment/equipment_list_screen.dart';
 import '../income/income_list_screen.dart';
+import '../workers/workers_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -173,105 +174,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Key Metrics Section
               const Text(
-                'Welcome back!',
+                'Key Metrics',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Here\'s what\'s happening today',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              
-              // Summary Cards
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSummaryCard(
-                      'Clients',
-                      '0',
-                      Icons.business,
-                      AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildSummaryCard(
-                      'Expenses',
-                      '0',
-                      Icons.money_off,
-                      AppColors.error,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSummaryCard(
-                      'Categories',
-                      '0',
-                      Icons.category,
-                      AppColors.secondary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildSummaryCard(
-                      'Sites',
-                      '0',
-                      Icons.location_on,
-                      AppColors.info,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              
-              // Quick Actions
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
+              
+              // Metric Cards
+              _buildMetricCard(
+                'Total Expenses',
+                '\$0.00',
+                'MTD: \$0.00',
+                'Today: \$0.00',
+                Icons.trending_down,
+                AppColors.error,
+              ),
+              const SizedBox(height: 12),
+              _buildMetricCard(
+                'Total Income',
+                '\$0.00',
+                'MTD: \$0.00',
+                'Today: \$0.00',
+                Icons.trending_up,
+                AppColors.success,
+              ),
+              const SizedBox(height: 12),
+              _buildMetricCard(
+                'Total Production',
+                '0 tons',
+                'MTD: 0 tons',
+                'Today: 0 tons',
+                Icons.business_center,
+                AppColors.secondary,
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Quick Access Section
+              const Text(
+                'Quick Access',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // 3x3 Grid
               GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: 3,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
+                childAspectRatio: 0.85,
                 children: [
-                  _buildQuickAction(
-                    'Manage Clients',
-                    Icons.business,
+                  _buildQuickAccessButton(
+                    'Expense\nCategories',
+                    Icons.category,
                     AppColors.primary,
                     () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const ClientsListScreen(),
+                        builder: (_) => const ExpenseCategoriesListScreen(),
                       ),
                     ),
                   ),
-                  _buildQuickAction(
-                    'Add Expense',
-                    Icons.add_shopping_cart,
+                  _buildQuickAccessButton(
+                    'Log\nExpense',
+                    Icons.receipt_long,
                     AppColors.error,
                     () => Navigator.push(
                       context,
@@ -280,21 +261,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
-                  _buildQuickAction(
-                    'Categories',
-                    Icons.category,
+                  _buildQuickAccessButton(
+                    'Income\nRecords',
+                    Icons.attach_money,
+                    AppColors.success,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const IncomeListScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildQuickAccessButton(
+                    'Equipment',
+                    Icons.build,
+                    Colors.orange,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const EquipmentListScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildQuickAccessButton(
+                    'Production\nData',
+                    Icons.analytics,
+                    AppColors.info,
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Coming soon!')),
+                      );
+                    },
+                  ),
+                  _buildQuickAccessButton(
+                    'Clients',
+                    Icons.business,
                     AppColors.secondary,
                     () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const ExpenseCategoriesListScreen(),
+                        builder: (_) => const ClientsListScreen(),
                       ),
                     ),
                   ),
-                  _buildQuickAction(
-                    'Reports',
-                    Icons.bar_chart,
-                    AppColors.info,
+                  _buildQuickAccessButton(
+                    'Workers',
+                    Icons.people,
+                    Colors.purple,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WorkersListScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildQuickAccessButton(
+                    'Users',
+                    Icons.person,
+                    Colors.teal,
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Coming soon!')),
+                      );
+                    },
+                  ),
+                  _buildQuickAccessButton(
+                    'User\nRoles',
+                    Icons.admin_panel_settings,
+                    Colors.indigo,
                     () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Coming soon!')),
@@ -310,17 +344,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCard(
+  Widget _buildMetricCard(
     String title,
     String value,
+    String mtd,
+    String today,
     IconData icon,
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow,
@@ -332,30 +368,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 12),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           Text(
             value,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  mtd,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              Text(
+                today,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickAction(
+  Widget _buildQuickAccessButton(
     String title,
     IconData icon,
     Color color,
@@ -363,15 +432,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: AppColors.shadow,
-              blurRadius: 8,
+              blurRadius: 6,
               offset: const Offset(0, 2),
             ),
           ],
@@ -380,22 +449,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 32),
+              child: Icon(icon, color: color, size: 28),
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),

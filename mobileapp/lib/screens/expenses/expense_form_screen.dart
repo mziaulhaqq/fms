@@ -149,217 +149,291 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Edit Expense' : 'New Expense'),
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: AppColors.secondary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          _isEditMode ? 'Edit Expense' : 'New Expense',
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       body: _isLoadingData
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(20.0),
                 children: [
-                  // Header
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.error.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                  // EXPENSE DETAILS Section
+                  const Text(
+                    'EXPENSE DETAILS',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        // Category Dropdown
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: DropdownButtonFormField<int>(
+                            value: _selectedCategoryId,
+                            decoration: const InputDecoration(
+                              labelText: 'Category',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             ),
-                            child: const Icon(
-                              Icons.receipt_long,
-                              size: 32,
-                              color: AppColors.error,
-                            ),
+                            items: _categories.map((category) {
+                              return DropdownMenuItem(
+                                value: category.id,
+                                child: Text(category.name),
+                              );
+                            }).toList(),
+                            onChanged: _isLoading ? null : (value) {
+                              setState(() => _selectedCategoryId = value);
+                            },
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _isEditMode ? 'Edit Expense' : 'New Expense',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                        ),
+                        
+                        const Divider(height: 1),
+                        
+                        // Amount Field
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            controller: _amountController,
+                            decoration: const InputDecoration(
+                              labelText: 'Amount',
+                              prefixText: '\$ ',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Amount is required';
+                              }
+                              if (double.tryParse(value) == null) {
+                                return 'Please enter a valid number';
+                              }
+                              if (double.parse(value) <= 0) {
+                                return 'Amount must be greater than 0';
+                              }
+                              return null;
+                            },
+                            enabled: !_isLoading,
+                          ),
+                        ),
+                        
+                        const Divider(height: 1),
+                        
+                        // Date Picker
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: InkWell(
+                            onTap: _isLoading ? null : _selectDate,
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Date',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    DateFormat('MMM dd, yyyy').format(_selectedDate),
+                                    style: const TextStyle(fontSize: 16),
                                   ),
-                                ),
-                                Text(
-                                  _isEditMode ? 'Update expense details' : 'Record a new expense',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
+                                  const Icon(Icons.calendar_today, size: 20, color: AppColors.textSecondary),
+                                ],
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Mining Site Dropdown
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: DropdownButtonFormField<int>(
-                        value: _selectedSiteId,
-                        decoration: const InputDecoration(
-                          labelText: 'Mining Site *',
-                          prefixIcon: Icon(Icons.location_on, color: AppColors.secondary),
-                          border: OutlineInputBorder(),
                         ),
-                        items: _sites.map((site) {
-                          return DropdownMenuItem(
-                            value: site.id,
-                            child: Text(site.name),
-                          );
-                        }).toList(),
-                        onChanged: _isLoading ? null : (value) {
-                          setState(() => _selectedSiteId = value);
-                        },
-                        validator: (value) => value == null ? 'Please select a site' : null,
-                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  
+                  const SizedBox(height: 24),
 
-                  // Category Dropdown
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: DropdownButtonFormField<int>(
-                        value: _selectedCategoryId,
-                        decoration: const InputDecoration(
-                          labelText: 'Category (Optional)',
-                          prefixIcon: Icon(Icons.category, color: AppColors.secondary),
-                          border: OutlineInputBorder(),
-                        ),
-                        items: _categories.map((category) {
-                          return DropdownMenuItem(
-                            value: category.id,
-                            child: Text(category.name),
-                          );
-                        }).toList(),
-                        onChanged: _isLoading ? null : (value) {
-                          setState(() => _selectedCategoryId = value);
-                        },
-                      ),
+                  // ADDITIONAL INFORMATION Section
+                  const Text(
+                    'ADDITIONAL INFORMATION',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Date Picker
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: InkWell(
-                        onTap: _isLoading ? null : _selectDate,
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Expense Date *',
-                            prefixIcon: Icon(Icons.calendar_today, color: AppColors.secondary),
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Text(
-                            DateFormat('MMM dd, yyyy').format(_selectedDate),
-                            style: const TextStyle(fontSize: 16),
+                  const SizedBox(height: 12),
+                  
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        // Mining Site Dropdown
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: DropdownButtonFormField<int>(
+                            value: _selectedSiteId,
+                            decoration: const InputDecoration(
+                              labelText: 'Project/Site',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            items: _sites.map((site) {
+                              return DropdownMenuItem(
+                                value: site.id,
+                                child: Text(site.name),
+                              );
+                            }).toList(),
+                            onChanged: _isLoading ? null : (value) {
+                              setState(() => _selectedSiteId = value);
+                            },
+                            validator: (value) => value == null ? 'Please select a site' : null,
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Amount Field
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextFormField(
-                        controller: _amountController,
-                        decoration: const InputDecoration(
-                          labelText: 'Amount *',
-                          prefixIcon: Icon(Icons.attach_money, color: AppColors.secondary),
-                          border: OutlineInputBorder(),
-                          hintText: '0.00',
+                        
+                        const Divider(height: 1),
+                        
+                        // Description/Notes Field
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            controller: _notesController,
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              hintText: 'Add description (optional)',
+                            ),
+                            maxLines: 3,
+                            enabled: !_isLoading,
+                          ),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Amount is required';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Please enter a valid number';
-                          }
-                          if (double.parse(value) <= 0) {
-                            return 'Amount must be greater than 0';
-                          }
-                          return null;
-                        },
-                        enabled: !_isLoading,
-                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  
+                  const SizedBox(height: 24),
 
-                  // Notes Field
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextFormField(
-                        controller: _notesController,
-                        decoration: const InputDecoration(
-                          labelText: 'Notes (Optional)',
-                          prefixIcon: Icon(Icons.note, color: AppColors.secondary),
-                          border: OutlineInputBorder(),
-                          hintText: 'Add any additional notes',
-                        ),
-                        maxLines: 3,
-                        enabled: !_isLoading,
-                      ),
+                  // RECEIPTS Section
+                  const Text(
+                    'RECEIPTS',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.5,
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: AppColors.textSecondary.withOpacity(0.2),
+                              style: BorderStyle.solid,
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.cloud_upload_outlined,
+                                size: 40,
+                                color: AppColors.textSecondary.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Add Receipt',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'No receipt added yet',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textSecondary.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
                   const SizedBox(height: 32),
 
-                  // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: _isLoading ? null : () => Navigator.pop(context),
-                          child: const Text('Cancel'),
+                  // Save Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _saveExpense,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _saveExpense,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: AppColors.error,
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : Text(_isEditMode ? 'Update' : 'Create'),
-                        ),
-                      ),
-                    ],
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(
+                              _isEditMode ? 'Update Expense' : 'Save Expense',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
                   ),
+                  
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
