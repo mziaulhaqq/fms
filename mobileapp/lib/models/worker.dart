@@ -6,10 +6,11 @@ class Worker {
   final String? team;
   final String? phone;
   final String? email;
-  final String status; // 'On Shift', 'Off Duty', 'On Leave'
+  final String status; // 'active', 'inactive'
   final bool isActive;
   final String? hireDate;
   final String? photoUrl;
+  final String? supervisedBy;
 
   Worker({
     this.id,
@@ -19,10 +20,11 @@ class Worker {
     this.team,
     this.phone,
     this.email,
-    this.status = 'Off Duty',
+    this.status = 'active',
     this.isActive = true,
     this.hireDate,
     this.photoUrl,
+    this.supervisedBy,
   });
 
   factory Worker.fromJson(Map<String, dynamic> json) {
@@ -34,10 +36,11 @@ class Worker {
       team: json['team'] as String?,
       phone: json['phone'] as String?,
       email: json['email'] as String?,
-      status: json['status'] as String? ?? 'Off Duty',
+      status: json['status'] as String? ?? 'active',
       isActive: json['isActive'] as bool? ?? json['is_active'] as bool? ?? true,
       hireDate: json['hireDate'] as String? ?? json['hire_date'] as String?,
       photoUrl: json['photoUrl'] as String? ?? json['photo_url'] as String?,
+      supervisedBy: json['supervisedBy'] as String? ?? json['supervised_by'] as String?,
     );
   }
 
@@ -54,6 +57,7 @@ class Worker {
       'isActive': isActive,
       'hireDate': hireDate,
       'photoUrl': photoUrl,
+      'supervisedBy': supervisedBy,
     };
   }
 
@@ -69,6 +73,7 @@ class Worker {
       'isActive': isActive,
       'hireDate': hireDate,
       'photoUrl': photoUrl,
+      'supervisedBy': supervisedBy,
     };
   }
 }

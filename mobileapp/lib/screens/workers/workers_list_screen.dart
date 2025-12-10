@@ -86,11 +86,10 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'on shift':
+      case 'active':
         return AppColors.success;
-      case 'on leave':
-        return AppColors.secondary;
-      case 'off duty':
+      case 'inactive':
+        return Colors.grey;
       default:
         return Colors.grey;
     }
@@ -234,10 +233,13 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
       itemCount: _filteredWorkers.length,
       itemBuilder: (context, index) {
         final worker = _filteredWorkers[index];
-        // Get first 2 letters for avatar
-        String initials = worker.fullName.length >= 2
-            ? worker.fullName.substring(0, 2).toUpperCase()
-            : worker.fullName.substring(0, 1).toUpperCase();
+        // Get first 2 letters for avatar with null safety
+        String initials = 'W';
+        if (worker.fullName.isNotEmpty) {
+          initials = worker.fullName.length >= 2
+              ? worker.fullName.substring(0, 2).toUpperCase()
+              : worker.fullName.substring(0, 1).toUpperCase();
+        }
         
         return Card(
           margin: const EdgeInsets.only(bottom: 10),

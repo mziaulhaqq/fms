@@ -23,15 +23,16 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
   late TextEditingController _teamController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
+  late TextEditingController _supervisedByController;
   
   DateTime _selectedHireDate = DateTime.now();
-  String _selectedStatus = 'Off Duty';
+  String _selectedStatus = 'active';
   bool _isActive = true;
   
   bool _isLoading = false;
   bool get _isEditMode => widget.worker != null;
 
-  final List<String> _statusOptions = ['On Shift', 'Off Duty', 'On Leave'];
+  final List<String> _statusOptions = ['active', 'inactive'];
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     _teamController = TextEditingController(text: widget.worker?.team ?? '');
     _phoneController = TextEditingController(text: widget.worker?.phone ?? '');
     _emailController = TextEditingController(text: widget.worker?.email ?? '');
+    _supervisedByController = TextEditingController(text: widget.worker?.supervisedBy ?? '');
     
     if (_isEditMode) {
       _selectedStatus = widget.worker!.status;
@@ -95,6 +97,9 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
         status: _selectedStatus,
         isActive: _isActive,
         hireDate: _selectedHireDate.toIso8601String().split('T')[0],
+        supervisedBy: _supervisedByController.text.trim().isEmpty 
+            ? null 
+            : _supervisedByController.text.trim(),
       );
 
       if (_isEditMode) {
@@ -296,6 +301,22 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
                   
                   const Divider(height: 1),
                   
+                  // Supervised By
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      controller: _supervisedByController,
+                      decoration: const InputDecoration(
+                        labelText: 'Supervised By',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                  ),
+                  
+                  const Divider(height: 1),
+                  
                   // Status Dropdown
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -423,6 +444,7 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     _teamController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _supervisedByController.dispose();
     super.dispose();
   }
 }

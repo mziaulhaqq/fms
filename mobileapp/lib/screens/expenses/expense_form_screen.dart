@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
 import '../../core/constants/app_colors.dart';
 import '../../models/expense.dart';
 import '../../models/mining_site.dart';
@@ -191,6 +192,17 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Convert images to base64 strings
+      List<String>? base64Images;
+      if (_selectedImages.isNotEmpty) {
+        base64Images = [];
+        for (var image in _selectedImages) {
+          final bytes = await File(image.path).readAsBytes();
+          final base64String = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+          base64Images.add(base64String);
+        }
+      }
+
       final expense = Expense(
         id: widget.expense?.id,
         siteId: _selectedSiteId!,
@@ -200,6 +212,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
+        evidencePhotos: base64Images,
       );
 
       if (_isEditMode) {

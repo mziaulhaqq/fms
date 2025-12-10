@@ -49,7 +49,9 @@ class PartnerDetailScreen extends StatelessWidget {
                       radius: 30,
                       backgroundColor: AppColors.success,
                       child: Text(
-                        partner.name.substring(0, 1).toUpperCase(),
+                        partner.name.isNotEmpty 
+                            ? partner.name.substring(0, 1).toUpperCase()
+                            : 'P',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,

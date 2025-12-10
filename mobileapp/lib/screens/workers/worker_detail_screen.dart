@@ -92,11 +92,10 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'on shift':
+      case 'active':
         return AppColors.success;
-      case 'on leave':
-        return AppColors.secondary;
-      case 'off duty':
+      case 'inactive':
+        return Colors.grey;
       default:
         return Colors.grey;
     }
@@ -104,9 +103,13 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String initials = _worker.fullName.length >= 2
-        ? _worker.fullName.substring(0, 2).toUpperCase()
-        : _worker.fullName.substring(0, 1).toUpperCase();
+    // Get initials with null safety
+    String initials = 'W';
+    if (_worker.fullName.isNotEmpty) {
+      initials = _worker.fullName.length >= 2
+          ? _worker.fullName.substring(0, 2).toUpperCase()
+          : _worker.fullName.substring(0, 1).toUpperCase();
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -241,6 +244,9 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                               if (_worker.phone != null) const Divider(height: 1),
                               if (_worker.team != null)
                                 _buildDetailRow('Team', _worker.team!),
+                              if (_worker.team != null) const Divider(height: 1),
+                              if (_worker.supervisedBy != null)
+                                _buildDetailRow('Supervised By', _worker.supervisedBy!),
                             ],
                           ),
                         ),

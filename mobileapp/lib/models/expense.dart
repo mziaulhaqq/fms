@@ -8,6 +8,7 @@ class Expense {
   final int? laborCostId;
   final String? createdAt;
   final String? updatedAt;
+  final List<String>? evidencePhotos;
 
   // Navigation properties (for display)
   final String? siteName;
@@ -23,6 +24,7 @@ class Expense {
     this.laborCostId,
     this.createdAt,
     this.updatedAt,
+    this.evidencePhotos,
     this.siteName,
     this.categoryName,
   });
@@ -38,6 +40,11 @@ class Expense {
       laborCostId: json['laborCostId'] ?? json['labor_cost_id'],
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],
+      evidencePhotos: json['evidencePhotos'] != null
+          ? List<String>.from(json['evidencePhotos'])
+          : (json['evidence_photos'] != null
+              ? List<String>.from(json['evidence_photos'])
+              : null),
       siteName: json['site']?['name'] ?? json['siteName'],
       categoryName: json['category']?['name'] ?? json['categoryName'],
     );
@@ -71,6 +78,8 @@ class Expense {
       'amount': amount,
       if (notes != null && notes!.isNotEmpty) 'notes': notes,
       if (laborCostId != null) 'laborCostId': laborCostId,
+      if (evidencePhotos != null && evidencePhotos!.isNotEmpty) 
+        'evidencePhotos': evidencePhotos,
     };
   }
 }

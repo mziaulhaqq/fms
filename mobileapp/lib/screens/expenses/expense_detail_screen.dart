@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 import '../../core/constants/app_colors.dart';
 import '../../models/expense.dart';
 import '../../services/expense_service.dart';
@@ -262,23 +264,48 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.image_outlined,
-                                size: 48,
-                                color: AppColors.textSecondary.withOpacity(0.3),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'No attachments',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary.withOpacity(0.7),
+                          child: widget.expense.evidencePhotos != null && 
+                                 widget.expense.evidencePhotos!.isNotEmpty
+                              ? Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: widget.expense.evidencePhotos!
+                                      .map((base64Image) => ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: Image.memory(
+                                              _decodeBase64Image(base64Image),
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  width: 100,
+                                                  height: 100,
+                                                  color: Colors.grey[300],
+                                                  child: const Icon(Icons.broken_image),
+                                                );
+                                              },
+                                            ),
+                                          ))
+                                      .toList(),
+                                )
+                              : Column(
+                                  children: [
+                                    Icon(
+                                      Icons.image_outlined,
+                                      size: 48,
+                                      color: AppColors.textSecondary.withOpacity(0.3),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'No attachments',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.textSecondary.withOpacity(0.7),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
                         ),
                       ],
                     ),
@@ -318,5 +345,14 @@ class _ExpenseDetailScreenState extends State<ExpenseDetailScreen> {
         ],
       ),
     );
+  }
+
+  Uint8List _decodeBase64Image(String base64String) {
+    // Remove data:image/jpeg;base64, prefix if present
+    String cleanBase64 = base64String;
+    if (base64String.contains('base64,')) {
+      cleanBase64 = base64String.split('base64,')[1];
+    }
+    return base64Decode(cleanBase64);
   }
 }

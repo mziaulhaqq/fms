@@ -49,7 +49,9 @@ class ClientDetailScreen extends StatelessWidget {
                       radius: 32,
                       backgroundColor: AppColors.primary,
                       child: Text(
-                        client.businessName.substring(0, 1).toUpperCase(),
+                        client.businessName.isNotEmpty 
+                            ? client.businessName.substring(0, 1).toUpperCase()
+                            : 'C',
                         style: const TextStyle(
                           color: AppColors.textOnPrimary,
                           fontSize: 28,

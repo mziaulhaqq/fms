@@ -158,10 +158,13 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
       itemCount: _filteredClients.length,
       itemBuilder: (context, index) {
         final client = _filteredClients[index];
-        // Get first 2 letters for avatar
-        String initials = client.businessName.length >= 2
-            ? client.businessName.substring(0, 2).toUpperCase()
-            : client.businessName.substring(0, 1).toUpperCase();
+        // Get first 2 letters for avatar with null safety
+        String initials = 'C';
+        if (client.businessName.isNotEmpty) {
+          initials = client.businessName.length >= 2
+              ? client.businessName.substring(0, 2).toUpperCase()
+              : client.businessName.substring(0, 1).toUpperCase();
+        }
         
         return Card(
           margin: const EdgeInsets.only(bottom: 10),
