@@ -17,9 +17,7 @@ export class LaborCostWorkersService {
   }
 
   async findAll(): Promise<LaborCostWorkers[]> {
-    return await this.repository.find({
-      order: { createdAt: 'DESC' },
-    });
+    return await this.repository.find();
   }
 
   async findOne(id: number): Promise<LaborCostWorkers> {

@@ -17,9 +17,7 @@ export class SiteSupervisorsService {
   }
 
   async findAll(): Promise<SiteSupervisors[]> {
-    return await this.repository.find({
-      order: { createdAt: 'DESC' },
-    });
+    return await this.repository.find();
   }
 
   async findOne(id: number): Promise<SiteSupervisors> {
