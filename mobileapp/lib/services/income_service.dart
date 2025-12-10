@@ -5,7 +5,7 @@ import '../models/income.dart';
 class IncomeService {
   final ApiClient _apiClient = ApiClient();
 
-  Future<List<Income>> getIncomes() async {
+  Future<List<Income>> getAllIncome() async {
     try {
       final response = await _apiClient.get(ApiConfig.income);
       final List<dynamic> data = response.data;

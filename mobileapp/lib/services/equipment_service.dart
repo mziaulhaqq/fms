@@ -5,7 +5,7 @@ import '../models/equipment.dart';
 class EquipmentService {
   final ApiClient _apiClient = ApiClient();
 
-  Future<List<EquipmentModel>> getEquipment() async {
+  Future<List<EquipmentModel>> getAllEquipment() async {
     try {
       final response = await _apiClient.get(ApiConfig.equipment);
       final List<dynamic> data = response.data;

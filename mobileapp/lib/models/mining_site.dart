@@ -1,7 +1,7 @@
 class MiningSite {
   final int? id;
   final String name;
-  final String? location;
+  final String location;
   final String? description;
   final bool isActive;
   final String? createdAt;
@@ -10,7 +10,7 @@ class MiningSite {
   MiningSite({
     this.id,
     required this.name,
-    this.location,
+    required this.location,
     this.description,
     this.isActive = true,
     this.createdAt,
@@ -21,7 +21,7 @@ class MiningSite {
     return MiningSite(
       id: json['id'],
       name: json['name'] ?? '',
-      location: json['location'],
+      location: json['location'] ?? '',
       description: json['description'],
       isActive: json['isActive'] ?? json['is_active'] ?? true,
       createdAt: json['createdAt'] ?? json['created_at'],
@@ -33,7 +33,7 @@ class MiningSite {
     return {
       if (id != null) 'id': id,
       'name': name,
-      if (location != null && location!.isNotEmpty) 'location': location,
+      'location': location,
       if (description != null && description!.isNotEmpty) 'description': description,
       'isActive': isActive,
     };
@@ -42,7 +42,7 @@ class MiningSite {
   Map<String, dynamic> toJsonRequest() {
     return {
       'name': name,
-      if (location != null && location!.isNotEmpty) 'location': location,
+      'location': location,
       if (description != null && description!.isNotEmpty) 'description': description,
     };
   }

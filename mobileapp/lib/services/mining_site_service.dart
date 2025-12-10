@@ -5,7 +5,7 @@ import '../models/mining_site.dart';
 class MiningSiteService {
   final ApiClient _apiClient = ApiClient();
 
-  Future<List<MiningSite>> getMiningSites() async {
+  Future<List<MiningSite>> getAllMiningSites() async {
     try {
       final response = await _apiClient.get(ApiConfig.miningSites);
       final List<dynamic> data = response.data;

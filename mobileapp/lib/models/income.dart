@@ -6,7 +6,7 @@ class Income {
   final String driverName;
   final String? driverPhone;
   final double coalPrice;
-  final double? companyCommission;
+  final double companyCommission;
   final String? destinationFactory;
   final double? netAmount;
   final String? paymentStatus;
@@ -24,7 +24,7 @@ class Income {
     required this.driverName,
     this.driverPhone,
     required this.coalPrice,
-    this.companyCommission,
+    required this.companyCommission,
     this.destinationFactory,
     this.netAmount,
     this.paymentStatus,
@@ -42,7 +42,7 @@ class Income {
       driverName: json['driverName'] ?? json['driver_name'] ?? '',
       driverPhone: json['driverPhone'] ?? json['driver_phone'],
       coalPrice: _parseDouble(json['coalPrice'] ?? json['coal_price']) ?? 0.0,
-      companyCommission: _parseDouble(json['companyCommission'] ?? json['company_commission']),
+      companyCommission: _parseDouble(json['companyCommission'] ?? json['company_commission']) ?? 0.0,
       destinationFactory: json['destinationFactory'] ?? json['destination_factory'],
       netAmount: _parseDouble(json['netAmount'] ?? json['net_amount']),
       paymentStatus: json['paymentStatus'] ?? json['payment_status'],
@@ -69,7 +69,7 @@ class Income {
       'driverName': driverName,
       if (driverPhone != null && driverPhone!.isNotEmpty) 'driverPhone': driverPhone,
       'coalPrice': coalPrice,
-      if (companyCommission != null) 'companyCommission': companyCommission,
+      'companyCommission': companyCommission,
       if (destinationFactory != null && destinationFactory!.isNotEmpty) 'destinationFactory': destinationFactory,
       if (netAmount != null) 'netAmount': netAmount,
       if (paymentStatus != null && paymentStatus!.isNotEmpty) 'paymentStatus': paymentStatus,
@@ -84,7 +84,7 @@ class Income {
       'driverName': driverName,
       if (driverPhone != null && driverPhone!.isNotEmpty) 'driverPhone': driverPhone,
       'coalPrice': coalPrice,
-      if (companyCommission != null) 'companyCommission': companyCommission,
+      'companyCommission': companyCommission,
       if (destinationFactory != null && destinationFactory!.isNotEmpty) 'destinationFactory': destinationFactory,
       if (netAmount != null) 'netAmount': netAmount,
       if (paymentStatus != null && paymentStatus!.isNotEmpty) 'paymentStatus': paymentStatus,

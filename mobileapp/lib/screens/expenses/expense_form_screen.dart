@@ -61,7 +61,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
 
   Future<void> _loadData() async {
     try {
-      final sites = await _siteService.getMiningSites();
+      final sites = await _siteService.getAllMiningSites();
       final categories = await _categoryService.getExpenseCategories();
       setState(() {
         _sites = sites;
