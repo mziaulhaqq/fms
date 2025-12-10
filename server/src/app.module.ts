@@ -24,6 +24,8 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { UserAssignedRolesModule } from './modules/user-assigned-roles/user-assigned-roles.module';
 // import { EquipmentsModule } from './modules/equipment/equipment.module';
 // import { ProductionsModule } from './modules/production/production.module';
+import { EquipmentModule } from './modules/equipment/equipment.module';
+import { ProductionModule } from './modules/production/production.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { UserAssignedRolesModule } from './modules/user-assigned-roles/user-assi
     UsersModule,
     UserRolesModule,
     UserAssignedRolesModule,
+    EquipmentModule,
+    ProductionModule,
     // EquipmentsModule,
     // ProductionsModule,
   ],

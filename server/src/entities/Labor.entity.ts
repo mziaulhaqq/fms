@@ -14,7 +14,7 @@ import { LaborCostWorkers } from "./LaborCostWorkers.entity";
 @Index("idx_labor_cnic", ["cnic"], {})
 @Index("labor_pkey", ["id"], { unique: true })
 @Index("idx_labor_site", ["siteId"], {})
-@Entity("labor", { schema: "coal_mining" })
+@Entity("workers", { schema: "coal_mining" })
 export class Labor {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;

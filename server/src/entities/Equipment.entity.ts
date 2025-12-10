@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { MiningSites } from "./MiningSites";
+import { MiningSites } from "./MiningSites.entity";
 
 @Entity("equipment", { schema: "coal_mining" })
 export class Equipment {
@@ -62,7 +62,7 @@ export class Equipment {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => MiningSites, (miningSites) => miningSites.equipment, {
+  @ManyToOne(() => MiningSites, {
     onDelete: "SET NULL",
   })
   @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])
