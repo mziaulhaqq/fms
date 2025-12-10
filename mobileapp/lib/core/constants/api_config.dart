@@ -10,6 +10,13 @@ class ApiConfig {
   static const String miningSites = '/mining-sites';
   static const String income = '/income';
   static const String workers = '/workers';
+  static const String partners = '/partners';
+  static const String partnerPayouts = '/partner-payouts';
+  static const String production = '/production';
+  static const String profitDistributions = '/profit-distributions';
+  static const String siteSupervisors = '/site-supervisors';
+  static const String truckDeliveries = '/truck-deliveries';
+  static const String laborCosts = '/labor-costs';
   
   // Timeouts
   static const int connectionTimeout = 30000; // 30 seconds

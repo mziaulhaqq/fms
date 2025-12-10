@@ -9,6 +9,10 @@ import '../mining_sites/mining_sites_list_screen.dart';
 import '../equipment/equipment_list_screen.dart';
 import '../income/income_list_screen.dart';
 import '../workers/workers_list_screen.dart';
+import '../partners/partners_list_screen.dart';
+import '../production/production_list_screen.dart';
+import '../truck_deliveries/truck_deliveries_list_screen.dart';
+import '../profit_distributions/profit_distributions_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -158,6 +162,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.handshake, color: AppColors.primary),
+              title: const Text('Partners'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PartnersListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people, color: AppColors.primary),
+              title: const Text('Workers'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WorkersListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.local_shipping, color: AppColors.primary),
+              title: const Text('Truck Deliveries'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TruckDeliveriesListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.analytics, color: AppColors.primary),
+              title: const Text('Production'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProductionListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.pie_chart, color: AppColors.primary),
+              title: const Text('Profit Distributions'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfitDistributionsListScreen(),
+                  ),
+                );
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: AppColors.error),
@@ -287,11 +356,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Production\nData',
                     Icons.analytics,
                     AppColors.info,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Coming soon!')),
-                      );
-                    },
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductionListScreen(),
+                      ),
+                    ),
                   ),
                   _buildQuickAccessButton(
                     'Clients',
@@ -301,6 +371,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const ClientsListScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildQuickAccessButton(
+                    'Partners',
+                    Icons.handshake,
+                    AppColors.success,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PartnersListScreen(),
                       ),
                     ),
                   ),
@@ -316,14 +397,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   _buildQuickAccessButton(
-                    'Users',
-                    Icons.person,
-                    Colors.teal,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Coming soon!')),
-                      );
-                    },
+                    'Truck\nDeliveries',
+                    Icons.local_shipping,
+                    Colors.deepOrange,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TruckDeliveriesListScreen(),
+                      ),
+                    ),
                   ),
                   _buildQuickAccessButton(
                     'User\nRoles',
