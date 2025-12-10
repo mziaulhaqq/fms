@@ -22,15 +22,18 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('REQUEST[${options.method}] => PATH: ${options.path}');
+          print('REQUEST DATA: ${options.data}');
           return handler.next(options);
         },
         onResponse: (response, handler) {
           print('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+          print('RESPONSE DATA: ${response.data}');
           return handler.next(response);
         },
         onError: (DioException e, handler) {
           print('ERROR[${e.response?.statusCode}] => PATH: ${e.requestOptions.path}');
           print('ERROR MESSAGE: ${e.message}');
+          print('ERROR RESPONSE: ${e.response?.data}');
           return handler.next(e);
         },
       ),
@@ -88,7 +91,28 @@ class ApiClient {
         errorMessage = 'Connection timeout. Please check your internet connection.';
         break;
       case DioExceptionType.badResponse:
-        errorMessage = 'Server error: ${error.response?.statusCode}';
+        // Try to extract detailed error message from response
+        if (error.response?.data != null) {
+          if (error.response!.data is Map) {
+            final data = error.response!.data as Map;
+            // Check for NestJS validation error format
+            if (data['message'] != null) {
+              if (data['message'] is List) {
+                errorMessage = (data['message'] as List).join(', ');
+              } else {
+                errorMessage = data['message'].toString();
+              }
+            } else if (data['error'] != null) {
+              errorMessage = data['error'].toString();
+            } else {
+              errorMessage = 'Server error: ${error.response?.statusCode}';
+            }
+          } else {
+            errorMessage = error.response!.data.toString();
+          }
+        } else {
+          errorMessage = 'Server error: ${error.response?.statusCode}';
+        }
         break;
       case DioExceptionType.cancel:
         errorMessage = 'Request cancelled';

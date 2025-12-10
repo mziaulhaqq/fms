@@ -154,7 +154,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
 
   Widget _buildClientList() {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       itemCount: _filteredClients.length,
       itemBuilder: (context, index) {
         final client = _filteredClients[index];
@@ -164,33 +164,33 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
             : client.businessName.substring(0, 1).toUpperCase();
         
         return Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          elevation: 2,
+          margin: const EdgeInsets.only(bottom: 10),
+          elevation: 1,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
-          color: const Color(0xFF3D5467), // Darker card background like screenshot
+          color: const Color(0xFF3D5467),
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             onTap: () => _navigateToDetail(client),
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(14.0),
               child: Row(
                 children: [
                   // Large circular avatar
                   CircleAvatar(
-                    radius: 36,
+                    radius: 28,
                     backgroundColor: Colors.white.withOpacity(0.2),
                     child: Text(
                       initials,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 22,
+                        fontSize: 18,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 14),
                   // Client info
                   Expanded(
                     child: Column(
@@ -199,16 +199,16 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                         Text(
                           client.businessName,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Text(
                           'Active Projects: ${client.id ?? 0}',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Colors.white.withOpacity(0.7),
                           ),
                         ),
@@ -219,7 +219,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                   Icon(
                     Icons.chevron_right,
                     color: Colors.white.withOpacity(0.5),
-                    size: 28,
+                    size: 24,
                   ),
                 ],
               ),

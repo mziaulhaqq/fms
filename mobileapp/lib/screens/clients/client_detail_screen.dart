@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/client.dart';
+import '../../services/client_service.dart';
+import 'client_form_screen.dart';
 
 class ClientDetailScreen extends StatelessWidget {
   final Client client;
@@ -15,6 +17,18 @@ class ClientDetailScreen extends StatelessWidget {
         title: const Text('Client Details'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnPrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _editClient(context),
+            tooltip: 'Edit',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _deleteClient(context),
+            tooltip: 'Delete',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -195,6 +209,70 @@ class ClientDetailScreen extends StatelessWidget {
       return DateFormat('MMM dd, yyyy HH:mm').format(date);
     } catch (e) {
       return dateStr;
+    }
+  }
+
+  void _editClient(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ClientFormScreen(client: client),
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      Navigator.pop(context, true); // Return true to refresh the list
+    }
+  }
+
+  void _deleteClient(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Client'),
+        content: Text(
+          'Are you sure you want to delete "${client.businessName}"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        final clientService = ClientService();
+        await clientService.deleteClient(client.id!);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Client deleted successfully'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pop(context, true); // Return true to refresh the list
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting client: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
     }
   }
 }

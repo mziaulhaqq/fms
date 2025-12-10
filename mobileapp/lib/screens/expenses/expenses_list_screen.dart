@@ -237,11 +237,11 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
             children: [
               // Date header
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                padding: const EdgeInsets.fromLTRB(14, 16, 14, 10),
                 child: Text(
                   dateKey,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
                   ),
@@ -262,33 +262,33 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     final categoryColor = _getCategoryColor(expense.categoryName);
     
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      elevation: 0.5,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         onTap: () => _navigateToDetail(expense),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
               // Category icon
               Container(
-                width: 48,
-                height: 48,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: categoryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   categoryIcon,
                   color: categoryColor,
-                  size: 24,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               
               // Expense details
               Expanded(
@@ -298,22 +298,23 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                     Text(
                       expense.categoryName ?? 'Uncategorized',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    if (expense.notes != null && expense.notes!.isNotEmpty)
+                    if (expense.notes != null && expense.notes!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
                       Text(
                         expense.notes!,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -322,7 +323,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
               Text(
                 '-\$${expense.amount.toStringAsFixed(2)}',
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: AppColors.error,
                 ),

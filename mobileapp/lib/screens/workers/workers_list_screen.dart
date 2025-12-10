@@ -230,7 +230,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
 
   Widget _buildWorkerList() {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       itemCount: _filteredWorkers.length,
       itemBuilder: (context, index) {
         final worker = _filteredWorkers[index];
@@ -240,21 +240,21 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
             : worker.fullName.substring(0, 1).toUpperCase();
         
         return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
+          margin: const EdgeInsets.only(bottom: 10),
+          elevation: 1,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             onTap: () => _navigateToDetail(worker),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
               child: Row(
                 children: [
                   // Profile Photo/Avatar
                   CircleAvatar(
-                    radius: 32,
+                    radius: 26,
                     backgroundColor: AppColors.primary.withOpacity(0.1),
                     backgroundImage: worker.photoUrl != null 
                         ? NetworkImage(worker.photoUrl!)
@@ -265,12 +265,12 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
-                              fontSize: 20,
+                              fontSize: 16,
                             ),
                           )
                         : null,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   
                   // Worker Info
                   Expanded(
@@ -280,27 +280,28 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                         Text(
                           worker.fullName,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        if (worker.role != null)
+                        if (worker.role != null) ...[
+                          const SizedBox(height: 2),
                           Text(
                             worker.role!,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               color: AppColors.textSecondary,
                             ),
                           ),
-                        const SizedBox(height: 6),
+                        ],
+                        const SizedBox(height: 4),
                         // Status Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: _getStatusColor(worker.status).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: _getStatusColor(worker.status).withOpacity(0.3),
                             ),
@@ -308,7 +309,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                           child: Text(
                             worker.status,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: _getStatusColor(worker.status),
                             ),
@@ -322,7 +323,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                   const Icon(
                     Icons.chevron_right,
                     color: AppColors.textSecondary,
-                    size: 24,
+                    size: 20,
                   ),
                 ],
               ),

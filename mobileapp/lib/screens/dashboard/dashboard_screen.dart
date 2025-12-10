@@ -182,12 +182,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const Text(
                 'Key Metrics',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // Metric Cards
               _buildMetricCard(
@@ -198,7 +198,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Icons.trending_down,
                 AppColors.error,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               _buildMetricCard(
                 'Total Income',
                 '\$0.00',
@@ -207,7 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Icons.trending_up,
                 AppColors.success,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               _buildMetricCard(
                 'Total Production',
                 '0 tons',
@@ -217,18 +217,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 AppColors.secondary,
               ),
               
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               
               // Quick Access Section
               const Text(
                 'Quick Access',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // 3x3 Grid
               GridView.count(
@@ -353,15 +353,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -371,41 +371,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: color, size: 24),
+                child: Icon(icon, color: color, size: 20),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             value,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               Expanded(
                 child: Text(
                   mtd,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -413,7 +413,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 today,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -432,16 +432,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: AppColors.shadow,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
@@ -449,20 +449,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                   height: 1.2,
