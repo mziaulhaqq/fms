@@ -1,32 +1,56 @@
-import { IsString, IsEmail, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClientDto {
-  @ApiProperty({ description: 'Client name', example: 'ABC Mining Corp' })
+  @ApiProperty({ description: 'Business name', example: 'ABC Mining Corp' })
   @IsString()
   @MaxLength(255)
-  name: string;
+  businessName: string;
 
-  @ApiProperty({ description: 'Client email', required: false, example: 'contact@abcmining.com' })
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(255)
-  email?: string;
-
-  @ApiProperty({ description: 'Client phone', required: false, example: '+1234567890' })
-  @IsOptional()
+  @ApiProperty({ description: 'Owner name', example: 'John Doe' })
   @IsString()
-  @MaxLength(50)
-  phone?: string;
+  @MaxLength(255)
+  ownerName: string;
 
-  @ApiProperty({ description: 'Client address', required: false })
+  @ApiProperty({ description: 'Address', required: false })
   @IsOptional()
   @IsString()
   address?: string;
 
-  @ApiProperty({ description: 'Client type', required: false, example: 'corporate' })
+  @ApiProperty({ description: 'Owner contact', required: false, example: '+1234567890' })
   @IsOptional()
   @IsString()
-  @MaxLength(100)
-  type?: string;
+  @MaxLength(20)
+  ownerContact?: string;
+
+  @ApiProperty({ description: 'Munshi name', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  munshiName?: string;
+
+  @ApiProperty({ description: 'Munshi contact', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  munshiContact?: string;
+
+  @ApiProperty({ description: 'Description', required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ description: 'Onboarding date', required: false, example: '2024-01-15' })
+  @IsOptional()
+  @IsString()
+  onboardingDate?: string;
+
+  @ApiProperty({ description: 'Is active', required: false, default: true })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @ApiProperty({ description: 'Document files', required: false, type: [String] })
+  @IsOptional()
+  documentFiles?: string[];
 }
