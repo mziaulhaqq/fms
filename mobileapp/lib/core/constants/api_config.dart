@@ -1,6 +1,8 @@
 class ApiConfig {
   // Base URL - Update this to your server IP when testing on physical device
-  static const String baseUrl = 'http://localhost:3000';
+  // For simulator: use 'http://localhost:3000'
+  // For physical device: use your Mac's IP address
+  static const String baseUrl = 'http://192.168.0.165:3000';
   
   // API Endpoints
   static const String clients = '/clients';
@@ -17,6 +19,7 @@ class ApiConfig {
   static const String siteSupervisors = '/site-supervisors';
   static const String truckDeliveries = '/truck-deliveries';
   static const String laborCosts = '/labor-costs';
+  static const String users = '/users';
   
   // Timeouts
   static const int connectionTimeout = 30000; // 30 seconds

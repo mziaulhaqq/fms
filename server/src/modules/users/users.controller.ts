@@ -62,4 +62,12 @@ export class UsersController {
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.service.remove(id);
   }
+
+  @Patch(':id/toggle-status')
+  @ApiOperation({ summary: 'Toggle user active status' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'User status toggled successfully' })
+  toggleStatus(@Param('id', ParseIntPipe) id: number): Promise<Users> {
+    return this.service.toggleUserStatus(id);
+  }
 }

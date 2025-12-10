@@ -13,6 +13,7 @@ import '../partners/partners_list_screen.dart';
 import '../production/production_list_screen.dart';
 import '../truck_deliveries/truck_deliveries_list_screen.dart';
 import '../profit_distributions/profit_distributions_list_screen.dart';
+import '../users/users_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -227,6 +228,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings, color: AppColors.primary),
+              title: const Text('Users'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const UsersListScreen(),
+                  ),
+                );
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: AppColors.error),
@@ -408,14 +422,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   _buildQuickAccessButton(
-                    'User\nRoles',
+                    'Users\nManagement',
                     Icons.admin_panel_settings,
                     Colors.indigo,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Coming soon!')),
-                      );
-                    },
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const UsersListScreen(),
+                      ),
+                    ),
                   ),
                 ],
               ),
