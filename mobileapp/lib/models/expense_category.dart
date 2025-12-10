@@ -30,4 +30,13 @@ class ExpenseCategory {
       if (description != null) 'description': description,
     };
   }
+
+  // Use this for create/update requests (excludes id, createdAt, updatedAt)
+  Map<String, dynamic> toJsonRequest() {
+    return {
+      'name': name,
+      if (description != null && description!.isNotEmpty) 
+        'description': description,
+    };
+  }
 }

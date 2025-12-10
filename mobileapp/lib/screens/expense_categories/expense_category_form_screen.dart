@@ -22,6 +22,10 @@ class _ExpenseCategoryFormScreenState extends State<ExpenseCategoryFormScreen> {
 
   bool _isLoading = false;
   bool get _isEditMode => widget.category != null;
+  
+  // Character limits
+  static const int _maxNameLength = 50;
+  static const int _maxDescriptionLength = 200;
 
   @override
   void initState() {
@@ -179,25 +183,76 @@ class _ExpenseCategoryFormScreenState extends State<ExpenseCategoryFormScreen> {
               elevation: 1,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: TextFormField(
-                  controller: _categoryNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Category Name *',
-                    hintText: 'e.g., Fuel, Equipment, Maintenance',
-                    prefixIcon: Icon(Icons.label, color: AppColors.secondary),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Category name is required';
-                    }
-                    if (value.trim().length < 2) {
-                      return 'Category name must be at least 2 characters';
-                    }
-                    return null;
-                  },
-                  textCapitalization: TextCapitalization.words,
-                  enabled: !_isLoading,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _categoryNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Category Name *',
+                        hintText: 'e.g., Fuel, Equipment, Maintenance',
+                        prefixIcon: const Icon(Icons.label, color: AppColors.secondary),
+                        border: const OutlineInputBorder(),
+                        counterText: '',
+                        suffixIcon: _categoryNameController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  _categoryNameController.clear();
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                      ),
+                      maxLength: _maxNameLength,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Category name is required';
+                        }
+                        if (value.trim().length < 2) {
+                          return 'Category name must be at least 2 characters';
+                        }
+                        return null;
+                      },
+                      textCapitalization: TextCapitalization.words,
+                      enabled: !_isLoading,
+                      onChanged: (value) => setState(() {}),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${_categoryNameController.text.length}/$_maxNameLength characters',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: _categoryNameController.text.length > _maxNameLength * 0.9
+                                ? AppColors.error
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                        if (_categoryNameController.text.length >= 2)
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                size: 14,
+                                color: Colors.green.shade600,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Valid',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.green.shade600,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -208,22 +263,145 @@ class _ExpenseCategoryFormScreenState extends State<ExpenseCategoryFormScreen> {
               elevation: 1,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description (Optional)',
-                    hintText: 'Enter category description',
-                    prefixIcon:
-                        Icon(Icons.description, color: AppColors.secondary),
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  enabled: !_isLoading,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: 'Description (Optional)',
+                        hintText: 'Enter category description',
+                        prefixIcon: const Icon(Icons.description, color: AppColors.secondary),
+                        border: const OutlineInputBorder(),
+                        counterText: '',
+                        alignLabelWithHint: true,
+                        suffixIcon: _descriptionController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  _descriptionController.clear();
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                      ),
+                      maxLines: 4,
+                      maxLength: _maxDescriptionLength,
+                      textCapitalization: TextCapitalization.sentences,
+                      enabled: !_isLoading,
+                      onChanged: (value) => setState(() {}),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${_descriptionController.text.length}/$_maxDescriptionLength characters',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: _descriptionController.text.length > _maxDescriptionLength * 0.9
+                            ? AppColors.error
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // Preview Card
+            if (_categoryNameController.text.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withOpacity(0.05),
+                      AppColors.secondary.withOpacity(0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.primary.withOpacity(0.2),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.visibility,
+                          size: 16,
+                          color: AppColors.primary.withOpacity(0.7),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Preview',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary.withOpacity(0.7),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.secondary, Color(0xFFE67E22)],
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            '1',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _categoryNameController.text,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              if (_descriptionController.text.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Text(
+                                    _descriptionController.text,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            if (_categoryNameController.text.isNotEmpty) const SizedBox(height: 20),
 
             // Info Box
             Container(
@@ -260,11 +438,12 @@ class _ExpenseCategoryFormScreenState extends State<ExpenseCategoryFormScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _isLoading ? null : () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close, size: 18),
                     label: const Text('Cancel'),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: AppColors.border),
+                      foregroundColor: AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -273,11 +452,22 @@ class _ExpenseCategoryFormScreenState extends State<ExpenseCategoryFormScreen> {
                   flex: 2,
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _saveCategory,
-                    icon: Icon(_isEditMode ? Icons.save : Icons.add),
-                    label: Text(_isEditMode ? 'Update' : 'Create'),
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Icon(_isEditMode ? Icons.save : Icons.add, size: 18),
+                    label: Text(_isEditMode ? 'Update Category' : 'Create Category'),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: AppColors.secondary,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
                     ),
                   ),
                 ),

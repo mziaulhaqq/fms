@@ -28,7 +28,7 @@ class ExpenseCategoryService {
     try {
       final response = await _apiClient.post(
         ApiConfig.expenseCategories,
-        data: category.toJson(),
+        data: category.toJsonRequest(),
       );
       return ExpenseCategory.fromJson(response.data);
     } catch (e) {
@@ -40,7 +40,7 @@ class ExpenseCategoryService {
     try {
       final response = await _apiClient.patch(
         '${ApiConfig.expenseCategories}/$id',
-        data: category.toJson(),
+        data: category.toJsonRequest(),
       );
       return ExpenseCategory.fromJson(response.data);
     } catch (e) {
