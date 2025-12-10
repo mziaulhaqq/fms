@@ -18,11 +18,11 @@ import { Clients } from '../../entities/Clients.entity';
 @ApiTags('clients')
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientsService: ClientssService) {}
+  constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new client' })
-  @ApiResponse({ status: 201, description: 'Client created successfully', type: Clients })
+  @ApiResponse({ status: 201, description: 'Client created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   create(@Body() createClientDto: CreateClientDto): Promise<Clients> {
     return this.clientsService.create(createClientDto);
@@ -30,15 +30,15 @@ export class ClientsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all clients' })
-  @ApiResponse({ status: 200, description: 'List of clients', type: [Client] })
-  findAll(): Promise<Client[]> {
+  @ApiResponse({ status: 200, description: 'List of clients' })
+  findAll(): Promise<Clients[]> {
     return this.clientsService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a client by ID' })
   @ApiParam({ name: 'id', description: 'Client ID' })
-  @ApiResponse({ status: 200, description: 'Client found', type: Clients })
+  @ApiResponse({ status: 200, description: 'Client found' })
   @ApiResponse({ status: 404, description: 'Client not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Clients> {
     return this.clientsService.findOne(id);
@@ -47,7 +47,7 @@ export class ClientsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a client' })
   @ApiParam({ name: 'id', description: 'Client ID' })
-  @ApiResponse({ status: 200, description: 'Client updated successfully', type: Clients })
+  @ApiResponse({ status: 200, description: 'Client updated successfully' })
   @ApiResponse({ status: 404, description: 'Client not found' })
   update(
     @Param('id', ParseIntPipe) id: number,

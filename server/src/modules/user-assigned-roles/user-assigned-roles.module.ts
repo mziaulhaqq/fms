@@ -5,7 +5,7 @@ import { UserAssignedRolesService } from './user-assigned-roles.service';
 import { UserAssignedRolesController } from './user-assigned-roles.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserAssignedRole])],
+  imports: [TypeOrmModule.forFeature([UserAssignedRoles])],
   controllers: [UserAssignedRolesController],
   providers: [UserAssignedRolesService],
   exports: [UserAssignedRolesService],

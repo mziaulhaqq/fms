@@ -22,22 +22,22 @@ export class PartnerPayoutsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new partner payout' })
-  @ApiResponse({ status: 201, description: 'Partner Payout created successfully', type: PartnerPayout })
+  @ApiResponse({ status: 201, description: 'Partner Payout created successfully' })
   create(@Body() createDto: CreatePartnerPayoutDto): Promise<PartnerPayouts> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all partner-payouts' })
-  @ApiResponse({ status: 200, description: 'List of partner-payouts', type: [PartnerPayout] })
-  findAll(): Promise<PartnerPayout[]> {
+  @ApiResponse({ status: 200, description: 'List of partner-payouts' })
+  findAll(): Promise<PartnerPayouts[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a partner payout by ID' })
   @ApiParam({ name: 'id', description: 'Partner Payout ID' })
-  @ApiResponse({ status: 200, description: 'Partner Payout found', type: PartnerPayout })
+  @ApiResponse({ status: 200, description: 'Partner Payout found' })
   @ApiResponse({ status: 404, description: 'Partner Payout not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<PartnerPayouts> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class PartnerPayoutsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a partner payout' })
   @ApiParam({ name: 'id', description: 'Partner Payout ID' })
-  @ApiResponse({ status: 200, description: 'Partner Payout updated successfully', type: PartnerPayout })
+  @ApiResponse({ status: 200, description: 'Partner Payout updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePartnerPayoutDto,

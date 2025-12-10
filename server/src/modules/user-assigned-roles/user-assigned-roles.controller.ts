@@ -22,22 +22,22 @@ export class UserAssignedRolesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new user assigned role' })
-  @ApiResponse({ status: 201, description: 'User Assigned Role created successfully', type: UserAssignedRole })
+  @ApiResponse({ status: 201, description: 'User Assigned Role created successfully' })
   create(@Body() createDto: CreateUserAssignedRoleDto): Promise<UserAssignedRoles> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all user-assigned-roles' })
-  @ApiResponse({ status: 200, description: 'List of user-assigned-roles', type: [UserAssignedRole] })
-  findAll(): Promise<UserAssignedRole[]> {
+  @ApiResponse({ status: 200, description: 'List of user-assigned-roles' })
+  findAll(): Promise<UserAssignedRoles[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a user assigned role by ID' })
   @ApiParam({ name: 'id', description: 'User Assigned Role ID' })
-  @ApiResponse({ status: 200, description: 'User Assigned Role found', type: UserAssignedRole })
+  @ApiResponse({ status: 200, description: 'User Assigned Role found' })
   @ApiResponse({ status: 404, description: 'User Assigned Role not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<UserAssignedRoles> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class UserAssignedRolesController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user assigned role' })
   @ApiParam({ name: 'id', description: 'User Assigned Role ID' })
-  @ApiResponse({ status: 200, description: 'User Assigned Role updated successfully', type: UserAssignedRole })
+  @ApiResponse({ status: 200, description: 'User Assigned Role updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserAssignedRoleDto,

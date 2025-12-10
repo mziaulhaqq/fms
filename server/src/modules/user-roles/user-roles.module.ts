@@ -5,7 +5,7 @@ import { UserRolesService } from './user-roles.service';
 import { UserRolesController } from './user-roles.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserRole])],
+  imports: [TypeOrmModule.forFeature([UserRoles])],
   controllers: [UserRolesController],
   providers: [UserRolesService],
   exports: [UserRolesService],

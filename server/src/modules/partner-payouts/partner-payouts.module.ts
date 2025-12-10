@@ -5,7 +5,7 @@ import { PartnerPayoutsService } from './partner-payouts.service';
 import { PartnerPayoutsController } from './partner-payouts.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PartnerPayout])],
+  imports: [TypeOrmModule.forFeature([PartnerPayouts])],
   controllers: [PartnerPayoutsController],
   providers: [PartnerPayoutsService],
   exports: [PartnerPayoutsService],

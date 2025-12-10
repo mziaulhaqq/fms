@@ -22,22 +22,22 @@ export class UserRolesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new user role' })
-  @ApiResponse({ status: 201, description: 'User Role created successfully', type: UserRole })
+  @ApiResponse({ status: 201, description: 'User Role created successfully' })
   create(@Body() createDto: CreateUserRoleDto): Promise<UserRoles> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all user-roles' })
-  @ApiResponse({ status: 200, description: 'List of user-roles', type: [UserRole] })
-  findAll(): Promise<UserRole[]> {
+  @ApiResponse({ status: 200, description: 'List of user-roles' })
+  findAll(): Promise<UserRoles[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a user role by ID' })
   @ApiParam({ name: 'id', description: 'User Role ID' })
-  @ApiResponse({ status: 200, description: 'User Role found', type: UserRole })
+  @ApiResponse({ status: 200, description: 'User Role found' })
   @ApiResponse({ status: 404, description: 'User Role not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<UserRoles> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class UserRolesController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user role' })
   @ApiParam({ name: 'id', description: 'User Role ID' })
-  @ApiResponse({ status: 200, description: 'User Role updated successfully', type: UserRole })
+  @ApiResponse({ status: 200, description: 'User Role updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserRoleDto,

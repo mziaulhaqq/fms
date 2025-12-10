@@ -16,7 +16,7 @@ export class UserRolesService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<UserRole[]> {
+  async findAll(): Promise<UserRoles[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

@@ -16,7 +16,7 @@ export class TruckDeliverysService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<TruckDelivery[]> {
+  async findAll(): Promise<TruckDeliveries[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

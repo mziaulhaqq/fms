@@ -16,7 +16,7 @@ export class PartnerPayoutsService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<PartnerPayout[]> {
+  async findAll(): Promise<PartnerPayouts[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

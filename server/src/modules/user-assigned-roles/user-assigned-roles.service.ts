@@ -16,7 +16,7 @@ export class UserAssignedRolesService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<UserAssignedRole[]> {
+  async findAll(): Promise<UserAssignedRoles[]> {
     return await this.repository.find({
       order: { assignedAt: 'DESC' },
     });

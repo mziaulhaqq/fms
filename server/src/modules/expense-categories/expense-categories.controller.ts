@@ -22,22 +22,22 @@ export class ExpenseCategorysController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new expense category' })
-  @ApiResponse({ status: 201, description: 'Expense Category created successfully', type: ExpenseCategory })
+  @ApiResponse({ status: 201, description: 'Expense Category created successfully' })
   create(@Body() createDto: CreateExpenseCategoryDto): Promise<ExpenseCategories> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all expense-categories' })
-  @ApiResponse({ status: 200, description: 'List of expense-categories', type: [ExpenseCategory] })
-  findAll(): Promise<ExpenseCategory[]> {
+  @ApiResponse({ status: 200, description: 'List of expense-categories' })
+  findAll(): Promise<ExpenseCategories[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a expense category by ID' })
   @ApiParam({ name: 'id', description: 'Expense Category ID' })
-  @ApiResponse({ status: 200, description: 'Expense Category found', type: ExpenseCategory })
+  @ApiResponse({ status: 200, description: 'Expense Category found' })
   @ApiResponse({ status: 404, description: 'Expense Category not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<ExpenseCategories> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class ExpenseCategorysController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a expense category' })
   @ApiParam({ name: 'id', description: 'Expense Category ID' })
-  @ApiResponse({ status: 200, description: 'Expense Category updated successfully', type: ExpenseCategory })
+  @ApiResponse({ status: 200, description: 'Expense Category updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateExpenseCategoryDto,

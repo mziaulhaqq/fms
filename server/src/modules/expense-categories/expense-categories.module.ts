@@ -5,7 +5,7 @@ import { ExpenseCategorysService } from './expense-categories.service';
 import { ExpenseCategorysController } from './expense-categories.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ExpenseCategory])],
+  imports: [TypeOrmModule.forFeature([ExpenseCategories])],
   controllers: [ExpenseCategorysController],
   providers: [ExpenseCategorysService],
   exports: [ExpenseCategorysService],

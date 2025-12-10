@@ -5,7 +5,7 @@ import { ProfitDistributionsService } from './profit-distributions.service';
 import { ProfitDistributionsController } from './profit-distributions.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProfitDistribution])],
+  imports: [TypeOrmModule.forFeature([ProfitDistributions])],
   controllers: [ProfitDistributionsController],
   providers: [ProfitDistributionsService],
   exports: [ProfitDistributionsService],

@@ -22,22 +22,22 @@ export class SiteSupervisorsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new site supervisor' })
-  @ApiResponse({ status: 201, description: 'Site Supervisor created successfully', type: SiteSupervisor })
+  @ApiResponse({ status: 201, description: 'Site Supervisor created successfully' })
   create(@Body() createDto: CreateSiteSupervisorDto): Promise<SiteSupervisors> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all site-supervisors' })
-  @ApiResponse({ status: 200, description: 'List of site-supervisors', type: [SiteSupervisor] })
-  findAll(): Promise<SiteSupervisor[]> {
+  @ApiResponse({ status: 200, description: 'List of site-supervisors' })
+  findAll(): Promise<SiteSupervisors[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a site supervisor by ID' })
   @ApiParam({ name: 'id', description: 'Site Supervisor ID' })
-  @ApiResponse({ status: 200, description: 'Site Supervisor found', type: SiteSupervisor })
+  @ApiResponse({ status: 200, description: 'Site Supervisor found' })
   @ApiResponse({ status: 404, description: 'Site Supervisor not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<SiteSupervisors> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class SiteSupervisorsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a site supervisor' })
   @ApiParam({ name: 'id', description: 'Site Supervisor ID' })
-  @ApiResponse({ status: 200, description: 'Site Supervisor updated successfully', type: SiteSupervisor })
+  @ApiResponse({ status: 200, description: 'Site Supervisor updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateSiteSupervisorDto,

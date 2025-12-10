@@ -16,7 +16,7 @@ export class ProfitDistributionsService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<ProfitDistribution[]> {
+  async findAll(): Promise<ProfitDistributions[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

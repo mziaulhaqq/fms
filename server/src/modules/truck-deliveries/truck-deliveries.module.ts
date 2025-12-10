@@ -5,7 +5,7 @@ import { TruckDeliverysService } from './truck-deliveries.service';
 import { TruckDeliverysController } from './truck-deliveries.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TruckDelivery])],
+  imports: [TypeOrmModule.forFeature([TruckDeliveries])],
   controllers: [TruckDeliverysController],
   providers: [TruckDeliverysService],
   exports: [TruckDeliverysService],

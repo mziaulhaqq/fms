@@ -16,7 +16,7 @@ export class UsersService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<Users[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

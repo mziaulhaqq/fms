@@ -22,22 +22,22 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully', type: User })
+  @ApiResponse({ status: 201, description: 'User created successfully' })
   create(@Body() createDto: CreateUserDto): Promise<Users> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'List of users', type: [User] })
-  findAll(): Promise<User[]> {
+  @ApiResponse({ status: 200, description: 'List of users' })
+  findAll(): Promise<Users[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User found', type: User })
+  @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 404, description: 'User not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Users> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class UsersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user' })
   @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User updated successfully', type: User })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserDto,

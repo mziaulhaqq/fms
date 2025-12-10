@@ -22,22 +22,22 @@ export class LaborCostWorkersController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new labor cost worker' })
-  @ApiResponse({ status: 201, description: 'Labor Cost Worker created successfully', type: LaborCostWorker })
+  @ApiResponse({ status: 201, description: 'Labor Cost Worker created successfully' })
   create(@Body() createDto: CreateLaborCostWorkerDto): Promise<LaborCostWorkers> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all labor-cost-workers' })
-  @ApiResponse({ status: 200, description: 'List of labor-cost-workers', type: [LaborCostWorker] })
-  findAll(): Promise<LaborCostWorker[]> {
+  @ApiResponse({ status: 200, description: 'List of labor-cost-workers' })
+  findAll(): Promise<LaborCostWorkers[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a labor cost worker by ID' })
   @ApiParam({ name: 'id', description: 'Labor Cost Worker ID' })
-  @ApiResponse({ status: 200, description: 'Labor Cost Worker found', type: LaborCostWorker })
+  @ApiResponse({ status: 200, description: 'Labor Cost Worker found' })
   @ApiResponse({ status: 404, description: 'Labor Cost Worker not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<LaborCostWorkers> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class LaborCostWorkersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a labor cost worker' })
   @ApiParam({ name: 'id', description: 'Labor Cost Worker ID' })
-  @ApiResponse({ status: 200, description: 'Labor Cost Worker updated successfully', type: LaborCostWorker })
+  @ApiResponse({ status: 200, description: 'Labor Cost Worker updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateLaborCostWorkerDto,

@@ -22,22 +22,22 @@ export class ProfitDistributionsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new profit distribution' })
-  @ApiResponse({ status: 201, description: 'Profit Distribution created successfully', type: ProfitDistribution })
+  @ApiResponse({ status: 201, description: 'Profit Distribution created successfully' })
   create(@Body() createDto: CreateProfitDistributionDto): Promise<ProfitDistributions> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all profit-distributions' })
-  @ApiResponse({ status: 200, description: 'List of profit-distributions', type: [ProfitDistribution] })
-  findAll(): Promise<ProfitDistribution[]> {
+  @ApiResponse({ status: 200, description: 'List of profit-distributions' })
+  findAll(): Promise<ProfitDistributions[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a profit distribution by ID' })
   @ApiParam({ name: 'id', description: 'Profit Distribution ID' })
-  @ApiResponse({ status: 200, description: 'Profit Distribution found', type: ProfitDistribution })
+  @ApiResponse({ status: 200, description: 'Profit Distribution found' })
   @ApiResponse({ status: 404, description: 'Profit Distribution not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<ProfitDistributions> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class ProfitDistributionsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a profit distribution' })
   @ApiParam({ name: 'id', description: 'Profit Distribution ID' })
-  @ApiResponse({ status: 200, description: 'Profit Distribution updated successfully', type: ProfitDistribution })
+  @ApiResponse({ status: 200, description: 'Profit Distribution updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateProfitDistributionDto,

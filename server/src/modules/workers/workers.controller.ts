@@ -22,14 +22,14 @@ export class LaborsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new worker' })
-  @ApiResponse({ status: 201, description: 'Worker created successfully', type: Labor })
+  @ApiResponse({ status: 201, description: 'Worker created successfully' })
   create(@Body() createDto: CreateLaborDto): Promise<Labor> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all workers' })
-  @ApiResponse({ status: 200, description: 'List of workers', type: [Labor] })
+  @ApiResponse({ status: 200, description: 'List of workers' })
   findAll(): Promise<Labor[]> {
     return this.service.findAll();
   }
@@ -37,7 +37,7 @@ export class LaborsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a worker by ID' })
   @ApiParam({ name: 'id', description: 'Worker ID' })
-  @ApiResponse({ status: 200, description: 'Worker found', type: Labor })
+  @ApiResponse({ status: 200, description: 'Worker found' })
   @ApiResponse({ status: 404, description: 'Worker not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Labor> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class LaborsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a worker' })
   @ApiParam({ name: 'id', description: 'Worker ID' })
-  @ApiResponse({ status: 200, description: 'Worker updated successfully', type: Labor })
+  @ApiResponse({ status: 200, description: 'Worker updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateLaborDto,

@@ -22,22 +22,22 @@ export class ExpensesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new expense' })
-  @ApiResponse({ status: 201, description: 'Expense created successfully', type: Expense })
+  @ApiResponse({ status: 201, description: 'Expense created successfully' })
   create(@Body() createDto: CreateExpenseDto): Promise<Expenses> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all expenses' })
-  @ApiResponse({ status: 200, description: 'List of expenses', type: [Expense] })
-  findAll(): Promise<Expense[]> {
+  @ApiResponse({ status: 200, description: 'List of expenses' })
+  findAll(): Promise<Expenses[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a expense by ID' })
   @ApiParam({ name: 'id', description: 'Expense ID' })
-  @ApiResponse({ status: 200, description: 'Expense found', type: Expense })
+  @ApiResponse({ status: 200, description: 'Expense found' })
   @ApiResponse({ status: 404, description: 'Expense not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Expenses> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class ExpensesController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a expense' })
   @ApiParam({ name: 'id', description: 'Expense ID' })
-  @ApiResponse({ status: 200, description: 'Expense updated successfully', type: Expense })
+  @ApiResponse({ status: 200, description: 'Expense updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateExpenseDto,

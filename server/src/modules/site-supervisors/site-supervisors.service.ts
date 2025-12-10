@@ -16,7 +16,7 @@ export class SiteSupervisorsService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<SiteSupervisor[]> {
+  async findAll(): Promise<SiteSupervisors[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

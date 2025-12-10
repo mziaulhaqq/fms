@@ -5,7 +5,7 @@ import { LaborCostWorkersService } from './labor-cost-workers.service';
 import { LaborCostWorkersController } from './labor-cost-workers.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LaborCostWorker])],
+  imports: [TypeOrmModule.forFeature([LaborCostWorkers])],
   controllers: [LaborCostWorkersController],
   providers: [LaborCostWorkersService],
   exports: [LaborCostWorkersService],

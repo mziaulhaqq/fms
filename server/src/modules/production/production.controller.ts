@@ -22,14 +22,14 @@ export class ProductionsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new production' })
-  @ApiResponse({ status: 201, description: 'Production created successfully', type: Production })
+  @ApiResponse({ status: 201, description: 'Production created successfully' })
   create(@Body() createDto: CreateProductionDto): Promise<Production> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all production' })
-  @ApiResponse({ status: 200, description: 'List of production', type: [Production] })
+  @ApiResponse({ status: 200, description: 'List of production' })
   findAll(): Promise<Production[]> {
     return this.service.findAll();
   }
@@ -37,7 +37,7 @@ export class ProductionsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a production by ID' })
   @ApiParam({ name: 'id', description: 'Production ID' })
-  @ApiResponse({ status: 200, description: 'Production found', type: Production })
+  @ApiResponse({ status: 200, description: 'Production found' })
   @ApiResponse({ status: 404, description: 'Production not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Production> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class ProductionsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a production' })
   @ApiParam({ name: 'id', description: 'Production ID' })
-  @ApiResponse({ status: 200, description: 'Production updated successfully', type: Production })
+  @ApiResponse({ status: 200, description: 'Production updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateProductionDto,

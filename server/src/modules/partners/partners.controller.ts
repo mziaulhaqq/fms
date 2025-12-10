@@ -22,22 +22,22 @@ export class PartnersController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new partner' })
-  @ApiResponse({ status: 201, description: 'Partner created successfully', type: Partner })
+  @ApiResponse({ status: 201, description: 'Partner created successfully' })
   create(@Body() createDto: CreatePartnerDto): Promise<Partners> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all partners' })
-  @ApiResponse({ status: 200, description: 'List of partners', type: [Partner] })
-  findAll(): Promise<Partner[]> {
+  @ApiResponse({ status: 200, description: 'List of partners' })
+  findAll(): Promise<Partners[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a partner by ID' })
   @ApiParam({ name: 'id', description: 'Partner ID' })
-  @ApiResponse({ status: 200, description: 'Partner found', type: Partner })
+  @ApiResponse({ status: 200, description: 'Partner found' })
   @ApiResponse({ status: 404, description: 'Partner not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Partners> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class PartnersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a partner' })
   @ApiParam({ name: 'id', description: 'Partner ID' })
-  @ApiResponse({ status: 200, description: 'Partner updated successfully', type: Partner })
+  @ApiResponse({ status: 200, description: 'Partner updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePartnerDto,

@@ -16,7 +16,7 @@ export class LaborCostWorkersService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<LaborCostWorker[]> {
+  async findAll(): Promise<LaborCostWorkers[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

@@ -16,7 +16,7 @@ export class ExpenseCategorysService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<ExpenseCategory[]> {
+  async findAll(): Promise<ExpenseCategories[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

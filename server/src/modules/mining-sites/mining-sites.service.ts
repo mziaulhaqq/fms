@@ -16,7 +16,7 @@ export class MiningSitesService {
     return await this.repository.save(entity);
   }
 
-  async findAll(): Promise<MiningSite[]> {
+  async findAll(): Promise<MiningSites[]> {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
     });

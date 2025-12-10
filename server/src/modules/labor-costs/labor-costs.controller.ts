@@ -22,22 +22,22 @@ export class LaborCostsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new labor cost' })
-  @ApiResponse({ status: 201, description: 'Labor Cost created successfully', type: LaborCost })
+  @ApiResponse({ status: 201, description: 'Labor Cost created successfully' })
   create(@Body() createDto: CreateLaborCostDto): Promise<LaborCosts> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all labor-costs' })
-  @ApiResponse({ status: 200, description: 'List of labor-costs', type: [LaborCost] })
-  findAll(): Promise<LaborCost[]> {
+  @ApiResponse({ status: 200, description: 'List of labor-costs' })
+  findAll(): Promise<LaborCosts[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a labor cost by ID' })
   @ApiParam({ name: 'id', description: 'Labor Cost ID' })
-  @ApiResponse({ status: 200, description: 'Labor Cost found', type: LaborCost })
+  @ApiResponse({ status: 200, description: 'Labor Cost found' })
   @ApiResponse({ status: 404, description: 'Labor Cost not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<LaborCosts> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class LaborCostsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a labor cost' })
   @ApiParam({ name: 'id', description: 'Labor Cost ID' })
-  @ApiResponse({ status: 200, description: 'Labor Cost updated successfully', type: LaborCost })
+  @ApiResponse({ status: 200, description: 'Labor Cost updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateLaborCostDto,

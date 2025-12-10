@@ -5,7 +5,7 @@ import { PartnersService } from './partners.service';
 import { PartnersController } from './partners.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Partner])],
+  imports: [TypeOrmModule.forFeature([Partners])],
   controllers: [PartnersController],
   providers: [PartnersService],
   exports: [PartnersService],

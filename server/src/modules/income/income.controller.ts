@@ -22,14 +22,14 @@ export class IncomesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new income' })
-  @ApiResponse({ status: 201, description: 'Income created successfully', type: Income })
+  @ApiResponse({ status: 201, description: 'Income created successfully' })
   create(@Body() createDto: CreateIncomeDto): Promise<Income> {
     return this.service.create(createDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all income' })
-  @ApiResponse({ status: 200, description: 'List of income', type: [Income] })
+  @ApiResponse({ status: 200, description: 'List of income' })
   findAll(): Promise<Income[]> {
     return this.service.findAll();
   }
@@ -37,7 +37,7 @@ export class IncomesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a income by ID' })
   @ApiParam({ name: 'id', description: 'Income ID' })
-  @ApiResponse({ status: 200, description: 'Income found', type: Income })
+  @ApiResponse({ status: 200, description: 'Income found' })
   @ApiResponse({ status: 404, description: 'Income not found' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Income> {
     return this.service.findOne(id);
@@ -46,7 +46,7 @@ export class IncomesController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a income' })
   @ApiParam({ name: 'id', description: 'Income ID' })
-  @ApiResponse({ status: 200, description: 'Income updated successfully', type: Income })
+  @ApiResponse({ status: 200, description: 'Income updated successfully' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateIncomeDto,

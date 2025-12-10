@@ -5,7 +5,7 @@ import { SiteSupervisorsService } from './site-supervisors.service';
 import { SiteSupervisorsController } from './site-supervisors.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SiteSupervisor])],
+  imports: [TypeOrmModule.forFeature([SiteSupervisors])],
   controllers: [SiteSupervisorsController],
   providers: [SiteSupervisorsService],
   exports: [SiteSupervisorsService],

@@ -22,8 +22,8 @@ import { TruckDeliverysModule } from './modules/truck-deliveries/truck-deliverie
 import { UsersModule } from './modules/users/users.module';
 import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { UserAssignedRolesModule } from './modules/user-assigned-roles/user-assigned-roles.module';
-import { EquipmentsModule } from './modules/equipment/equipment.module';
-import { ProductionsModule } from './modules/production/production.module';
+// import { EquipmentsModule } from './modules/equipment/equipment.module';
+// import { ProductionsModule } from './modules/production/production.module';
 
 @Module({
   imports: [
@@ -51,8 +51,8 @@ import { ProductionsModule } from './modules/production/production.module';
     UsersModule,
     UserRolesModule,
     UserAssignedRolesModule,
-    EquipmentsModule,
-    ProductionsModule,
+    // EquipmentsModule,
+    // ProductionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
