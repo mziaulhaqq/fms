@@ -10,7 +10,8 @@ class Worker {
   final bool isActive;
   final String? hireDate;
   final String? photoUrl;
-  final String? supervisedBy;
+  final int? supervisorId;
+  final String? supervisorName;
 
   Worker({
     this.id,
@@ -24,7 +25,8 @@ class Worker {
     this.isActive = true,
     this.hireDate,
     this.photoUrl,
-    this.supervisedBy,
+    this.supervisorId,
+    this.supervisorName,
   });
 
   factory Worker.fromJson(Map<String, dynamic> json) {
@@ -40,7 +42,8 @@ class Worker {
       isActive: json['isActive'] as bool? ?? json['is_active'] as bool? ?? true,
       hireDate: json['hireDate'] as String? ?? json['hire_date'] as String?,
       photoUrl: json['photoUrl'] as String? ?? json['photo_url'] as String?,
-      supervisedBy: json['supervisedBy'] as String? ?? json['supervised_by'] as String?,
+      supervisorId: json['supervisorId'] as int? ?? json['supervisor_id'] as int?,
+      supervisorName: json['supervisorName'] as String? ?? json['supervisor_name'] as String?,
     );
   }
 
@@ -57,7 +60,8 @@ class Worker {
       'isActive': isActive,
       'hireDate': hireDate,
       'photoUrl': photoUrl,
-      'supervisedBy': supervisedBy,
+      'supervisorId': supervisorId,
+      'supervisorName': supervisorName,
     };
   }
 
@@ -73,7 +77,7 @@ class Worker {
       'isActive': isActive,
       'hireDate': hireDate,
       'photoUrl': photoUrl,
-      'supervisedBy': supervisedBy,
+      'supervisorId': supervisorId,
     };
   }
 }

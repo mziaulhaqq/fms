@@ -23,11 +23,12 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
   late TextEditingController _teamController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
-  late TextEditingController _supervisedByController;
   
   DateTime _selectedHireDate = DateTime.now();
   String _selectedStatus = 'active';
   bool _isActive = true;
+  int? _selectedSupervisorId;
+  List<Worker> _allWorkers = [];
   
   bool _isLoading = false;
   bool get _isEditMode => widget.worker != null;
@@ -43,11 +44,11 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     _teamController = TextEditingController(text: widget.worker?.team ?? '');
     _phoneController = TextEditingController(text: widget.worker?.phone ?? '');
     _emailController = TextEditingController(text: widget.worker?.email ?? '');
-    _supervisedByController = TextEditingController(text: widget.worker?.supervisedBy ?? '');
     
     if (_isEditMode) {
       _selectedStatus = widget.worker!.status;
       _isActive = widget.worker!.isActive;
+      _selectedSupervisorId = widget.worker!.supervisorId;
       if (widget.worker!.hireDate != null) {
         try {
           _selectedHireDate = DateTime.parse(widget.worker!.hireDate!);
@@ -55,6 +56,22 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
           _selectedHireDate = DateTime.now();
         }
       }
+    }
+    
+    _loadWorkers();
+  }
+
+  Future<void> _loadWorkers() async {
+    try {
+      final workers = await _workerService.getAllWorkers();
+      setState(() {
+        // Exclude current worker from supervisor list when editing
+        _allWorkers = _isEditMode 
+            ? workers.where((w) => w.id != widget.worker!.id).toList()
+            : workers;
+      });
+    } catch (e) {
+      // Handle error silently
     }
   }
 
@@ -97,9 +114,7 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
         status: _selectedStatus,
         isActive: _isActive,
         hireDate: _selectedHireDate.toIso8601String().split('T')[0],
-        supervisedBy: _supervisedByController.text.trim().isEmpty 
-            ? null 
-            : _supervisedByController.text.trim(),
+        supervisorId: _selectedSupervisorId,
       );
 
       if (_isEditMode) {
@@ -301,17 +316,32 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
                   
                   const Divider(height: 1),
                   
-                  // Supervised By
+                  // Supervised By Dropdown
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: TextFormField(
-                      controller: _supervisedByController,
+                    child: DropdownButtonFormField<int>(
+                      value: _selectedSupervisorId,
                       decoration: const InputDecoration(
                         labelText: 'Supervised By',
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      enabled: !_isLoading,
+                      hint: const Text('Select Supervisor'),
+                      items: [
+                        const DropdownMenuItem<int>(
+                          value: null,
+                          child: Text('None'),
+                        ),
+                        ..._allWorkers.map((worker) {
+                          return DropdownMenuItem<int>(
+                            value: worker.id,
+                            child: Text(worker.fullName),
+                          );
+                        }).toList(),
+                      ],
+                      onChanged: _isLoading ? null : (value) {
+                        setState(() => _selectedSupervisorId = value);
+                      },
                     ),
                   ),
                   
@@ -444,7 +474,6 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     _teamController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
-    _supervisedByController.dispose();
     super.dispose();
   }
 }

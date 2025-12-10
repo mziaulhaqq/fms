@@ -76,12 +76,11 @@ export class Worker {
   })
   emergencyNumber: string | null;
 
-  @Column("character varying", {
-    name: "supervised_by",
+  @Column("integer", {
+    name: "supervisor_id",
     nullable: true,
-    length: 255,
   })
-  supervisedBy: string | null;
+  supervisorId: number | null;
 
   @Column("numeric", {
     name: "daily_wage",
@@ -119,4 +118,13 @@ export class Worker {
     (laborCostWorkers) => laborCostWorkers.worker
   )
   laborCostWorkers: LaborCostWorkers[];
+
+  // Self-referencing relationship: supervisor
+  @ManyToOne(() => Worker, (worker) => worker.subordinates, { nullable: true })
+  @JoinColumn([{ name: "supervisor_id", referencedColumnName: "id" }])
+  supervisor: Worker | null;
+
+  // Self-referencing relationship: subordinates (workers supervised by this worker)
+  @OneToMany(() => Worker, (worker) => worker.supervisor)
+  subordinates: Worker[];
 }

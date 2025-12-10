@@ -245,8 +245,8 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                               if (_worker.team != null)
                                 _buildDetailRow('Team', _worker.team!),
                               if (_worker.team != null) const Divider(height: 1),
-                              if (_worker.supervisedBy != null)
-                                _buildDetailRow('Supervised By', _worker.supervisedBy!),
+                              if (_worker.supervisorName != null)
+                                _buildDetailRow('Supervised By', _worker.supervisorName!),
                             ],
                           ),
                         ),

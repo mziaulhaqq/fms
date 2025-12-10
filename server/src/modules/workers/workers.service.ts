@@ -25,7 +25,8 @@ export class LaborsService {
       isActive: worker.status === 'active',
       hireDate: worker.onboardingDate || worker.startDate,
       photoUrl: null, // Not in current schema
-      supervisedBy: worker.supervisedBy,
+      supervisorId: worker.supervisorId,
+      supervisorName: worker.supervisor?.name || null,
     };
   }
 
@@ -39,7 +40,7 @@ export class LaborsService {
       onboardingDate: workerData.hireDate,
       startDate: workerData.hireDate || new Date().toISOString().split('T')[0],
       siteId: 1, // Default site ID - should be updated based on your business logic
-      supervisedBy: workerData.supervisedBy,
+      supervisorId: workerData.supervisorId || null,
     };
   }
 
@@ -52,13 +53,17 @@ export class LaborsService {
 
   async findAll(): Promise<any[]> {
     const entities = await this.repository.find({
+      relations: ['supervisor'],
       order: { createdAt: 'DESC' },
     });
     return entities.map(entity => this.transformToWorkerModel(entity));
   }
 
   async findOne(id: number): Promise<any> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['supervisor'],
+    });
     if (!entity) {
       throw new NotFoundException(`Worker with ID ${id} not found`);
     }
