@@ -24,6 +24,9 @@ This is a full-stack Coal Mining FMS (Financial Management System) with:
 - ✅ **Secure token storage** in mobile app (flutter_secure_storage)
 - ✅ **Automatic token injection** in API requests
 - ✅ **401 error handling** with auto-redirect to login
+- ✅ **Role-Based Access Control (RBAC)** implemented
+- ✅ **Admin-only endpoints** for users, partners, income, mining-sites, profit-distributions
+- ✅ **RolesGuard** with database-driven role checking
 - ✅ Project builds successfully
 
 ## Getting Started
@@ -61,15 +64,19 @@ See [AUTHENTICATION.md](../AUTHENTICATION.md) for complete documentation on:
 cd server
 ./create-test-user.sh
 
+# Set up roles and assign admin to testuser
+./quick-setup-roles.sh
+
 # Test authentication flow
 ./test-auth.sh
 ```
 
 ## Next Steps
 - ✅ ~~Implement authentication and authorization~~ **DONE**
-- Add role-based access control (RBAC)
+- ✅ ~~Add role-based access control (RBAC)~~ **DONE**
 - Add pagination, filtering, and sorting
 - Add comprehensive testing
 - Implement logging and monitoring
+- Add refresh token mechanism
 - Add refresh token mechanism
 

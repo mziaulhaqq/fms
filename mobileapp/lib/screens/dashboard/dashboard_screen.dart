@@ -25,6 +25,8 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final _authService = AuthService();
   String? _userEmail;
+  bool _isAdmin = false;
+  bool _isLoadingRoles = true;
 
   @override
   void initState() {
@@ -34,7 +36,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _loadUserInfo() async {
     final email = await _authService.getCurrentUserEmail();
-    setState(() => _userEmail = email);
+    final isAdmin = await _authService.isAdmin();
+    setState(() {
+      _userEmail = email;
+      _isAdmin = isAdmin;
+      _isLoadingRoles = false;
+    });
   }
 
   Future<void> _handleLogout() async {
@@ -124,19 +131,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.location_on, color: AppColors.primary),
-              title: const Text('Mining Sites'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const MiningSitesListScreen(),
-                  ),
-                );
-              },
-            ),
+            // Mining Sites - Admin only
+            if (_isAdmin)
+              ListTile(
+                leading: const Icon(Icons.location_on, color: AppColors.primary),
+                title: const Text('Mining Sites'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MiningSitesListScreen(),
+                    ),
+                  );
+                },
+              ),
             ListTile(
               leading: const Icon(Icons.build, color: AppColors.primary),
               title: const Text('Equipment'),
@@ -150,19 +159,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.account_balance_wallet, color: AppColors.primary),
-              title: const Text('Income'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const IncomeListScreen(),
-                  ),
-                );
-              },
-            ),
+            // Income - Admin only
+            if (_isAdmin)
+              ListTile(
+                leading: const Icon(Icons.account_balance_wallet, color: AppColors.primary),
+                title: const Text('Income'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const IncomeListScreen(),
+                    ),
+                  );
+                },
+              ),
             ListTile(
               leading: const Icon(Icons.handshake, color: AppColors.primary),
               title: const Text('Partners'),
@@ -215,32 +226,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.pie_chart, color: AppColors.primary),
-              title: const Text('Profit Distributions'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ProfitDistributionsListScreen(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.admin_panel_settings, color: AppColors.primary),
-              title: const Text('Users'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const UsersListScreen(),
-                  ),
-                );
-              },
-            ),
+            // Profit Distributions - Admin only
+            if (_isAdmin)
+              ListTile(
+                leading: const Icon(Icons.pie_chart, color: AppColors.primary),
+                title: const Text('Profit Distributions'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfitDistributionsListScreen(),
+                    ),
+                  );
+                },
+              ),
+            // Users - Admin only
+            if (_isAdmin)
+              ListTile(
+                leading: const Icon(Icons.admin_panel_settings, color: AppColors.primary),
+                title: const Text('Users'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UsersListScreen(),
+                    ),
+                  );
+                },
+              ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: AppColors.error),

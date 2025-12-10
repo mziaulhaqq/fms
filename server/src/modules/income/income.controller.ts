@@ -9,20 +9,27 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { IncomesService } from './income.service';
 import { CreateIncomeDto, UpdateIncomeDto } from './dto';
 import { Income } from '../../entities/Income.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('income')
+@ApiBearerAuth()
 @Controller('income')
+@UseGuards(RolesGuard)
+@Roles('admin')
 export class IncomesController {
   constructor(private readonly service: IncomesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new income' })
+  @ApiOperation({ summary: 'Create a new income (Admin only)' })
   @ApiResponse({ status: 201, description: 'Income created successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createDto: CreateIncomeDto): Promise<Income> {
     return this.service.create(createDto);
   }

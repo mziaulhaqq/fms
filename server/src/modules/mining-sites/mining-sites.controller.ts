@@ -9,20 +9,27 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { MiningSitesService } from './mining-sites.service';
 import { CreateMiningSiteDto, UpdateMiningSiteDto } from './dto';
 import { MiningSites } from '../../entities/MiningSites.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('mining-sites')
+@ApiBearerAuth()
 @Controller('mining-sites')
+@UseGuards(RolesGuard)
+@Roles('admin')
 export class MiningSitesController {
   constructor(private readonly service: MiningSitesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new mining site' })
+  @ApiOperation({ summary: 'Create a new mining site (Admin only)' })
   @ApiResponse({ status: 201, description: 'Mining Site created successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createDto: CreateMiningSiteDto): Promise<MiningSites> {
     return this.service.create(createDto);
   }

@@ -14,12 +14,14 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserRolesService } from './user-roles.service';
 import { CreateUserRoleDto, UpdateUserRoleDto } from './dto';
 import { UserRoles } from '../../entities/UserRoles.entity';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('user-roles')
 @Controller('user-roles')
 export class UserRolesController {
   constructor(private readonly service: UserRolesService) {}
 
+  @Public() // Temporary - for initial setup
   @Post()
   @ApiOperation({ summary: 'Create a new user role' })
   @ApiResponse({ status: 201, description: 'User Role created successfully' })

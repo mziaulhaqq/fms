@@ -93,6 +93,45 @@ class AuthService {
     return user?['id'];
   }
   
+  // Get current user's roles
+  Future<List<String>> getCurrentUserRoles() async {
+    try {
+      final userId = await getCurrentUserId();
+      if (userId == null) return [];
+      
+      final response = await _apiClient.get('/user-assigned-roles');
+      final List<dynamic> data = response.data;
+      
+      // Filter assignments for current user with active status
+      final userAssignments = data.where((assignment) => 
+        assignment['userId'] == userId && 
+        assignment['status'] == 'active'
+      ).toList();
+      
+      // Extract role names
+      final roles = userAssignments
+        .map((assignment) => assignment['role']?['name']?.toString().toLowerCase() ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
+      
+      return roles;
+    } catch (e) {
+      print('Error fetching user roles: $e');
+      return [];
+    }
+  }
+  
+  // Check if current user has a specific role
+  Future<bool> hasRole(String roleName) async {
+    final roles = await getCurrentUserRoles();
+    return roles.contains(roleName.toLowerCase());
+  }
+  
+  // Check if current user is admin
+  Future<bool> isAdmin() async {
+    return await hasRole('admin');
+  }
+  
   // Logout
   Future<void> logout() async {
     await _storage.delete(key: _keyAccessToken);

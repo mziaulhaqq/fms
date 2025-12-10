@@ -8,10 +8,13 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { Users } from '../../entities/Users.entity';
+import { UserAssignedRoles } from '../../entities/UserAssignedRoles.entity';
+import { UserRoles } from '../../entities/UserRoles.entity';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([Users, UserAssignedRoles, UserRoles]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -23,7 +26,7 @@ import { Users } from '../../entities/Users.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard],
+  exports: [AuthService, RolesGuard, TypeOrmModule],
 })
 export class AuthModule {}

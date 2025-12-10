@@ -9,20 +9,27 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { PartnersService } from './partners.service';
 import { CreatePartnerDto, UpdatePartnerDto } from './dto';
 import { Partners } from '../../entities/Partners.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('partners')
+@ApiBearerAuth()
 @Controller('partners')
+@UseGuards(RolesGuard)
+@Roles('admin')
 export class PartnersController {
   constructor(private readonly service: PartnersService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new partner' })
+  @ApiOperation({ summary: 'Create a new partner (Admin only)' })
   @ApiResponse({ status: 201, description: 'Partner created successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createDto: CreatePartnerDto): Promise<Partners> {
     return this.service.create(createDto);
   }

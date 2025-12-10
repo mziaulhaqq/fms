@@ -4,6 +4,7 @@ import '../../services/user_service.dart';
 import '../../core/constants/app_colors.dart';
 import 'user_detail_screen.dart';
 import 'user_form_screen.dart';
+import 'assign_role_screen.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({super.key});
@@ -235,6 +236,15 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                               ),
                                             ).then((_) => _loadUsers());
                                             break;
+                                          case 'assign_role':
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    AssignRoleScreen(user: user),
+                                              ),
+                                            );
+                                            break;
                                           case 'toggle':
                                             _toggleUserStatus(user);
                                             break;
@@ -261,6 +271,16 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                               Icon(Icons.edit),
                                               SizedBox(width: 8),
                                               Text('Edit'),
+                                            ],
+                                          ),
+                                        ),
+                                        const PopupMenuItem(
+                                          value: 'assign_role',
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.admin_panel_settings, color: AppColors.primary),
+                                              SizedBox(width: 8),
+                                              Text('Assign Role'),
                                             ],
                                           ),
                                         ),

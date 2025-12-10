@@ -12,7 +12,12 @@ export class UserAssignedRolesService {
   ) {}
 
   async create(createDto: CreateUserAssignedRoleDto): Promise<UserAssignedRoles> {
-    const entity = this.repository.create(createDto);
+    const entity = this.repository.create({
+      userId: createDto.userId,
+      roleId: createDto.roleId,
+      status: createDto.status || 'active',
+      updatedComment: createDto.updatedComment,
+    });
     return await this.repository.save(entity);
   }
 

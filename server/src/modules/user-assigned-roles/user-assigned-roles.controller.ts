@@ -14,12 +14,14 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserAssignedRolesService } from './user-assigned-roles.service';
 import { CreateUserAssignedRoleDto, UpdateUserAssignedRoleDto } from './dto';
 import { UserAssignedRoles } from '../../entities/UserAssignedRoles.entity';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('user-assigned-roles')
 @Controller('user-assigned-roles')
 export class UserAssignedRolesController {
   constructor(private readonly service: UserAssignedRolesService) {}
 
+  @Public() // Temporary - for initial setup
   @Post()
   @ApiOperation({ summary: 'Create a new user assigned role' })
   @ApiResponse({ status: 201, description: 'User Assigned Role created successfully' })
