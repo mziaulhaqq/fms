@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MiningSite } from '../../entities/mining-site.entity';
+import { MiningSites } from '../../entities/MiningSites.entity';
 import { MiningSitesService } from './mining-sites.service';
 import { MiningSitesController } from './mining-sites.controller';
 

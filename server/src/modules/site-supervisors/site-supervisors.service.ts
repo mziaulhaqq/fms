@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SiteSupervisor } from '../../entities/site-supervisor.entity';
+import { SiteSupervisors } from '../../entities/SiteSupervisors.entity';
 import { CreateSiteSupervisorDto, UpdateSiteSupervisorDto } from './dto';
 
 @Injectable()
 export class SiteSupervisorsService {
   constructor(
-    @InjectRepository(SiteSupervisor)
-    private readonly repository: Repository<SiteSupervisor>,
+    @InjectRepository(SiteSupervisors)
+    private readonly repository: Repository<SiteSupervisors>,
   ) {}
 
-  async create(createDto: CreateSiteSupervisorDto): Promise<SiteSupervisor> {
+  async create(createDto: CreateSiteSupervisorDto): Promise<SiteSupervisors> {
     const entity = this.repository.create(createDto);
     return await this.repository.save(entity);
   }
@@ -22,7 +22,7 @@ export class SiteSupervisorsService {
     });
   }
 
-  async findOne(id: number): Promise<SiteSupervisor> {
+  async findOne(id: number): Promise<SiteSupervisors> {
     const entity = await this.repository.findOne({ where: { id } });
     if (!entity) {
       throw new NotFoundException(`Site Supervisor with ID ${id} not found`);
@@ -30,7 +30,7 @@ export class SiteSupervisorsService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdateSiteSupervisorDto): Promise<SiteSupervisor> {
+  async update(id: number, updateDto: UpdateSiteSupervisorDto): Promise<SiteSupervisors> {
     const entity = await this.findOne(id);
     Object.assign(entity, updateDto);
     return await this.repository.save(entity);

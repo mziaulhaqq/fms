@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PartnerPayout } from '../../entities/partner-payout.entity';
+import { PartnerPayouts } from '../../entities/PartnerPayouts.entity';
 import { CreatePartnerPayoutDto, UpdatePartnerPayoutDto } from './dto';
 
 @Injectable()
 export class PartnerPayoutsService {
   constructor(
-    @InjectRepository(PartnerPayout)
-    private readonly repository: Repository<PartnerPayout>,
+    @InjectRepository(PartnerPayouts)
+    private readonly repository: Repository<PartnerPayouts>,
   ) {}
 
-  async create(createDto: CreatePartnerPayoutDto): Promise<PartnerPayout> {
+  async create(createDto: CreatePartnerPayoutDto): Promise<PartnerPayouts> {
     const entity = this.repository.create(createDto);
     return await this.repository.save(entity);
   }
@@ -22,7 +22,7 @@ export class PartnerPayoutsService {
     });
   }
 
-  async findOne(id: number): Promise<PartnerPayout> {
+  async findOne(id: number): Promise<PartnerPayouts> {
     const entity = await this.repository.findOne({ where: { id } });
     if (!entity) {
       throw new NotFoundException(`Partner Payout with ID ${id} not found`);
@@ -30,7 +30,7 @@ export class PartnerPayoutsService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdatePartnerPayoutDto): Promise<PartnerPayout> {
+  async update(id: number, updateDto: UpdatePartnerPayoutDto): Promise<PartnerPayouts> {
     const entity = await this.findOne(id);
     Object.assign(entity, updateDto);
     return await this.repository.save(entity);

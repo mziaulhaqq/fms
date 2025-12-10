@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { LaborsService } from './workers.service';
 import { CreateLaborDto, UpdateLaborDto } from './dto';
-import { Labor } from '../../entities/labor.entity';
+import { Labor } from '../../entities/Labor.entity';
 
 @ApiTags('workers')
 @Controller('workers')

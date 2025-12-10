@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ProfitDistributionsService } from './profit-distributions.service';
 import { CreateProfitDistributionDto, UpdateProfitDistributionDto } from './dto';
-import { ProfitDistribution } from '../../entities/profit-distribution.entity';
+import { ProfitDistributions } from '../../entities/ProfitDistributions.entity';
 
 @ApiTags('profit-distributions')
 @Controller('profit-distributions')
@@ -23,7 +23,7 @@ export class ProfitDistributionsController {
   @Post()
   @ApiOperation({ summary: 'Create a new profit distribution' })
   @ApiResponse({ status: 201, description: 'Profit Distribution created successfully', type: ProfitDistribution })
-  create(@Body() createDto: CreateProfitDistributionDto): Promise<ProfitDistribution> {
+  create(@Body() createDto: CreateProfitDistributionDto): Promise<ProfitDistributions> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class ProfitDistributionsController {
   @ApiParam({ name: 'id', description: 'Profit Distribution ID' })
   @ApiResponse({ status: 200, description: 'Profit Distribution found', type: ProfitDistribution })
   @ApiResponse({ status: 404, description: 'Profit Distribution not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<ProfitDistribution> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<ProfitDistributions> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class ProfitDistributionsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateProfitDistributionDto,
-  ): Promise<ProfitDistribution> {
+  ): Promise<ProfitDistributions> {
     return this.service.update(id, updateDto);
   }
 

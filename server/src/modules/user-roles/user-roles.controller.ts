@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserRolesService } from './user-roles.service';
 import { CreateUserRoleDto, UpdateUserRoleDto } from './dto';
-import { UserRole } from '../../entities/user-role.entity';
+import { UserRoles } from '../../entities/UserRoles.entity';
 
 @ApiTags('user-roles')
 @Controller('user-roles')
@@ -23,7 +23,7 @@ export class UserRolesController {
   @Post()
   @ApiOperation({ summary: 'Create a new user role' })
   @ApiResponse({ status: 201, description: 'User Role created successfully', type: UserRole })
-  create(@Body() createDto: CreateUserRoleDto): Promise<UserRole> {
+  create(@Body() createDto: CreateUserRoleDto): Promise<UserRoles> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class UserRolesController {
   @ApiParam({ name: 'id', description: 'User Role ID' })
   @ApiResponse({ status: 200, description: 'User Role found', type: UserRole })
   @ApiResponse({ status: 404, description: 'User Role not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<UserRole> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<UserRoles> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class UserRolesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserRoleDto,
-  ): Promise<UserRole> {
+  ): Promise<UserRoles> {
     return this.service.update(id, updateDto);
   }
 

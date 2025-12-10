@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PartnersService } from './partners.service';
 import { CreatePartnerDto, UpdatePartnerDto } from './dto';
-import { Partner } from '../../entities/partner.entity';
+import { Partners } from '../../entities/Partners.entity';
 
 @ApiTags('partners')
 @Controller('partners')
@@ -23,7 +23,7 @@ export class PartnersController {
   @Post()
   @ApiOperation({ summary: 'Create a new partner' })
   @ApiResponse({ status: 201, description: 'Partner created successfully', type: Partner })
-  create(@Body() createDto: CreatePartnerDto): Promise<Partner> {
+  create(@Body() createDto: CreatePartnerDto): Promise<Partners> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class PartnersController {
   @ApiParam({ name: 'id', description: 'Partner ID' })
   @ApiResponse({ status: 200, description: 'Partner found', type: Partner })
   @ApiResponse({ status: 404, description: 'Partner not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Partner> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Partners> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class PartnersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePartnerDto,
-  ): Promise<Partner> {
+  ): Promise<Partners> {
     return this.service.update(id, updateDto);
   }
 

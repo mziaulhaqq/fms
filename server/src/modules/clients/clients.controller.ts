@@ -13,18 +13,18 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
 import { CreateClientDto, UpdateClientDto } from './dto';
-import { Client } from '../../entities/client.entity';
+import { Clients } from '../../entities/Clients.entity';
 
 @ApiTags('clients')
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService) {}
+  constructor(private readonly clientsService: ClientssService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new client' })
-  @ApiResponse({ status: 201, description: 'Client created successfully', type: Client })
+  @ApiResponse({ status: 201, description: 'Client created successfully', type: Clients })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  create(@Body() createClientDto: CreateClientDto): Promise<Client> {
+  create(@Body() createClientDto: CreateClientDto): Promise<Clients> {
     return this.clientsService.create(createClientDto);
   }
 
@@ -38,21 +38,21 @@ export class ClientsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a client by ID' })
   @ApiParam({ name: 'id', description: 'Client ID' })
-  @ApiResponse({ status: 200, description: 'Client found', type: Client })
+  @ApiResponse({ status: 200, description: 'Client found', type: Clients })
   @ApiResponse({ status: 404, description: 'Client not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Client> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Clients> {
     return this.clientsService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a client' })
   @ApiParam({ name: 'id', description: 'Client ID' })
-  @ApiResponse({ status: 200, description: 'Client updated successfully', type: Client })
+  @ApiResponse({ status: 200, description: 'Client updated successfully', type: Clients })
   @ApiResponse({ status: 404, description: 'Client not found' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateClientDto: UpdateClientDto,
-  ): Promise<Client> {
+  ): Promise<Clients> {
     return this.clientsService.update(id, updateClientDto);
   }
 

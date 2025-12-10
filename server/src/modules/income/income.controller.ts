@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { IncomesService } from './income.service';
 import { CreateIncomeDto, UpdateIncomeDto } from './dto';
-import { Income } from '../../entities/income.entity';
+import { Income } from '../../entities/Income.entity';
 
 @ApiTags('income')
 @Controller('income')

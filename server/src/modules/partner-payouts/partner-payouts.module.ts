@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PartnerPayout } from '../../entities/partner-payout.entity';
+import { PartnerPayouts } from '../../entities/PartnerPayouts.entity';
 import { PartnerPayoutsService } from './partner-payouts.service';
 import { PartnerPayoutsController } from './partner-payouts.controller';
 

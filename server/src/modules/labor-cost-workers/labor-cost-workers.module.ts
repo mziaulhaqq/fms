@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LaborCostWorker } from '../../entities/labor-cost-worker.entity';
+import { LaborCostWorkers } from '../../entities/LaborCostWorkers.entity';
 import { LaborCostWorkersService } from './labor-cost-workers.service';
 import { LaborCostWorkersController } from './labor-cost-workers.controller';
 

@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LaborCost } from '../../entities/labor-cost.entity';
+import { LaborCosts } from '../../entities/LaborCosts.entity';
 import { CreateLaborCostDto, UpdateLaborCostDto } from './dto';
 
 @Injectable()
 export class LaborCostsService {
   constructor(
-    @InjectRepository(LaborCost)
-    private readonly repository: Repository<LaborCost>,
+    @InjectRepository(LaborCosts)
+    private readonly repository: Repository<LaborCosts>,
   ) {}
 
-  async create(createDto: CreateLaborCostDto): Promise<LaborCost> {
+  async create(createDto: CreateLaborCostDto): Promise<LaborCosts> {
     const entity = this.repository.create(createDto);
     return await this.repository.save(entity);
   }
@@ -22,7 +22,7 @@ export class LaborCostsService {
     });
   }
 
-  async findOne(id: number): Promise<LaborCost> {
+  async findOne(id: number): Promise<LaborCosts> {
     const entity = await this.repository.findOne({ where: { id } });
     if (!entity) {
       throw new NotFoundException(`Labor Cost with ID ${id} not found`);
@@ -30,7 +30,7 @@ export class LaborCostsService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdateLaborCostDto): Promise<LaborCost> {
+  async update(id: number, updateDto: UpdateLaborCostDto): Promise<LaborCosts> {
     const entity = await this.findOne(id);
     Object.assign(entity, updateDto);
     return await this.repository.save(entity);

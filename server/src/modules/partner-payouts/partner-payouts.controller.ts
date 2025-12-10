@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PartnerPayoutsService } from './partner-payouts.service';
 import { CreatePartnerPayoutDto, UpdatePartnerPayoutDto } from './dto';
-import { PartnerPayout } from '../../entities/partner-payout.entity';
+import { PartnerPayouts } from '../../entities/PartnerPayouts.entity';
 
 @ApiTags('partner-payouts')
 @Controller('partner-payouts')
@@ -23,7 +23,7 @@ export class PartnerPayoutsController {
   @Post()
   @ApiOperation({ summary: 'Create a new partner payout' })
   @ApiResponse({ status: 201, description: 'Partner Payout created successfully', type: PartnerPayout })
-  create(@Body() createDto: CreatePartnerPayoutDto): Promise<PartnerPayout> {
+  create(@Body() createDto: CreatePartnerPayoutDto): Promise<PartnerPayouts> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class PartnerPayoutsController {
   @ApiParam({ name: 'id', description: 'Partner Payout ID' })
   @ApiResponse({ status: 200, description: 'Partner Payout found', type: PartnerPayout })
   @ApiResponse({ status: 404, description: 'Partner Payout not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<PartnerPayout> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<PartnerPayouts> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class PartnerPayoutsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePartnerPayoutDto,
-  ): Promise<PartnerPayout> {
+  ): Promise<PartnerPayouts> {
     return this.service.update(id, updateDto);
   }
 

@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { TruckDeliverysService } from './truck-deliveries.service';
 import { CreateTruckDeliveryDto, UpdateTruckDeliveryDto } from './dto';
-import { TruckDelivery } from '../../entities/truck-delivery.entity';
+import { TruckDeliveries } from '../../entities/TruckDeliveries.entity';
 
 @ApiTags('truck-deliveries')
 @Controller('truck-deliveries')
@@ -23,7 +23,7 @@ export class TruckDeliverysController {
   @Post()
   @ApiOperation({ summary: 'Create a new truck delivery' })
   @ApiResponse({ status: 201, description: 'Truck Delivery created successfully', type: TruckDelivery })
-  create(@Body() createDto: CreateTruckDeliveryDto): Promise<TruckDelivery> {
+  create(@Body() createDto: CreateTruckDeliveryDto): Promise<TruckDeliveries> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class TruckDeliverysController {
   @ApiParam({ name: 'id', description: 'Truck Delivery ID' })
   @ApiResponse({ status: 200, description: 'Truck Delivery found', type: TruckDelivery })
   @ApiResponse({ status: 404, description: 'Truck Delivery not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<TruckDelivery> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<TruckDeliveries> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class TruckDeliverysController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateTruckDeliveryDto,
-  ): Promise<TruckDelivery> {
+  ): Promise<TruckDeliveries> {
     return this.service.update(id, updateDto);
   }
 

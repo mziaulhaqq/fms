@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { LaborCostWorkersService } from './labor-cost-workers.service';
 import { CreateLaborCostWorkerDto, UpdateLaborCostWorkerDto } from './dto';
-import { LaborCostWorker } from '../../entities/labor-cost-worker.entity';
+import { LaborCostWorkers } from '../../entities/LaborCostWorkers.entity';
 
 @ApiTags('labor-cost-workers')
 @Controller('labor-cost-workers')
@@ -23,7 +23,7 @@ export class LaborCostWorkersController {
   @Post()
   @ApiOperation({ summary: 'Create a new labor cost worker' })
   @ApiResponse({ status: 201, description: 'Labor Cost Worker created successfully', type: LaborCostWorker })
-  create(@Body() createDto: CreateLaborCostWorkerDto): Promise<LaborCostWorker> {
+  create(@Body() createDto: CreateLaborCostWorkerDto): Promise<LaborCostWorkers> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class LaborCostWorkersController {
   @ApiParam({ name: 'id', description: 'Labor Cost Worker ID' })
   @ApiResponse({ status: 200, description: 'Labor Cost Worker found', type: LaborCostWorker })
   @ApiResponse({ status: 404, description: 'Labor Cost Worker not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<LaborCostWorker> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<LaborCostWorkers> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class LaborCostWorkersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateLaborCostWorkerDto,
-  ): Promise<LaborCostWorker> {
+  ): Promise<LaborCostWorkers> {
     return this.service.update(id, updateDto);
   }
 

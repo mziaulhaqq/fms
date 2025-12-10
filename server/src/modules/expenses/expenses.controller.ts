@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './dto';
-import { Expense } from '../../entities/expense.entity';
+import { Expenses } from '../../entities/Expenses.entity';
 
 @ApiTags('expenses')
 @Controller('expenses')
@@ -23,7 +23,7 @@ export class ExpensesController {
   @Post()
   @ApiOperation({ summary: 'Create a new expense' })
   @ApiResponse({ status: 201, description: 'Expense created successfully', type: Expense })
-  create(@Body() createDto: CreateExpenseDto): Promise<Expense> {
+  create(@Body() createDto: CreateExpenseDto): Promise<Expenses> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class ExpensesController {
   @ApiParam({ name: 'id', description: 'Expense ID' })
   @ApiResponse({ status: 200, description: 'Expense found', type: Expense })
   @ApiResponse({ status: 404, description: 'Expense not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Expense> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Expenses> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class ExpensesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateExpenseDto,
-  ): Promise<Expense> {
+  ): Promise<Expenses> {
     return this.service.update(id, updateDto);
   }
 

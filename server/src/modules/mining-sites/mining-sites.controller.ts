@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { MiningSitesService } from './mining-sites.service';
 import { CreateMiningSiteDto, UpdateMiningSiteDto } from './dto';
-import { MiningSite } from '../../entities/mining-site.entity';
+import { MiningSites } from '../../entities/MiningSites.entity';
 
 @ApiTags('mining-sites')
 @Controller('mining-sites')
@@ -23,7 +23,7 @@ export class MiningSitesController {
   @Post()
   @ApiOperation({ summary: 'Create a new mining site' })
   @ApiResponse({ status: 201, description: 'Mining Site created successfully', type: MiningSite })
-  create(@Body() createDto: CreateMiningSiteDto): Promise<MiningSite> {
+  create(@Body() createDto: CreateMiningSiteDto): Promise<MiningSites> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class MiningSitesController {
   @ApiParam({ name: 'id', description: 'Mining Site ID' })
   @ApiResponse({ status: 200, description: 'Mining Site found', type: MiningSite })
   @ApiResponse({ status: 404, description: 'Mining Site not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<MiningSite> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<MiningSites> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class MiningSitesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateMiningSiteDto,
-  ): Promise<MiningSite> {
+  ): Promise<MiningSites> {
     return this.service.update(id, updateDto);
   }
 

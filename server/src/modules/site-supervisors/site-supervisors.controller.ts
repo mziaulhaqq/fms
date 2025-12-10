@@ -13,7 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SiteSupervisorsService } from './site-supervisors.service';
 import { CreateSiteSupervisorDto, UpdateSiteSupervisorDto } from './dto';
-import { SiteSupervisor } from '../../entities/site-supervisor.entity';
+import { SiteSupervisors } from '../../entities/SiteSupervisors.entity';
 
 @ApiTags('site-supervisors')
 @Controller('site-supervisors')
@@ -23,7 +23,7 @@ export class SiteSupervisorsController {
   @Post()
   @ApiOperation({ summary: 'Create a new site supervisor' })
   @ApiResponse({ status: 201, description: 'Site Supervisor created successfully', type: SiteSupervisor })
-  create(@Body() createDto: CreateSiteSupervisorDto): Promise<SiteSupervisor> {
+  create(@Body() createDto: CreateSiteSupervisorDto): Promise<SiteSupervisors> {
     return this.service.create(createDto);
   }
 
@@ -39,7 +39,7 @@ export class SiteSupervisorsController {
   @ApiParam({ name: 'id', description: 'Site Supervisor ID' })
   @ApiResponse({ status: 200, description: 'Site Supervisor found', type: SiteSupervisor })
   @ApiResponse({ status: 404, description: 'Site Supervisor not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<SiteSupervisor> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<SiteSupervisors> {
     return this.service.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class SiteSupervisorsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateSiteSupervisorDto,
-  ): Promise<SiteSupervisor> {
+  ): Promise<SiteSupervisors> {
     return this.service.update(id, updateDto);
   }
 
