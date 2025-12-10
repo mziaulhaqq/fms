@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../core/constants/app_colors.dart';
 import '../../models/expense.dart';
 import '../../models/mining_site.dart';
@@ -29,6 +31,8 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   DateTime _selectedDate = DateTime.now();
   int? _selectedSiteId;
   int? _selectedCategoryId;
+  List<XFile> _selectedImages = [];
+  final ImagePicker _imagePicker = ImagePicker();
   
   List<MiningSite> _sites = [];
   List<ExpenseCategory> _categories = [];
@@ -88,6 +92,91 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     if (picked != null) {
       setState(() => _selectedDate = picked);
     }
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+      if (image != null) {
+        setState(() {
+          _selectedImages.add(image);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error accessing camera: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final List<XFile> images = await _imagePicker.pickMultiImage(
+        imageQuality: 80,
+      );
+      if (images.isNotEmpty) {
+        setState(() {
+          _selectedImages.addAll(images);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error accessing gallery: $e')),
+        );
+      }
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+    });
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: AppColors.primary),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: AppColors.primary),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromGallery();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.cancel, color: AppColors.textSecondary),
+                title: const Text('Cancel'),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _saveExpense() async {
@@ -357,42 +446,93 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppColors.textSecondary.withOpacity(0.2),
-                              style: BorderStyle.solid,
-                              width: 1,
+                        // Display selected images
+                        if (_selectedImages.isNotEmpty)
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: List.generate(
+                              _selectedImages.length,
+                              (index) => Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      File(_selectedImages[index].path),
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.error,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding: const EdgeInsets.all(4),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.cloud_upload_outlined,
-                                size: 40,
-                                color: AppColors.textSecondary.withOpacity(0.5),
+                        
+                        if (_selectedImages.isNotEmpty)
+                          const SizedBox(height: 16),
+                        
+                        // Add receipt button
+                        InkWell(
+                          onTap: _isLoading ? null : _showImageSourceDialog,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.textSecondary.withOpacity(0.2),
+                                style: BorderStyle.solid,
+                                width: 1,
                               ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Add Receipt',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primary,
+                            ),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.cloud_upload_outlined,
+                                  size: 40,
+                                  color: AppColors.textSecondary.withOpacity(0.5),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'No receipt added yet',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary.withOpacity(0.7),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Add Receipt',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  _selectedImages.isEmpty 
+                                      ? 'No receipt added yet' 
+                                      : '${_selectedImages.length} receipt(s) added',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textSecondary.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],

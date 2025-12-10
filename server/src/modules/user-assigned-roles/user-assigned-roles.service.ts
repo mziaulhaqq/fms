@@ -23,12 +23,16 @@ export class UserAssignedRolesService {
 
   async findAll(): Promise<UserAssignedRoles[]> {
     return await this.repository.find({
+      relations: ['role'],
       order: { assignedAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<UserAssignedRoles> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['role'],
+    });
     if (!entity) {
       throw new NotFoundException(`User Assigned Role with ID ${id} not found`);
     }
