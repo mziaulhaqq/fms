@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/constants/app_colors.dart';
+import 'core/navigation_service.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Coal Mining FMS',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey, // Add global navigator key for navigation from anywhere
       theme: ThemeData(
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.background,
@@ -73,6 +75,11 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      // Define named routes for easier navigation
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/dashboard': (context) => const DashboardScreen(),
+      },
       home: const SplashScreen(),
     );
   }

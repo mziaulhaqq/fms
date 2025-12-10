@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../constants/api_config.dart';
+import '../navigation_service.dart';
 
 class ApiClient {
   late Dio _dio;
+  final _storage = const FlutterSecureStorage();
   
   ApiClient() {
     _dio = Dio(
@@ -17,10 +20,18 @@ class ApiClient {
       ),
     );
     
-    // Add interceptors for logging and error handling
+    // Add interceptors for authentication, logging and error handling
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
+          // Add JWT token to all requests except login
+          if (!options.path.contains('/auth/login')) {
+            final token = await _storage.read(key: 'access_token');
+            if (token != null) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
+          }
+          
           print('REQUEST[${options.method}] => PATH: ${options.path}');
           print('REQUEST DATA: ${options.data}');
           return handler.next(options);
@@ -30,10 +41,27 @@ class ApiClient {
           print('RESPONSE DATA: ${response.data}');
           return handler.next(response);
         },
-        onError: (DioException e, handler) {
+        onError: (DioException e, handler) async {
           print('ERROR[${e.response?.statusCode}] => PATH: ${e.requestOptions.path}');
           print('ERROR MESSAGE: ${e.message}');
           print('ERROR RESPONSE: ${e.response?.data}');
+          
+          // Handle 401 Unauthorized - token expired or invalid
+          if (e.response?.statusCode == 401) {
+            // Clear stored tokens
+            await _storage.delete(key: 'access_token');
+            await _storage.delete(key: 'user_data');
+            
+            // Navigate to login screen
+            NavigationService.navigateToLogin();
+            
+            // Show error message
+            NavigationService.showSnackBar(
+              'Your session has expired. Please login again.',
+              isError: true,
+            );
+          }
+          
           return handler.next(e);
         },
       ),

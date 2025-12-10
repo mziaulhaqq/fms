@@ -14,12 +14,14 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { Users } from '../../entities/Users.entity';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly service: UsersService) {}
 
+  @Public() // Allow public access to create the first user
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully' })
@@ -27,6 +29,7 @@ export class UsersController {
     return this.service.create(createDto);
   }
 
+  @Public() // Temporary - for debugging
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users' })

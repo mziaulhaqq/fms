@@ -30,15 +30,26 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = true);
 
       try {
-        final success = await _authService.login(
+        final result = await _authService.login(
           _emailController.text,
           _passwordController.text,
         );
 
-        if (success && mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          );
+        if (mounted) {
+          if (result['success'] == true) {
+            // Login successful - navigate to dashboard
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            );
+          } else {
+            // Login failed - show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(result['message'] ?? 'Login failed'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {
@@ -208,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Demo Credentials (MVP)',
+                          'Test Credentials',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -217,14 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Email: ${AuthService.mockEmail}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        Text(
-                          'Password: ${AuthService.mockPassword}',
+                          'Create a user in the backend first',
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,

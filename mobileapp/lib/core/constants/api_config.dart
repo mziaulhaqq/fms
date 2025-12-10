@@ -5,6 +5,10 @@ class ApiConfig {
   static const String baseUrl = 'http://192.168.0.165:3000';
   
   // API Endpoints
+  // Authentication
+  static const String authLogin = '/auth/login';
+  
+  // Clients
   static const String clients = '/clients';
   static const String expenseCategories = '/expense-categories';
   static const String expenses = '/expenses';
