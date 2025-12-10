@@ -12,7 +12,10 @@ export class ExpensesService {
   ) {}
 
   async create(createDto: CreateExpenseDto): Promise<Expenses> {
-    const entity = this.repository.create(createDto);
+    const entity = this.repository.create({
+      ...createDto,
+      amount: createDto.amount.toString(),
+    });
     return await this.repository.save(entity);
   }
 
@@ -32,7 +35,11 @@ export class ExpensesService {
 
   async update(id: number, updateDto: UpdateExpenseDto): Promise<Expenses> {
     const entity = await this.findOne(id);
-    Object.assign(entity, updateDto);
+    const updateData = { ...updateDto };
+    if (updateDto.amount !== undefined) {
+      updateData.amount = updateDto.amount.toString() as any;
+    }
+    Object.assign(entity, updateData);
     return await this.repository.save(entity);
   }
 

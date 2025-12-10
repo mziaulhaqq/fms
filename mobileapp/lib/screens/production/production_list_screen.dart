@@ -60,8 +60,8 @@ class _ProductionListScreenState extends State<ProductionListScreen> {
         _filteredProduction = _production;
       } else {
         _filteredProduction = _production.where((prod) {
-          return prod.quality?.toLowerCase().contains(query.toLowerCase()) ?? false ||
-              prod.shift?.toLowerCase().contains(query.toLowerCase()) ?? false;
+          return (prod.quality?.toLowerCase().contains(query.toLowerCase()) ?? false) ||
+              (prod.shift?.toLowerCase().contains(query.toLowerCase()) ?? false);
         }).toList();
       }
     });
