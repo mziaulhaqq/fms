@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeOrmConfig } from './config/typeorm.config';
 
 // Import all modules
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { ClientsModule } from './modules/clients/clients.module';
 import { MiningSitesModule } from './modules/mining-sites/mining-sites.module';
 import { PartnersModule } from './modules/partners/partners.module';
@@ -36,6 +39,8 @@ import { ProductionModule } from './modules/production/production.module';
     TypeOrmModule.forRootAsync({
       useFactory: typeOrmConfig,
     }),
+    // Auth module
+    AuthModule,
     // Feature modules
     ClientsModule,
     MiningSitesModule,
@@ -59,6 +64,12 @@ import { ProductionModule } from './modules/production/production.module';
     // ProductionsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

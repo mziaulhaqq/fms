@@ -23,6 +23,8 @@ async function bootstrap() {
     .setTitle('Coal Mining Management API')
     .setDescription('API for managing coal mining operations')
     .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('auth', 'Authentication endpoints')
     .addTag('clients', 'Client management endpoints')
     .addTag('mining-sites', 'Mining site management endpoints')
     .addTag('expenses', 'Expense tracking endpoints')
