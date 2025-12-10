@@ -21,12 +21,16 @@ export class ExpensesService {
 
   async findAll(): Promise<Expenses[]> {
     return await this.repository.find({
+      relations: ['category', 'site'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Expenses> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['category', 'site'],
+    });
     if (!entity) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
