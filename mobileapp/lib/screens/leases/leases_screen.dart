@@ -62,7 +62,8 @@ class _LeasesScreenState extends State<LeasesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Leases'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textOnPrimary,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

@@ -80,8 +80,9 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.lease == null ? 'Add Lease' : 'Edit Lease'),
-        backgroundColor: Colors.blue,
+        title: Text(widget.lease != null ? 'Edit Lease' : 'New Lease'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textOnPrimary,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -127,7 +128,8 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.textOnPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: Text(

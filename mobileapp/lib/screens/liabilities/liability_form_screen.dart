@@ -145,7 +145,8 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
         title: Text(widget.liability == null
             ? 'Add Liability'
             : 'Edit Liability'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textOnPrimary,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -265,7 +266,8 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.textOnPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: Text(

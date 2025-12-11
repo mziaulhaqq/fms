@@ -104,9 +104,13 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Liabilities'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textOnPrimary,
         bottom: TabBar(
           controller: _tabController,
+          labelColor: AppColors.textOnPrimary,
+          unselectedLabelColor: AppColors.textLight,
+          indicatorColor: AppColors.secondary,
           tabs: const [
             Tab(text: 'All'),
             Tab(text: 'Loans'),

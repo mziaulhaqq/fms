@@ -88,7 +88,8 @@ class _GeneralLedgerScreenState extends State<GeneralLedgerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('General Ledger'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textOnPrimary,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

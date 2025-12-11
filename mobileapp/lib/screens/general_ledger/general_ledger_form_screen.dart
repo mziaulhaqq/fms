@@ -104,7 +104,8 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.account != null ? 'Edit Account' : 'New Account'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textOnPrimary,
       ),
       body: _isSubmitting
           ? const Center(child: CircularProgressIndicator())
@@ -210,7 +211,8 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
                       onPressed: _submit,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.blue,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.textOnPrimary,
                       ),
                       child: Text(
                         widget.account != null ? 'Update Account' : 'Create Account',
