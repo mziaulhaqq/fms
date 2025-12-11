@@ -6,19 +6,24 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AuditEntity } from "./AuditEntity";
 import { Clients } from "./Clients.entity";
 import { Users } from "./Users.entity";
 import { MiningSites } from "./MiningSites.entity";
 
 @Index("idx_income_date", ["loadingDate"], {})
 @Index("idx_income_site", ["siteId"], {})
+@Index("idx_income_client", ["clientId"], {})
 @Entity("income", { schema: "coal_mining" })
-export class Income {
+export class Income extends AuditEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
   @Column("integer", { name: "site_id" })
   siteId: number;
+
+  @Column("integer", { name: "client_id", nullable: true })
+  clientId: number | null;
 
   @Column("character varying", { name: "truck_number", length: 50 })
   truckNumber: string;
@@ -97,25 +102,21 @@ export class Income {
   @Column("text", { name: "notes", nullable: true })
   notes: string | null;
 
-  @Column("timestamp without time zone", {
-    name: "created_at",
-    default: () => "now()",
+  @Column("numeric", {
+    name: "amount_from_liability",
+    nullable: true,
+    precision: 12,
+    scale: 2,
+    default: 0,
   })
-  createdAt: Date;
+  amountFromLiability: string | null;
 
-  @Column("timestamp without time zone", {
-    name: "updated_at",
-    default: () => "now()",
-  })
-  updatedAt: Date;
+  @Column("integer", { name: "liability_id", nullable: true })
+  liabilityId: number | null;
 
   @ManyToOne(() => Clients, (clients) => clients.incomes)
   @JoinColumn([{ name: "client_id", referencedColumnName: "id" }])
   client: Clients;
-
-  @ManyToOne(() => Users, (users) => users.incomes)
-  @JoinColumn([{ name: "created_by", referencedColumnName: "id" }])
-  createdBy: Users;
 
   @ManyToOne(() => MiningSites, (miningSites) => miningSites.incomes)
   @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])

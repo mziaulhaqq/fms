@@ -2,9 +2,13 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AuditEntity } from "./AuditEntity";
+import { Lease } from "./Lease.entity";
 import { Expenses } from "./Expenses.entity";
 import { Income } from "./Income.entity";
 import { Worker } from "./Worker.entity";
@@ -12,12 +16,18 @@ import { LaborCosts } from "./LaborCosts.entity";
 import { Partners } from "./Partners.entity";
 import { SiteSupervisors } from "./SiteSupervisors.entity";
 import { TruckDeliveries } from "./TruckDeliveries.entity";
+import { GeneralLedger } from "./GeneralLedger.entity";
+import { Liability } from "./Liability.entity";
 
 @Index("mining_sites_pkey", ["id"], { unique: true })
+@Index("idx_mining_site_lease", ["leaseId"], {})
 @Entity("mining_sites", { schema: "coal_mining" })
-export class MiningSites {
+export class MiningSites extends AuditEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
+
+  @Column("integer", { name: "lease_id", nullable: true })
+  leaseId: number | null;
 
   @Column("character varying", { name: "name", length: 255 })
   name: string;
@@ -31,17 +41,9 @@ export class MiningSites {
   @Column("boolean", { name: "is_active", default: () => "true" })
   isActive: boolean;
 
-  @Column("timestamp without time zone", {
-    name: "created_at",
-    default: () => "now()",
-  })
-  createdAt: Date;
-
-  @Column("timestamp without time zone", {
-    name: "updated_at",
-    default: () => "now()",
-  })
-  updatedAt: Date;
+  @ManyToOne(() => Lease, (lease) => lease.miningSites)
+  @JoinColumn([{ name: "lease_id", referencedColumnName: "id" }])
+  lease: Lease;
 
   @OneToMany(() => Expenses, (expenses) => expenses.site)
   expenses: Expenses[];
@@ -63,4 +65,10 @@ export class MiningSites {
 
   @OneToMany(() => TruckDeliveries, (truckDeliveries) => truckDeliveries.site)
   truckDeliveries: TruckDeliveries[];
+
+  @OneToMany(() => GeneralLedger, (generalLedger) => generalLedger.miningSite)
+  generalLedgers: GeneralLedger[];
+
+  @OneToMany(() => Liability, (liability) => liability.miningSite)
+  liabilities: Liability[];
 }
