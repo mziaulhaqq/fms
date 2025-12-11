@@ -52,4 +52,15 @@ class Production {
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
+
+  Map<String, dynamic> toJsonRequest() {
+    return {
+      'date': date.toIso8601String().split('T')[0],
+      'siteId': siteId,
+      'quantity': quantity.toString(),
+      if (quality != null && quality!.isNotEmpty) 'quality': quality,
+      if (shift != null && shift!.isNotEmpty) 'shift': shift,
+      if (notes != null && notes!.isNotEmpty) 'notes': notes,
+    };
+  }
 }

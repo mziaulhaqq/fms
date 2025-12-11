@@ -44,7 +44,7 @@ class Income {
       coalPrice: _parseDouble(json['coalPrice'] ?? json['coal_price']) ?? 0.0,
       companyCommission: _parseDouble(json['companyCommission'] ?? json['company_commission']) ?? 0.0,
       destinationFactory: json['destinationFactory'] ?? json['destination_factory'],
-      netAmount: _parseDouble(json['netAmount'] ?? json['net_amount']),
+      netAmount: _parseDouble(json['netAmount'] ?? json['net_amount'] ?? json['totalPrice'] ?? json['total_price']),
       paymentStatus: json['paymentStatus'] ?? json['payment_status'],
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],

@@ -30,7 +30,7 @@ class ProductionService {
     try {
       final response = await _apiClient.post(
         ApiConfig.production,
-        data: production.toJson(),
+        data: production.toJsonRequest(),
       );
       return Production.fromJson(response.data);
     } catch (e) {
@@ -42,7 +42,7 @@ class ProductionService {
     try {
       final response = await _apiClient.patch(
         '${ApiConfig.production}/$id',
-        data: production.toJson(),
+        data: production.toJsonRequest(),
       );
       return Production.fromJson(response.data);
     } catch (e) {
