@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/liability.dart';
 import '../../services/liability_service.dart';
+import '../../core/constants/app_colors.dart';
 import 'liability_form_screen.dart';
 
 class LiabilitiesScreen extends StatefulWidget {

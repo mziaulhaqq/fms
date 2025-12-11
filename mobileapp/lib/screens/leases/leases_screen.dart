@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/lease.dart';
 import '../../services/lease_service.dart';
+import '../../core/constants/app_colors.dart';
 import 'lease_form_screen.dart';
 
 class LeasesScreen extends StatefulWidget {
