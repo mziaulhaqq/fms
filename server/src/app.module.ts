@@ -25,6 +25,12 @@ import { UsersModule } from './modules/users/users.module';
 import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { UserAssignedRolesModule } from './modules/user-assigned-roles/user-assigned-roles.module';
 import { EquipmentModule } from './modules/equipment/equipment.module';
+import { ClientTypesModule } from './modules/client-types/client-types.module';
+import { ExpenseTypesModule } from './modules/expense-types/expense-types.module';
+import { AccountTypesModule } from './modules/account-types/account-types.module';
+import { LeasesModule } from './modules/leases/leases.module';
+import { GeneralLedgerModule } from './modules/general-ledger/general-ledger.module';
+import { LiabilitiesModule } from './modules/liabilities/liabilities.module';
 
 @Module({
   imports: [
@@ -54,6 +60,13 @@ import { EquipmentModule } from './modules/equipment/equipment.module';
     UserRolesModule,
     UserAssignedRolesModule,
     EquipmentModule,
+    // New modules for comprehensive schema update
+    ClientTypesModule,
+    ExpenseTypesModule,
+    AccountTypesModule,
+    LeasesModule,
+    GeneralLedgerModule,
+    LiabilitiesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -12,9 +12,9 @@ export class ExpensesService {
   ) {}
 
   // Convert file paths to full URLs
-  private transformEvidencePhotos(expense: Expenses): Expenses {
-    if (expense.evidencePhotos && Array.isArray(expense.evidencePhotos)) {
-      expense.evidencePhotos = expense.evidencePhotos.map(path => {
+  private transformProofPhotos(expense: Expenses): Expenses {
+    if (expense.proof && Array.isArray(expense.proof)) {
+      expense.proof = expense.proof.map(path => {
         // If it's already a URL, return as is
         if (path.startsWith('http')) {
           return path;
@@ -33,7 +33,7 @@ export class ExpensesService {
       amount: createDto.amount.toString(),
     });
     const saved = await this.repository.save(entity);
-    return this.transformEvidencePhotos(saved);
+    return this.transformProofPhotos(saved);
   }
 
   async findAll(): Promise<Expenses[]> {
@@ -41,7 +41,7 @@ export class ExpensesService {
       relations: ['category', 'site'],
       order: { createdAt: 'DESC' },
     });
-    return expenses.map(expense => this.transformEvidencePhotos(expense));
+    return expenses.map(expense => this.transformProofPhotos(expense));
   }
 
   async findOne(id: number): Promise<Expenses> {
@@ -52,7 +52,7 @@ export class ExpensesService {
     if (!entity) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
-    return this.transformEvidencePhotos(entity);
+    return this.transformProofPhotos(entity);
   }
 
   async update(id: number, updateDto: UpdateExpenseDto): Promise<Expenses> {
@@ -63,7 +63,7 @@ export class ExpensesService {
     }
     Object.assign(entity, updateData);
     const saved = await this.repository.save(entity);
-    return this.transformEvidencePhotos(saved);
+    return this.transformProofPhotos(saved);
   }
 
   async remove(id: number): Promise<void> {

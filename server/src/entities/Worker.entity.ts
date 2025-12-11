@@ -106,7 +106,7 @@ export class Worker {
   })
   status: "active" | "inactive";
 
-  @OneToMany(() => Expenses, (expenses) => expenses.labor)
+  @OneToMany(() => Expenses, (expenses) => expenses.worker)
   expenses: Expenses[];
 
   @ManyToOne(() => MiningSites, (miningSites) => miningSites.workers)
