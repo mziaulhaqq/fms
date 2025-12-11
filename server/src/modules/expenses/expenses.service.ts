@@ -11,19 +11,37 @@ export class ExpensesService {
     private readonly repository: Repository<Expenses>,
   ) {}
 
+  // Convert file paths to full URLs
+  private transformEvidencePhotos(expense: Expenses): Expenses {
+    if (expense.evidencePhotos && Array.isArray(expense.evidencePhotos)) {
+      expense.evidencePhotos = expense.evidencePhotos.map(path => {
+        // If it's already a URL, return as is
+        if (path.startsWith('http')) {
+          return path;
+        }
+        // Convert local path to URL
+        const cleanPath = path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
+        return `http://192.168.0.165:3000/${cleanPath}`;
+      });
+    }
+    return expense;
+  }
+
   async create(createDto: CreateExpenseDto): Promise<Expenses> {
     const entity = this.repository.create({
       ...createDto,
       amount: createDto.amount.toString(),
     });
-    return await this.repository.save(entity);
+    const saved = await this.repository.save(entity);
+    return this.transformEvidencePhotos(saved);
   }
 
   async findAll(): Promise<Expenses[]> {
-    return await this.repository.find({
+    const expenses = await this.repository.find({
       relations: ['category', 'site'],
       order: { createdAt: 'DESC' },
     });
+    return expenses.map(expense => this.transformEvidencePhotos(expense));
   }
 
   async findOne(id: number): Promise<Expenses> {
@@ -34,7 +52,7 @@ export class ExpensesService {
     if (!entity) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
-    return entity;
+    return this.transformEvidencePhotos(entity);
   }
 
   async update(id: number, updateDto: UpdateExpenseDto): Promise<Expenses> {
@@ -44,7 +62,8 @@ export class ExpensesService {
       updateData.amount = updateDto.amount.toString() as any;
     }
     Object.assign(entity, updateData);
-    return await this.repository.save(entity);
+    const saved = await this.repository.save(entity);
+    return this.transformEvidencePhotos(saved);
   }
 
   async remove(id: number): Promise<void> {

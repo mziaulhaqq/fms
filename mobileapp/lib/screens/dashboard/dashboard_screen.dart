@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/auth_service.dart';
+import '../../services/expense_service.dart';
+import '../../services/income_service.dart';
+import '../../services/production_service.dart';
 import '../auth/login_screen.dart';
 import '../clients/clients_list_screen.dart';
 import '../expense_categories/expense_categories_list_screen.dart';
@@ -24,14 +27,28 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final _authService = AuthService();
+  final _expenseService = ExpenseService();
+  final _incomeService = IncomeService();
+  final _productionService = ProductionService();
+  
   String? _userEmail;
   bool _isAdmin = false;
   bool _isLoadingRoles = true;
+  bool _isLoadingMetrics = false;
+  
+  // Date filter
+  String _selectedPeriod = 'Today'; // Today, Week, Month
+  
+  // Metrics
+  double _totalExpenses = 0.0;
+  double _totalIncome = 0.0;
+  double _totalProduction = 0.0;
 
   @override
   void initState() {
     super.initState();
     _loadUserInfo();
+    _loadMetrics();
   }
 
   Future<void> _loadUserInfo() async {
@@ -42,6 +59,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _isAdmin = isAdmin;
       _isLoadingRoles = false;
     });
+  }
+  
+  Future<void> _loadMetrics() async {
+    setState(() => _isLoadingMetrics = true);
+    
+    try {
+      final now = DateTime.now();
+      DateTime startDate;
+      
+      switch (_selectedPeriod) {
+        case 'Today':
+          startDate = DateTime(now.year, now.month, now.day);
+          break;
+        case 'Week':
+          startDate = now.subtract(Duration(days: now.weekday - 1));
+          startDate = DateTime(startDate.year, startDate.month, startDate.day);
+          break;
+        case 'Month':
+          startDate = DateTime(now.year, now.month, 1);
+          break;
+        default:
+          startDate = DateTime(now.year, now.month, now.day);
+      }
+      
+      // Load expenses
+      final expenses = await _expenseService.getExpenses();
+      final filteredExpenses = expenses.where((expense) {
+        final expenseDate = DateTime.parse(expense.expenseDate);
+        return expenseDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
+               expenseDate.isBefore(now.add(const Duration(days: 1)));
+      }).toList();
+      
+      // Load income
+      final income = await _incomeService.getAllIncome();
+      final filteredIncome = income.where((inc) {
+        final incomeDate = DateTime.parse(inc.loadingDate);
+        return incomeDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
+               incomeDate.isBefore(now.add(const Duration(days: 1)));
+      }).toList();
+      
+      // Load production
+      final production = await _productionService.getProduction();
+      final filteredProduction = production.where((prod) {
+        return prod.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+               prod.date.isBefore(now.add(const Duration(days: 1)));
+      }).toList();
+      
+      setState(() {
+        _totalExpenses = filteredExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
+        _totalIncome = filteredIncome.fold(0.0, (sum, inc) => sum + (inc.netAmount ?? 0.0));
+        _totalProduction = filteredProduction.fold(0.0, (sum, prod) => sum + prod.quantity);
+        _isLoadingMetrics = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingMetrics = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading metrics: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _handleLogout() async {
@@ -266,16 +344,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          // Refresh dashboard data
-          setState(() {});
-        },
+        onRefresh: _loadMetrics,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Period Selector
+              Row(
+                children: [
+                  const Text(
+                    'Period:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        _buildPeriodChip('Today'),
+                        const SizedBox(width: 8),
+                        _buildPeriodChip('Week'),
+                        const SizedBox(width: 8),
+                        _buildPeriodChip('Month'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
               // Key Metrics Section
               const Text(
                 'Key Metrics',
@@ -287,33 +389,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 12),
               
-              // Metric Cards
-              _buildMetricCard(
-                'Total Expenses',
-                '\$0.00',
-                'MTD: \$0.00',
-                'Today: \$0.00',
-                Icons.trending_down,
-                AppColors.error,
-              ),
-              const SizedBox(height: 10),
-              _buildMetricCard(
-                'Total Income',
-                '\$0.00',
-                'MTD: \$0.00',
-                'Today: \$0.00',
-                Icons.trending_up,
-                AppColors.success,
-              ),
-              const SizedBox(height: 10),
-              _buildMetricCard(
-                'Total Production',
-                '0 tons',
-                'MTD: 0 tons',
-                'Today: 0 tons',
-                Icons.business_center,
-                AppColors.secondary,
-              ),
+              // Loading or Metric Cards
+              if (_isLoadingMetrics)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else ...[
+                _buildMetricCard(
+                  'Total Expenses',
+                  'Rs. ${_totalExpenses.toStringAsFixed(2)}',
+                  Icons.trending_down,
+                  AppColors.error,
+                ),
+                const SizedBox(height: 10),
+                _buildMetricCard(
+                  'Total Income',
+                  'Rs. ${_totalIncome.toStringAsFixed(2)}',
+                  Icons.trending_up,
+                  AppColors.success,
+                ),
+                const SizedBox(height: 10),
+                _buildMetricCard(
+                  'Total Production',
+                  '${_totalProduction.toStringAsFixed(2)} tons',
+                  Icons.business_center,
+                  AppColors.secondary,
+                ),
+                const SizedBox(height: 10),
+                _buildMetricCard(
+                  'Net Profit',
+                  'Rs. ${(_totalIncome - _totalExpenses).toStringAsFixed(2)}',
+                  Icons.account_balance_wallet,
+                  _totalIncome - _totalExpenses >= 0 ? AppColors.success : AppColors.error,
+                ),
+              ],
               
               const SizedBox(height: 24),
               
@@ -456,11 +568,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildPeriodChip(String period) {
+    final isSelected = _selectedPeriod == period;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() => _selectedPeriod = period);
+          _loadMetrics();
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : AppColors.textSecondary.withOpacity(0.3),
+            ),
+          ),
+          child: Text(
+            period,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMetricCard(
     String title,
     String value,
-    String mtd,
-    String today,
     IconData icon,
     Color color,
   ) {
@@ -477,59 +618,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Icon(icon, color: color, size: 28),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  mtd,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 13,
                     color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-              Text(
-                today,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

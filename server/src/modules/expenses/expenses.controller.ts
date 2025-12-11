@@ -9,8 +9,13 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiConsumes } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './dto';
 import { Expenses } from '../../entities/Expenses.entity';
@@ -23,7 +28,36 @@ export class ExpensesController {
   @Post()
   @ApiOperation({ summary: 'Create a new expense' })
   @ApiResponse({ status: 201, description: 'Expense created successfully' })
-  create(@Body() createDto: CreateExpenseDto): Promise<Expenses> {
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('receipts', 10, {
+      storage: diskStorage({
+        destination: './uploads/receipts',
+        filename: (req, file, callback) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          callback(null, `receipt-${uniqueSuffix}${ext}`);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return callback(new Error('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB max file size
+      },
+    }),
+  )
+  create(
+    @Body() createDto: CreateExpenseDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ): Promise<Expenses> {
+    // Add file paths to the DTO
+    if (files && files.length > 0) {
+      createDto.evidencePhotos = files.map(f => f.path);
+    }
     return this.service.create(createDto);
   }
 
@@ -47,10 +81,37 @@ export class ExpensesController {
   @ApiOperation({ summary: 'Update a expense' })
   @ApiParam({ name: 'id', description: 'Expense ID' })
   @ApiResponse({ status: 200, description: 'Expense updated successfully' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('receipts', 10, {
+      storage: diskStorage({
+        destination: './uploads/receipts',
+        filename: (req, file, callback) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          callback(null, `receipt-${uniqueSuffix}${ext}`);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return callback(new Error('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB max file size
+      },
+    }),
+  )
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateExpenseDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Expenses> {
+    // Add file paths to the DTO
+    if (files && files.length > 0) {
+      updateDto.evidencePhotos = files.map(f => f.path);
+    }
     return this.service.update(id, updateDto);
   }
 

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../core/api/api_client.dart';
 import '../core/constants/api_config.dart';
 import '../models/expense.dart';
@@ -24,11 +25,31 @@ class ExpenseService {
     }
   }
 
-  Future<Expense> createExpense(Expense expense) async {
+  Future<Expense> createExpense(Expense expense, List<String> imagePaths) async {
     try {
+      // Create form data
+      final formData = FormData.fromMap({
+        'amount': expense.amount,
+        'notes': expense.notes,
+        'expenseDate': expense.expenseDate,
+        'categoryId': expense.categoryId,
+        'siteId': expense.siteId,
+        'laborCostId': expense.laborCostId,
+      });
+
+      // Add image files
+      for (var i = 0; i < imagePaths.length; i++) {
+        formData.files.add(
+          MapEntry(
+            'receipts',
+            await MultipartFile.fromFile(imagePaths[i], filename: 'receipt_$i.jpg'),
+          ),
+        );
+      }
+
       final response = await _apiClient.post(
         ApiConfig.expenses,
-        data: expense.toJsonRequest(),
+        data: formData,
       );
       return Expense.fromJson(response.data);
     } catch (e) {
@@ -36,11 +57,31 @@ class ExpenseService {
     }
   }
 
-  Future<Expense> updateExpense(int id, Expense expense) async {
+  Future<Expense> updateExpense(int id, Expense expense, List<String> imagePaths) async {
     try {
+      // Create form data
+      final formData = FormData.fromMap({
+        'amount': expense.amount,
+        'notes': expense.notes,
+        'expenseDate': expense.expenseDate,
+        'categoryId': expense.categoryId,
+        'siteId': expense.siteId,
+        'laborCostId': expense.laborCostId,
+      });
+
+      // Add new image files
+      for (var i = 0; i < imagePaths.length; i++) {
+        formData.files.add(
+          MapEntry(
+            'receipts',
+            await MultipartFile.fromFile(imagePaths[i], filename: 'receipt_$i.jpg'),
+          ),
+        );
+      }
+
       final response = await _apiClient.patch(
         '${ApiConfig.expenses}/$id',
-        data: expense.toJsonRequest(),
+        data: formData,
       );
       return Expense.fromJson(response.data);
     } catch (e) {
