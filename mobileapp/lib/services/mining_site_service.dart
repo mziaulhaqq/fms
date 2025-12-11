@@ -22,7 +22,10 @@ class MiningSiteService {
       final List<dynamic> data = response.data;
       return data.map((json) => {
         'id': json['id'],
-        'mineNumber': json['mineNumber'],
+        'name': json['name'],
+        'leaseId': json['leaseId'],
+        'location': json['location'],
+        'isActive': json['isActive'],
       }).toList();
     } catch (e) {
       throw Exception('Failed to load mining sites: $e');

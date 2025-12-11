@@ -121,10 +121,10 @@ class PartnerDetailScreen extends StatelessWidget {
             _buildInfoCard([
               if (partner.sharePercentage != null)
                 _buildInfoRow('Share Percentage', '${partner.sharePercentage}%'),
-              if (partner.lease != null)
-                _buildInfoRow('Lease', partner.lease!),
-              if (partner.mineNumber != null)
-                _buildInfoRow('Mine Number', partner.mineNumber.toString()),
+              if (partner.leaseName != null)
+                _buildInfoRow('Lease', partner.leaseName!),
+              if (partner.siteName != null)
+                _buildInfoRow('Mining Site', partner.siteName!),
             ]),
             const SizedBox(height: 20),
 
