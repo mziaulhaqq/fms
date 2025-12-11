@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/mining_site.dart';
 import '../../services/mining_site_service.dart';
+import '../../services/lease_service.dart';
 
 class MiningSiteFormScreen extends StatefulWidget {
   final MiningSite? miningSite;
@@ -15,11 +16,16 @@ class MiningSiteFormScreen extends StatefulWidget {
 class _MiningSiteFormScreenState extends State<MiningSiteFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final MiningSiteService _miningSiteService = MiningSiteService();
+  final LeaseService _leaseService = LeaseService();
 
   late TextEditingController _nameController;
   late TextEditingController _locationController;
   late TextEditingController _descriptionController;
   late bool _isActive;
+  int? _selectedLeaseId;
+  
+  List<Map<String, dynamic>> _leases = [];
+  bool _isLoadingLeases = true;
 
   bool _isLoading = false;
   bool _isEditing = false;
@@ -32,6 +38,8 @@ class _MiningSiteFormScreenState extends State<MiningSiteFormScreen> {
     _locationController = TextEditingController(text: widget.miningSite?.location ?? '');
     _descriptionController = TextEditingController(text: widget.miningSite?.description ?? '');
     _isActive = widget.miningSite?.isActive ?? true;
+    _selectedLeaseId = widget.miningSite?.leaseId;
+    _loadLeases();
   }
 
   @override
@@ -40,6 +48,26 @@ class _MiningSiteFormScreenState extends State<MiningSiteFormScreen> {
     _locationController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadLeases() async {
+    try {
+      final leases = await _leaseService.getActive();
+      setState(() {
+        _leases = leases.map((lease) => {
+          'id': lease.id,
+          'leaseName': lease.leaseName,
+        }).toList();
+        _isLoadingLeases = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingLeases = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading leases: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _saveSite() async {
@@ -55,6 +83,7 @@ class _MiningSiteFormScreenState extends State<MiningSiteFormScreen> {
           ? null
           : _descriptionController.text.trim(),
       isActive: _isActive,
+      leaseId: _selectedLeaseId,
     );
 
     try {
@@ -96,6 +125,37 @@ class _MiningSiteFormScreenState extends State<MiningSiteFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
+            // Lease Dropdown
+            DropdownButtonFormField<int>(
+              value: _selectedLeaseId,
+              decoration: const InputDecoration(
+                labelText: 'Lease (Optional)',
+                hintText: 'Select a lease',
+                prefixIcon: Icon(Icons.description),
+                border: OutlineInputBorder(),
+              ),
+              items: _isLoadingLeases
+                  ? []
+                  : [
+                      const DropdownMenuItem<int>(
+                        value: null,
+                        child: Text('No Lease'),
+                      ),
+                      ..._leases.map((lease) {
+                        return DropdownMenuItem<int>(
+                          value: lease['id'] as int,
+                          child: Text(lease['leaseName'] as String),
+                        );
+                      }).toList(),
+                    ],
+              onChanged: _isLoadingLeases
+                  ? null
+                  : (value) {
+                      setState(() => _selectedLeaseId = value);
+                    },
+            ),
+            const SizedBox(height: 16),
+            
             // Name Field
             TextFormField(
               controller: _nameController,

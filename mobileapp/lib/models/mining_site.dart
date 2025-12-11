@@ -4,6 +4,7 @@ class MiningSite {
   final String location;
   final String? description;
   final bool isActive;
+  final int? leaseId;
   final String? createdAt;
   final String? updatedAt;
 
@@ -13,6 +14,7 @@ class MiningSite {
     required this.location,
     this.description,
     this.isActive = true,
+    this.leaseId,
     this.createdAt,
     this.updatedAt,
   });
@@ -24,6 +26,7 @@ class MiningSite {
       location: json['location'] ?? '',
       description: json['description'],
       isActive: json['isActive'] ?? json['is_active'] ?? true,
+      leaseId: json['leaseId'] ?? json['lease_id'],
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],
     );
@@ -36,6 +39,7 @@ class MiningSite {
       'location': location,
       if (description != null && description!.isNotEmpty) 'description': description,
       'isActive': isActive,
+      if (leaseId != null) 'leaseId': leaseId,
     };
   }
 
@@ -44,6 +48,7 @@ class MiningSite {
       'name': name,
       'location': location,
       if (description != null && description!.isNotEmpty) 'description': description,
+      if (leaseId != null) 'leaseId': leaseId,
     };
   }
 }

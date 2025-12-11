@@ -31,19 +31,19 @@ class GeneralLedger {
 
   factory GeneralLedger.fromJson(Map<String, dynamic> json) {
     return GeneralLedger(
-      id: json['id'],
-      accountCode: json['accountCode'],
-      accountName: json['accountName'],
-      accountTypeId: json['accountTypeId'],
-      miningSiteId: json['miningSiteId'],
-      description: json['description'],
+      id: json['id'] as int,
+      accountCode: json['accountCode'] as String,
+      accountName: json['accountName'] as String,
+      accountTypeId: json['accountTypeId'] as int,
+      miningSiteId: json['miningSiteId'] as int,
+      description: json['description'] as String?,
       isActive: json['isActive'] ?? true,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      createdById: json['createdById'],
-      modifiedById: json['modifiedById'],
-      accountType: json['accountType'],
-      miningSite: json['miningSite'],
+      createdById: json['createdById'] as int? ?? 0,
+      modifiedById: json['modifiedById'] as int?,
+      accountType: json['accountType'] as Map<String, dynamic>?,
+      miningSite: json['miningSite'] as Map<String, dynamic>?,
     );
   }
 

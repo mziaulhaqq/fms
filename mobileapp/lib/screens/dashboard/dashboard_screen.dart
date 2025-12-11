@@ -450,21 +450,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
-            // Mining Sites - Admin only
-            if (_isAdmin)
-              ListTile(
-                leading: const Icon(Icons.location_on, color: AppColors.primary),
-                title: const Text('Mining Sites'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MiningSitesListScreen(),
-                    ),
-                  );
-                },
-              ),
             ListTile(
               leading: const Icon(Icons.build, color: AppColors.primary),
               title: const Text('Equipment'),
@@ -569,6 +554,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.pushNamed(context, '/leases');
               },
             ),
+            if (_isAdmin)
+              ListTile(
+                leading: const Icon(Icons.location_on, color: AppColors.info),
+                title: const Text('Mining Sites'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MiningSitesListScreen(),
+                    ),
+                  );
+                },
+              ),
             const Divider(),
             // Configuration Section
             const Padding(

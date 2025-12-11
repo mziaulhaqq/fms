@@ -25,16 +25,16 @@ class Lease {
 
   factory Lease.fromJson(Map<String, dynamic> json) {
     return Lease(
-      id: json['id'],
-      leaseName: json['leaseName'],
-      location: json['location'],
+      id: json['id'] as int,
+      leaseName: json['leaseName'] as String,
+      location: json['location'] as String?,
       isActive: json['isActive'] ?? true,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      createdById: json['createdById'],
-      modifiedById: json['modifiedById'],
-      miningSites: json['miningSites'],
-      partners: json['partners'],
+      createdById: json['createdById'] as int? ?? 0,
+      modifiedById: json['modifiedById'] as int?,
+      miningSites: json['miningSites'] as List<dynamic>?,
+      partners: json['partners'] as List<dynamic>?,
     );
   }
 

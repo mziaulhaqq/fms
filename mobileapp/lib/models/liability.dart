@@ -37,22 +37,22 @@ class Liability {
 
   factory Liability.fromJson(Map<String, dynamic> json) {
     return Liability(
-      id: json['id'],
-      type: json['type'],
-      clientId: json['clientId'],
-      miningSiteId: json['miningSiteId'],
+      id: json['id'] as int,
+      type: json['type'] as String,
+      clientId: json['clientId'] as int,
+      miningSiteId: json['miningSiteId'] as int,
       date: DateTime.parse(json['date']),
-      description: json['description'],
+      description: json['description'] as String?,
       totalAmount: double.parse(json['totalAmount'].toString()),
       remainingBalance: double.parse(json['remainingBalance'].toString()),
-      status: json['status'],
+      status: json['status'] as String,
       proof: json['proof'] != null ? List<String>.from(json['proof']) : null,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      createdById: json['createdById'],
-      modifiedById: json['modifiedById'],
-      client: json['client'],
-      miningSite: json['miningSite'],
+      createdById: json['createdById'] as int? ?? 0,
+      modifiedById: json['modifiedById'] as int?,
+      client: json['client'] as Map<String, dynamic>?,
+      miningSite: json['miningSite'] as Map<String, dynamic>?,
     );
   }
 
