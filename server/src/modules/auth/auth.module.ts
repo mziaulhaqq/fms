@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,6 +11,8 @@ import { Users } from '../../entities/Users.entity';
 import { UserAssignedRoles } from '../../entities/UserAssignedRoles.entity';
 import { UserRoles } from '../../entities/UserRoles.entity';
 import { RolesGuard } from './guards/roles.guard';
+import { SiteAccessGuard } from './guards/site-access.guard';
+import { SiteSupervisorsModule } from '../site-supervisors/site-supervisors.module';
 
 @Module({
   imports: [
@@ -24,9 +26,10 @@ import { RolesGuard } from './guards/roles.guard';
       }),
       inject: [ConfigService],
     }),
+    forwardRef(() => SiteSupervisorsModule),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard],
-  exports: [AuthService, RolesGuard, TypeOrmModule],
+  providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard, SiteAccessGuard],
+  exports: [AuthService, RolesGuard, SiteAccessGuard, TypeOrmModule],
 })
 export class AuthModule {}

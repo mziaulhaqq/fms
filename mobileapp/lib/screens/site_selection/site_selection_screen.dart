@@ -4,6 +4,8 @@ import '../../core/constants/app_colors.dart';
 import '../../models/lease.dart';
 import '../../services/lease_service.dart';
 import '../../services/mining_site_service.dart';
+import '../../services/site_access_service.dart';
+import '../../services/auth_service.dart';
 import '../../providers/site_context_provider.dart';
 
 class SiteSelectionScreen extends StatefulWidget {
@@ -16,9 +18,12 @@ class SiteSelectionScreen extends StatefulWidget {
 class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
   final LeaseService _leaseService = LeaseService();
   final MiningSiteService _siteService = MiningSiteService();
+  final SiteAccessService _siteAccessService = SiteAccessService();
+  final AuthService _authService = AuthService();
 
   List<Lease> _leases = [];
   List<Map<String, dynamic>> _sites = [];
+  List<Map<String, dynamic>> _accessibleSites = [];
   
   Lease? _selectedLease;
   Map<String, dynamic>? _selectedSite;
@@ -29,13 +34,25 @@ class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLeases();
+    _loadUserAccessAndLeases();
   }
 
-  Future<void> _loadLeases() async {
+  Future<void> _loadUserAccessAndLeases() async {
     try {
+      // Get current user
+      final user = await _authService.getCurrentUser();
+      if (user == null || user['id'] == null) {
+        throw Exception('User not found');
+      }
+
+      // Load user's accessible sites
+      final accessibleSites = await _siteAccessService.getUserAccessibleSites(user['id']);
+      
+      // Load leases
       final leases = await _leaseService.getActive();
+      
       setState(() {
+        _accessibleSites = accessibleSites;
         _leases = leases;
         _isLoadingLeases = false;
       });
@@ -43,7 +60,7 @@ class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
       setState(() => _isLoadingLeases = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading leases: $e')),
+          SnackBar(content: Text('Error loading data: $e')),
         );
       }
     }
@@ -54,9 +71,13 @@ class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
     
     try {
       final allSites = await _siteService.getMiningSites();
-      final filteredSites = allSites
-          .where((site) => site['leaseId'] == leaseId)
-          .toList();
+      
+      // Filter by lease AND user access
+      final filteredSites = allSites.where((site) {
+        final matchesLease = site['leaseId'] == leaseId;
+        final hasAccess = _accessibleSites.any((access) => access['siteId'] == site['id']);
+        return matchesLease && hasAccess;
+      }).toList();
       
       setState(() {
         _sites = filteredSites;

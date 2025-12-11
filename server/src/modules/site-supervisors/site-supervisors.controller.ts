@@ -34,6 +34,14 @@ export class SiteSupervisorsController {
     return this.service.findAll();
   }
 
+  @Get('user/:userId/sites')
+  @ApiOperation({ summary: 'Get all sites accessible to a user' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'List of sites user has access to' })
+  findSitesByUserId(@Param('userId', ParseIntPipe) userId: number): Promise<SiteSupervisors[]> {
+    return this.service.findSitesByUserId(userId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a site supervisor by ID' })
   @ApiParam({ name: 'id', description: 'Site Supervisor ID' })
