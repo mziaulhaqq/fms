@@ -372,7 +372,14 @@ EXCEPTION
 END $$;
 
 -- ============================================================================
--- 3. INSERT MIGRATION RECORD
+-- 3. DROP DEPRECATED TABLES
+-- ============================================================================
+
+DROP TABLE IF EXISTS coal_mining.truck_deliveries CASCADE;
+DROP TABLE IF EXISTS coal_mining.production CASCADE;
+
+-- ============================================================================
+-- 4. INSERT MIGRATION RECORD
 -- ============================================================================
 
 INSERT INTO coal_mining.migrations (timestamp, name)

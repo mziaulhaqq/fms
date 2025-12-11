@@ -15,7 +15,6 @@ import { Worker } from "./Worker.entity";
 import { LaborCosts } from "./LaborCosts.entity";
 import { Partners } from "./Partners.entity";
 import { SiteSupervisors } from "./SiteSupervisors.entity";
-import { TruckDeliveries } from "./TruckDeliveries.entity";
 import { GeneralLedger } from "./GeneralLedger.entity";
 import { Liability } from "./Liability.entity";
 
@@ -57,14 +56,11 @@ export class MiningSites extends AuditEntity {
   @OneToMany(() => LaborCosts, (laborCosts) => laborCosts.site)
   laborCosts: LaborCosts[];
 
-  @OneToMany(() => Partners, (partners) => partners.mineNumber)
+  @OneToMany(() => Partners, (partners) => partners.miningSite)
   partners: Partners[];
 
   @OneToMany(() => SiteSupervisors, (siteSupervisors) => siteSupervisors.site)
   siteSupervisors: SiteSupervisors[];
-
-  @OneToMany(() => TruckDeliveries, (truckDeliveries) => truckDeliveries.site)
-  truckDeliveries: TruckDeliveries[];
 
   @OneToMany(() => GeneralLedger, (generalLedger) => generalLedger.miningSite)
   generalLedgers: GeneralLedger[];

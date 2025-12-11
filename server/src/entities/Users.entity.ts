@@ -11,7 +11,6 @@ import { Income } from "./Income.entity";
 import { LaborCosts } from "./LaborCosts.entity";
 import { ProfitDistributions } from "./ProfitDistributions.entity";
 import { SiteSupervisors } from "./SiteSupervisors.entity";
-import { TruckDeliveries } from "./TruckDeliveries.entity";
 import { UserAssignedRoles } from "./UserAssignedRoles.entity";
 
 @Index("users_email_key", ["email"], { unique: true })
@@ -78,12 +77,6 @@ export class Users {
     (siteSupervisors) => siteSupervisors.supervisor
   )
   siteSupervisors: SiteSupervisors[];
-
-  @OneToMany(
-    () => TruckDeliveries,
-    (truckDeliveries) => truckDeliveries.createdBy
-  )
-  truckDeliveries: TruckDeliveries[];
 
   @OneToMany(
     () => UserAssignedRoles,
