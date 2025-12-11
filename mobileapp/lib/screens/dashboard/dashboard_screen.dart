@@ -552,35 +552,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Period Selector
-              Row(
-                children: [
-                  const Text(
-                    'Period:',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildPeriodChip('Today'),
-                          const SizedBox(width: 8),
-                          _buildPeriodChip('Week'),
-                          const SizedBox(width: 8),
-                          _buildPeriodChip('Month'),
-                          const SizedBox(width: 8),
-                          _buildPeriodChip('Max'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildPeriodChip('Today'),
+                    const SizedBox(width: 8),
+                    _buildPeriodChip('Week'),
+                    const SizedBox(width: 8),
+                    _buildPeriodChip('Month'),
+                    const SizedBox(width: 8),
+                    _buildPeriodChip('Max'),
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
               const SizedBox(height: 20),
               
               // Key Metrics Section
@@ -609,7 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.4,
+                  childAspectRatio: 1.5,
                   children: [
                     _buildMetricCard(
                       'Expenses',
@@ -971,20 +957,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Flexible(
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

@@ -13,7 +13,11 @@ export class ProductionService {
   ) {}
 
   async create(createProductionDto: CreateProductionDto): Promise<Production> {
-    const production = this.productionRepository.create(createProductionDto);
+    const { siteId, ...rest } = createProductionDto;
+    const production = this.productionRepository.create({
+      ...rest,
+      site: { id: siteId } as any,
+    });
     return await this.productionRepository.save(production);
   }
 
@@ -33,7 +37,13 @@ export class ProductionService {
 
   async update(id: number, updateProductionDto: UpdateProductionDto): Promise<Production> {
     const production = await this.findOne(id);
-    Object.assign(production, updateProductionDto);
+    const { siteId, ...rest } = updateProductionDto;
+    
+    Object.assign(production, rest);
+    if (siteId !== undefined) {
+      production.site = { id: siteId } as any;
+    }
+    
     return await this.productionRepository.save(production);
   }
 
