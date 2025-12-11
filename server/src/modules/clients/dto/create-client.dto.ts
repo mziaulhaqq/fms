@@ -1,7 +1,14 @@
-import { IsString, IsOptional, MaxLength, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsBoolean, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateClientDto {
+  @ApiProperty({ description: 'Client type ID', required: false, example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  clientTypeId?: number;
+
   @ApiProperty({ description: 'Business name', example: 'ABC Mining Corp' })
   @IsString()
   @MaxLength(255)

@@ -62,7 +62,7 @@ export class LaborCosts {
   )
   laborCostWorkers: LaborCostWorkers[];
 
-  @ManyToOne(() => Users, (users) => users.laborCosts)
+  @ManyToOne(() => Users)
   @JoinColumn([{ name: "created_by", referencedColumnName: "id" }])
   createdBy: Users;
 

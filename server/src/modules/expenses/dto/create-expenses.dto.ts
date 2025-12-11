@@ -9,6 +9,12 @@ export class CreateExpenseDto {
   @IsNumber()
   siteId: number;
 
+  @ApiProperty({ description: 'Expense type ID', example: 1, required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  expenseTypeId?: number;
+
   @ApiProperty({ description: 'Category ID', example: 1, required: false })
   @IsOptional()
   @Type(() => Number)

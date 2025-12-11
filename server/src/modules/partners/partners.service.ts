@@ -12,18 +12,25 @@ export class PartnersService {
   ) {}
 
   async create(createDto: CreatePartnerDto): Promise<Partners> {
-    const entity = this.repository.create(createDto);
+    const entity = this.repository.create({
+      ...createDto,
+      sharePercentage: createDto.sharePercentage?.toString() || null,
+    });
     return await this.repository.save(entity);
   }
 
   async findAll(): Promise<Partners[]> {
     return await this.repository.find({
+      relations: ['lease', 'miningSite'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Partners> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['lease', 'miningSite'],
+    });
     if (!entity) {
       throw new NotFoundException(`Partner with ID ${id} not found`);
     }
@@ -32,7 +39,13 @@ export class PartnersService {
 
   async update(id: number, updateDto: UpdatePartnerDto): Promise<Partners> {
     const entity = await this.findOne(id);
-    Object.assign(entity, updateDto);
+    const updateData = {
+      ...updateDto,
+      sharePercentage: updateDto.sharePercentage !== undefined 
+        ? updateDto.sharePercentage?.toString() || null 
+        : entity.sharePercentage,
+    };
+    Object.assign(entity, updateData);
     return await this.repository.save(entity);
   }
 

@@ -54,18 +54,6 @@ export class Users {
   @OneToMany(() => Clients, (clients) => clients.coalAgent)
   clients: Clients[];
 
-  @OneToMany(() => Clients, (clients) => clients.createdBy)
-  clients2: Clients[];
-
-  @OneToMany(() => Expenses, (expenses) => expenses.createdBy)
-  expenses: Expenses[];
-
-  @OneToMany(() => Income, (income) => income.createdBy)
-  incomes: Income[];
-
-  @OneToMany(() => LaborCosts, (laborCosts) => laborCosts.createdBy)
-  laborCosts: LaborCosts[];
-
   @OneToMany(
     () => ProfitDistributions,
     (profitDistributions) => profitDistributions.approvedBy
