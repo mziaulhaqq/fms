@@ -83,6 +83,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         case 'Month':
           startDate = DateTime(now.year, now.month, 1);
           break;
+        case 'Year':
+          startDate = DateTime(now.year, 1, 1);
+          break;
         case 'Max':
           startDate = DateTime(2000, 1, 1); // All-time
           break;
@@ -262,6 +265,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 toY: monthIncome,
                 color: AppColors.success,
                 width: 16,
+              ),
+            ],
+          ),
+        );
+      }
+    } else if (_selectedPeriod == 'Year') {
+      // Show last 12 months
+      for (int i = 11; i >= 0; i--) {
+        final monthDate = DateTime(endDate.year, endDate.month - i, 1);
+        final monthEnd = DateTime(monthDate.year, monthDate.month + 1, 1);
+        
+        final monthExpenses = expenses.where((e) {
+          final eDate = DateTime.parse(e.expenseDate);
+          return eDate.isAfter(monthDate.subtract(const Duration(seconds: 1))) &&
+                 eDate.isBefore(monthEnd);
+        }).fold(0.0, (sum, e) => sum + e.amount);
+        
+        final monthIncome = income.where((inc) {
+          final iDate = DateTime.parse(inc.loadingDate);
+          return iDate.isAfter(monthDate.subtract(const Duration(seconds: 1))) &&
+                 iDate.isBefore(monthEnd);
+        }).fold(0.0, (sum, inc) => sum + (inc.netAmount ?? 0.0));
+        
+        chartGroups.add(
+          BarChartGroupData(
+            x: 11 - i,
+            barRods: [
+              BarChartRodData(
+                toY: monthExpenses,
+                color: AppColors.error,
+                width: 12,
+              ),
+              BarChartRodData(
+                toY: monthIncome,
+                color: AppColors.success,
+                width: 12,
               ),
             ],
           ),
@@ -562,6 +601,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(width: 8),
                     _buildPeriodChip('Month'),
                     const SizedBox(width: 8),
+                    _buildPeriodChip('Year'),
+                    const SizedBox(width: 8),
                     _buildPeriodChip('Max'),
                   ],
                 ),
@@ -589,13 +630,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 )
               else
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.5,
+                Column(
                   children: [
                     _buildMetricCard(
                       'Expenses',
@@ -603,18 +638,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Icons.trending_down,
                       AppColors.error,
                     ),
+                    const SizedBox(height: 8),
                     _buildMetricCard(
                       'Income',
                       'Rs. ${_totalIncome.toStringAsFixed(0)}',
                       Icons.trending_up,
                       AppColors.success,
                     ),
+                    const SizedBox(height: 8),
                     _buildMetricCard(
                       'Production',
                       '${_totalProduction.toStringAsFixed(1)} tons',
                       Icons.business_center,
                       AppColors.secondary,
                     ),
+                    const SizedBox(height: 8),
                     _buildMetricCard(
                       'Net Profit',
                       'Rs. ${(_totalIncome - _totalExpenses).toStringAsFixed(0)}',
@@ -926,7 +964,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
@@ -946,7 +984,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -961,21 +999,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Flexible(
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: color,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -1090,6 +1124,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else if (_selectedPeriod == 'Month') {
       // Last 6 months - show month names
       final monthDate = DateTime(now.year, now.month - (5 - index), 1);
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return months[monthDate.month - 1];
+    } else if (_selectedPeriod == 'Year') {
+      // Last 12 months - show month names
+      final monthDate = DateTime(now.year, now.month - (11 - index), 1);
       final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return months[monthDate.month - 1];
