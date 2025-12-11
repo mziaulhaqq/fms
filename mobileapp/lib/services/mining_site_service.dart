@@ -15,6 +15,20 @@ class MiningSiteService {
     }
   }
 
+  // Alias for dropdown usage - returns simplified map format
+  Future<List<Map<String, dynamic>>> getMiningSites() async {
+    try {
+      final response = await _apiClient.get(ApiConfig.miningSites);
+      final List<dynamic> data = response.data;
+      return data.map((json) => {
+        'id': json['id'],
+        'mineNumber': json['mineNumber'],
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to load mining sites: $e');
+    }
+  }
+
   Future<MiningSite> getMiningSiteById(int id) async {
     try {
       final response = await _apiClient.get('${ApiConfig.miningSites}/$id');

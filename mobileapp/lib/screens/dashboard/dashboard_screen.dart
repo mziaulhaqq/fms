@@ -14,7 +14,8 @@ import '../equipment/equipment_list_screen.dart';
 import '../income/income_list_screen.dart';
 import '../workers/workers_list_screen.dart';
 import '../partners/partners_list_screen.dart';
-import '../production/production_list_screen.dart';
+// TODO: Create production_list_screen.dart
+// import '../production/production_list_screen.dart';
 import '../truck_deliveries/truck_deliveries_list_screen.dart';
 import '../profit_distributions/profit_distributions_list_screen.dart';
 import '../users/users_list_screen.dart';
@@ -535,12 +536,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title: const Text('Production'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ProductionListScreen(),
-                  ),
+                // TODO: Create ProductionListScreen
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Production screen coming soon')),
                 );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) => const ProductionListScreen(),
+                //   ),
+                // );
               },
             ),
             // Profit Distributions - Admin only
@@ -573,6 +578,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                 },
               ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings, color: AppColors.primary),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: AppColors.error),
@@ -857,12 +871,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Production\nData',
                     Icons.analytics,
                     AppColors.info,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ProductionListScreen(),
-                      ),
-                    ),
+                    () {
+                      // TODO: Create ProductionListScreen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Production screen coming soon')),
+                      );
+                    },
                   ),
                   _buildQuickAccessButton(
                     'Clients',

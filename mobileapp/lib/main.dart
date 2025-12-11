@@ -4,6 +4,13 @@ import 'core/navigation_service.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'screens/client_types/client_types_screen.dart';
+import 'screens/expense_types/expense_types_screen.dart';
+import 'screens/account_types/account_types_screen.dart';
+import 'screens/leases/leases_screen.dart';
+import 'screens/general_ledger/general_ledger_screen.dart';
+import 'screens/liabilities/liabilities_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -79,6 +86,13 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/client-types': (context) => const ClientTypesScreen(),
+        '/expense-types': (context) => const ExpenseTypesScreen(),
+        '/account-types': (context) => const AccountTypesScreen(),
+        '/leases': (context) => const LeasesScreen(),
+        '/general-ledger': (context) => const GeneralLedgerScreen(),
+        '/liabilities': (context) => const LiabilitiesScreen(),
       },
       home: const SplashScreen(),
     );

@@ -16,6 +16,20 @@ class ClientService {
     }
   }
 
+  // Get clients as simple map for dropdowns
+  Future<List<Map<String, dynamic>>> getClientsForDropdown() async {
+    try {
+      final response = await _apiClient.get(ApiConfig.clients);
+      final List<dynamic> data = response.data;
+      return data.map((json) => {
+        'id': json['id'],
+        'clientName': json['clientName'],
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to load clients: $e');
+    }
+  }
+
   // Alias for consistency with other services
   Future<List<Client>> getAllClients() => getClients();
 
