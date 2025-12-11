@@ -5,7 +5,7 @@ class Lease {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final int createdById;
+  final int? createdById;
   final int? modifiedById;
   final List<dynamic>? miningSites;
   final List<dynamic>? partners;
@@ -17,7 +17,7 @@ class Lease {
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    required this.createdById,
+    this.createdById,
     this.modifiedById,
     this.miningSites,
     this.partners,

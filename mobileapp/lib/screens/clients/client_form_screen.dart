@@ -86,8 +86,11 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
       setState(() => _isLoading = true);
 
       try {
+        final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+        
         final client = Client(
           id: widget.client?.id,
+          siteId: widget.client?.siteId ?? siteContext.selectedSiteId,
           businessName: _businessNameController.text,
           ownerName: _ownerNameController.text,
           address: _addressController.text.isEmpty ? null : _addressController.text,

@@ -11,7 +11,7 @@ class Liability {
   final List<String>? proof;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final int createdById;
+  final int? createdById;
   final int? modifiedById;
   final Map<String, dynamic>? client;
   final Map<String, dynamic>? miningSite;
@@ -29,7 +29,7 @@ class Liability {
     this.proof,
     required this.createdAt,
     required this.updatedAt,
-    required this.createdById,
+    this.createdById,
     this.modifiedById,
     this.client,
     this.miningSite,

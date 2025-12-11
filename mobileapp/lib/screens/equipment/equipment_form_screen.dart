@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/equipment.dart';
 import '../../models/mining_site.dart';
 import '../../services/equipment_service.dart';
 import '../../services/mining_site_service.dart';
+import '../../providers/site_context_provider.dart';
 
 class EquipmentFormScreen extends StatefulWidget {
   final EquipmentModel? equipment;
@@ -55,7 +57,19 @@ class _EquipmentFormScreenState extends State<EquipmentFormScreen> {
     );
     _notesController = TextEditingController(text: widget.equipment?.notes ?? '');
     _selectedStatus = widget.equipment?.status ?? 'Operational';
-    _selectedSiteId = widget.equipment?.siteId;
+    
+    // Auto-populate siteId from context when creating new equipment
+    if (widget.equipment == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+        setState(() {
+          _selectedSiteId = siteContext.selectedSiteId;
+        });
+      });
+    } else {
+      _selectedSiteId = widget.equipment?.siteId;
+    }
+    
     if (widget.equipment?.purchaseDate != null) {
       try {
         _purchaseDate = DateTime.parse(widget.equipment!.purchaseDate!);

@@ -8,7 +8,7 @@ class GeneralLedger {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final int createdById;
+  final int? createdById;
   final int? modifiedById;
   final Map<String, dynamic>? accountType;
   final Map<String, dynamic>? miningSite;
@@ -23,7 +23,7 @@ class GeneralLedger {
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    required this.createdById,
+    this.createdById,
     this.modifiedById,
     this.accountType,
     this.miningSite,
@@ -40,7 +40,7 @@ class GeneralLedger {
       isActive: json['isActive'] ?? true,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      createdById: json['createdById'] as int? ?? 0,
+      createdById: json['createdById'] as int?,
       modifiedById: json['modifiedById'] as int?,
       accountType: json['accountType'] as Map<String, dynamic>?,
       miningSite: json['miningSite'] as Map<String, dynamic>?,

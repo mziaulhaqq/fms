@@ -1,5 +1,6 @@
 class Worker {
   final int? id;
+  final int? siteId;
   final String fullName;
   final String? employeeId; // CNIC
   final String? role;
@@ -26,6 +27,7 @@ class Worker {
 
   Worker({
     this.id,
+    this.siteId,
     required this.fullName,
     this.employeeId,
     this.role,
@@ -52,6 +54,7 @@ class Worker {
   factory Worker.fromJson(Map<String, dynamic> json) {
     return Worker(
       id: json['id'] as int?,
+      siteId: json['siteId'] as int? ?? json['site_id'] as int?,
       fullName: json['fullName'] as String? ?? json['full_name'] as String? ?? '',
       employeeId: json['employeeId'] as String? ?? json['employee_id'] as String?,
       role: json['role'] as String?,
@@ -79,6 +82,7 @@ class Worker {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'siteId': siteId,
       'fullName': fullName,
       'employeeId': employeeId,
       'role': role,
@@ -105,6 +109,7 @@ class Worker {
 
   Map<String, dynamic> toJsonRequest() {
     return {
+      if (siteId != null) 'siteId': siteId,
       'fullName': fullName,
       'employeeId': employeeId,
       'role': role,

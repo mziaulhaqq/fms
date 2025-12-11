@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/worker.dart';
 import '../../services/worker_service.dart';
+import '../../providers/site_context_provider.dart';
 
 class WorkerFormScreen extends StatefulWidget {
   final Worker? worker;
@@ -147,8 +149,11 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      
       final worker = Worker(
         id: widget.worker?.id,
+        siteId: widget.worker?.siteId ?? siteContext.selectedSiteId,
         fullName: _fullNameController.text.trim(),
         employeeId: _employeeIdController.text.trim().isEmpty 
             ? null 

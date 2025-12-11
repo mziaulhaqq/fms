@@ -1,5 +1,6 @@
 class Client {
   final int? id;
+  final int? siteId;
   final String businessName;
   final String ownerName;
   final String? address;
@@ -16,6 +17,7 @@ class Client {
 
   Client({
     this.id,
+    this.siteId,
     required this.businessName,
     required this.ownerName,
     this.address,
@@ -34,6 +36,7 @@ class Client {
   factory Client.fromJson(Map<String, dynamic> json) {
     return Client(
       id: json['id'],
+      siteId: json['siteId'],
       businessName: json['businessName'] ?? '',
       ownerName: json['ownerName'] ?? '',
       address: json['address'],
@@ -55,6 +58,7 @@ class Client {
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
+      if (siteId != null) 'siteId': siteId,
       'businessName': businessName,
       'ownerName': ownerName,
       if (address != null) 'address': address,
