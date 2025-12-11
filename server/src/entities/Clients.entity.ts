@@ -13,13 +13,18 @@ import { Users } from "./Users.entity";
 import { Income } from "./Income.entity";
 import { Liability } from "./Liability.entity";
 import { Expenses } from "./Expenses.entity";
+import { MiningSites } from "./MiningSites.entity";
 
 @Index("idx_client_business_name", ["businessName"], {})
 @Index("idx_client_type", ["clientTypeId"], {})
+@Index("idx_clients_site_id", ["siteId"], {})
 @Entity("clients", { schema: "coal_mining" })
 export class Clients extends AuditEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
+
+  @Column("integer", { name: "site_id", nullable: true })
+  siteId: number | null;
 
   @Column("integer", { name: "client_type_id", nullable: true })
   clientTypeId: number | null;
@@ -73,6 +78,10 @@ export class Clients extends AuditEntity {
   @ManyToOne(() => ClientType, (clientType) => clientType.clients)
   @JoinColumn([{ name: "client_type_id", referencedColumnName: "id" }])
   clientType: ClientType;
+
+  @ManyToOne(() => MiningSites)
+  @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])
+  miningSite: MiningSites;
 
   @ManyToOne(() => Users, (users) => users.clients)
   @JoinColumn([{ name: "coal_agent_id", referencedColumnName: "id" }])

@@ -3,6 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CreateClientDto {
+  @ApiProperty({ description: 'Mining site ID', required: false, example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  siteId?: number;
+
   @ApiProperty({ description: 'Client type ID', required: false, example: 1 })
   @IsOptional()
   @Type(() => Number)

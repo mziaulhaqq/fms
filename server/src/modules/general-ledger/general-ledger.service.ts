@@ -35,7 +35,7 @@ export class GeneralLedgerService {
 
   async findAll(): Promise<GeneralLedger[]> {
     return await this.repository.find({
-      relations: ['accountType', 'miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['accountType', 'miningSite'],
       order: { accountCode: 'ASC' },
     });
   }
@@ -43,7 +43,7 @@ export class GeneralLedgerService {
   async findByMiningSite(miningSiteId: number): Promise<GeneralLedger[]> {
     return await this.repository.find({
       where: { miningSiteId },
-      relations: ['accountType', 'createdBy', 'modifiedBy'],
+      relations: ['accountType'],
       order: { accountCode: 'ASC' },
     });
   }
@@ -51,7 +51,7 @@ export class GeneralLedgerService {
   async findByAccountType(accountTypeId: number): Promise<GeneralLedger[]> {
     return await this.repository.find({
       where: { accountTypeId },
-      relations: ['miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['miningSite'],
       order: { accountCode: 'ASC' },
     });
   }
@@ -59,7 +59,7 @@ export class GeneralLedgerService {
   async findOne(id: number): Promise<GeneralLedger> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['accountType', 'miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['accountType', 'miningSite'],
     });
     if (!entity) {
       throw new NotFoundException(`General ledger account with ID ${id} not found`);

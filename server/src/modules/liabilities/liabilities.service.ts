@@ -30,7 +30,7 @@ export class LiabilitiesService {
 
   async findAll(): Promise<Liability[]> {
     return await this.repository.find({
-      relations: ['client', 'miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['client', 'miningSite'],
       order: { date: 'DESC' },
     });
   }
@@ -38,7 +38,7 @@ export class LiabilitiesService {
   async findByClient(clientId: number): Promise<Liability[]> {
     return await this.repository.find({
       where: { clientId },
-      relations: ['miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['miningSite'],
       order: { date: 'DESC' },
     });
   }
@@ -57,7 +57,7 @@ export class LiabilitiesService {
   async findByMiningSite(miningSiteId: number): Promise<Liability[]> {
     return await this.repository.find({
       where: { miningSiteId },
-      relations: ['client', 'createdBy', 'modifiedBy'],
+      relations: ['client'],
       order: { date: 'DESC' },
     });
   }
@@ -65,7 +65,7 @@ export class LiabilitiesService {
   async findByType(type: 'Loan' | 'Advanced Payment'): Promise<Liability[]> {
     return await this.repository.find({
       where: { type },
-      relations: ['client', 'miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['client', 'miningSite'],
       order: { date: 'DESC' },
     });
   }
@@ -73,7 +73,7 @@ export class LiabilitiesService {
   async findOne(id: number): Promise<Liability> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['client', 'miningSite', 'createdBy', 'modifiedBy'],
+      relations: ['client', 'miningSite'],
     });
     if (!entity) {
       throw new NotFoundException(`Liability with ID ${id} not found`);

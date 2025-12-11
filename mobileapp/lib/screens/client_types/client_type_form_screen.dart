@@ -83,7 +83,6 @@ class _ClientTypeFormScreenState extends State<ClientTypeFormScreen> {
         title: Text(widget.clientType == null
             ? 'Add Client Type'
             : 'Edit Client Type'),
-        backgroundColor: Colors.blue,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -129,7 +128,6 @@ class _ClientTypeFormScreenState extends State<ClientTypeFormScreen> {
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: Text(

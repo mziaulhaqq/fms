@@ -9,12 +9,17 @@ import {
 } from "typeorm";
 import { PartnerPayouts } from "./PartnerPayouts.entity";
 import { Users } from "./Users.entity";
+import { MiningSites } from "./MiningSites.entity";
 
 @Index("profit_distributions_pkey", ["id"], { unique: true })
+@Index("idx_profit_distributions_site_id", ["siteId"], {})
 @Entity("profit_distributions", { schema: "coal_mining" })
 export class ProfitDistributions {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
+
+  @Column("integer", { name: "site_id", nullable: true })
+  siteId: number | null;
 
   @Column("date", { name: "period_start" })
   periodStart: string;
@@ -68,4 +73,8 @@ export class ProfitDistributions {
   @ManyToOne(() => Users, (users) => users.profitDistributions)
   @JoinColumn([{ name: "approved_by", referencedColumnName: "id" }])
   approvedBy: Users;
+
+  @ManyToOne(() => MiningSites)
+  @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])
+  miningSite: MiningSites;
 }

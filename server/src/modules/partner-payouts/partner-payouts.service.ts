@@ -12,18 +12,34 @@ export class PartnerPayoutsService {
   ) {}
 
   async create(createDto: CreatePartnerPayoutDto): Promise<PartnerPayouts> {
-    const entity = this.repository.create(createDto);
+    const entity = this.repository.create({
+      ...createDto,
+      sharePercentage: createDto.sharePercentage.toString(),
+      payoutAmount: createDto.payoutAmount.toString(),
+    });
     return await this.repository.save(entity);
   }
 
   async findAll(): Promise<PartnerPayouts[]> {
     return await this.repository.find({
+      relations: ['distribution', 'partner', 'miningSite'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findBySite(siteId: number): Promise<PartnerPayouts[]> {
+    return await this.repository.find({
+      where: { siteId },
+      relations: ['distribution', 'partner', 'miningSite'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<PartnerPayouts> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['distribution', 'partner', 'miningSite'],
+    });
     if (!entity) {
       throw new NotFoundException(`Partner Payout with ID ${id} not found`);
     }
@@ -32,7 +48,14 @@ export class PartnerPayoutsService {
 
   async update(id: number, updateDto: UpdatePartnerPayoutDto): Promise<PartnerPayouts> {
     const entity = await this.findOne(id);
-    Object.assign(entity, updateDto);
+    const updateData: any = { ...updateDto };
+    if (updateDto.sharePercentage !== undefined) {
+      updateData.sharePercentage = updateDto.sharePercentage.toString();
+    }
+    if (updateDto.payoutAmount !== undefined) {
+      updateData.payoutAmount = updateDto.payoutAmount.toString();
+    }
+    Object.assign(entity, updateData);
     return await this.repository.save(entity);
   }
 

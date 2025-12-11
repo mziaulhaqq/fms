@@ -18,12 +18,24 @@ export class ClientsService {
 
   async findAll(): Promise<Clients[]> {
     return await this.clientRepository.find({
+      relations: ['clientType', 'miningSite'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findBySite(siteId: number): Promise<Clients[]> {
+    return await this.clientRepository.find({
+      where: { siteId },
+      relations: ['clientType', 'miningSite'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Clients> {
-    const client = await this.clientRepository.findOne({ where: { id } });
+    const client = await this.clientRepository.findOne({ 
+      where: { id },
+      relations: ['clientType', 'miningSite'],
+    });
     if (!client) {
       throw new NotFoundException(`Client with ID ${id} not found`);
     }

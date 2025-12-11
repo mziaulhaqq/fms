@@ -28,7 +28,6 @@ export class ClientTypesService {
 
   async findAll(): Promise<ClientType[]> {
     return await this.repository.find({
-      relations: ['createdBy', 'modifiedBy'],
       order: { name: 'ASC' },
     });
   }
@@ -43,7 +42,6 @@ export class ClientTypesService {
   async findOne(id: number): Promise<ClientType> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['createdBy', 'modifiedBy'],
     });
     if (!entity) {
       throw new NotFoundException(`Client type with ID ${id} not found`);

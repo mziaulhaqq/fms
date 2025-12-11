@@ -9,8 +9,9 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
 import { CreateClientDto, UpdateClientDto } from './dto';
 import { Clients } from '../../entities/Clients.entity';
@@ -29,9 +30,13 @@ export class ClientsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all clients' })
+  @ApiOperation({ summary: 'Get all clients or filter by site' })
+  @ApiQuery({ name: 'siteId', required: false, description: 'Filter by mining site ID' })
   @ApiResponse({ status: 200, description: 'List of clients' })
-  findAll(): Promise<Clients[]> {
+  findAll(@Query('siteId', new ParseIntPipe({ optional: true })) siteId?: number): Promise<Clients[]> {
+    if (siteId) {
+      return this.clientsService.findBySite(siteId);
+    }
     return this.clientsService.findAll();
   }
 

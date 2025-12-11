@@ -5,7 +5,7 @@ class ClientType {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final int createdById;
+  final int? createdById;
   final int? modifiedById;
 
   ClientType({
@@ -15,7 +15,7 @@ class ClientType {
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    required this.createdById,
+    this.createdById,
     this.modifiedById,
   });
 

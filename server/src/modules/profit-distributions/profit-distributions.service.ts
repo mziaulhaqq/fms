@@ -12,18 +12,37 @@ export class ProfitDistributionsService {
   ) {}
 
   async create(createDto: CreateProfitDistributionDto): Promise<ProfitDistributions> {
-    const entity = this.repository.create(createDto);
+    const { approvedBy, totalRevenue, totalExpenses, totalProfit, ...rest } = createDto;
+    const entity = this.repository.create({
+      ...rest,
+      totalRevenue: totalRevenue.toString(),
+      totalExpenses: totalExpenses.toString(),
+      totalProfit: totalProfit.toString(),
+      ...(approvedBy && { approvedBy: { id: approvedBy } as any }),
+    });
     return await this.repository.save(entity);
   }
 
   async findAll(): Promise<ProfitDistributions[]> {
     return await this.repository.find({
+      relations: ['approvedBy', 'miningSite'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findBySite(siteId: number): Promise<ProfitDistributions[]> {
+    return await this.repository.find({
+      where: { siteId },
+      relations: ['approvedBy', 'miningSite'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<ProfitDistributions> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['approvedBy', 'miningSite'],
+    });
     if (!entity) {
       throw new NotFoundException(`Profit Distribution with ID ${id} not found`);
     }
@@ -32,7 +51,20 @@ export class ProfitDistributionsService {
 
   async update(id: number, updateDto: UpdateProfitDistributionDto): Promise<ProfitDistributions> {
     const entity = await this.findOne(id);
-    Object.assign(entity, updateDto);
+    const updateData: any = { ...updateDto };
+    if (updateDto.totalRevenue !== undefined) {
+      updateData.totalRevenue = updateDto.totalRevenue.toString();
+    }
+    if (updateDto.totalExpenses !== undefined) {
+      updateData.totalExpenses = updateDto.totalExpenses.toString();
+    }
+    if (updateDto.totalProfit !== undefined) {
+      updateData.totalProfit = updateDto.totalProfit.toString();
+    }
+    if (updateDto.approvedBy !== undefined) {
+      updateData.approvedBy = { id: updateDto.approvedBy };
+    }
+    Object.assign(entity, updateData);
     return await this.repository.save(entity);
   }
 

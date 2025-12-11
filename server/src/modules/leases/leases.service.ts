@@ -22,7 +22,7 @@ export class LeasesService {
 
   async findAll(): Promise<Lease[]> {
     return await this.repository.find({
-      relations: ['miningSites', 'partners', 'createdBy', 'modifiedBy'],
+      relations: ['miningSites', 'partners'],
       order: { leaseName: 'ASC' },
     });
   }
@@ -38,7 +38,7 @@ export class LeasesService {
   async findOne(id: number): Promise<Lease> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['miningSites', 'partners', 'createdBy', 'modifiedBy'],
+      relations: ['miningSites', 'partners'],
     });
     if (!entity) {
       throw new NotFoundException(`Lease with ID ${id} not found`);
