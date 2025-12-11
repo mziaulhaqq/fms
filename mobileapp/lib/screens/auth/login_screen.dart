@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/auth_service.dart';
+import '../site_selection/site_selection_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,9 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (mounted) {
           if (result['success'] == true) {
-            // Login successful - navigate to dashboard
+            // Login successful - navigate to site selection
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              MaterialPageRoute(builder: (_) => const SiteSelectionScreen()),
             );
           } else {
             // Login failed - show error message

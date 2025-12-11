@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/client.dart';
 import '../../services/client_service.dart';
+import '../../services/client_type_service.dart';
+import '../../providers/site_context_provider.dart';
 
 class ClientFormScreen extends StatefulWidget {
   final Client? client;
@@ -15,6 +18,7 @@ class ClientFormScreen extends StatefulWidget {
 class _ClientFormScreenState extends State<ClientFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _clientService = ClientService();
+  final _clientTypeService = ClientTypeService();
   bool _isLoading = false;
 
   late TextEditingController _businessNameController;
@@ -25,6 +29,10 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
   late TextEditingController _munshiContactController;
   late TextEditingController _descriptionController;
   bool _isActive = true;
+  int? _selectedClientTypeId;
+  
+  List<Map<String, dynamic>> _clientTypes = [];
+  bool _isLoadingTypes = true;
 
   @override
   void initState() {
@@ -37,6 +45,8 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
     _munshiContactController = TextEditingController(text: widget.client?.munshiContact ?? '');
     _descriptionController = TextEditingController(text: widget.client?.description ?? '');
     _isActive = widget.client?.isActive ?? true;
+    _selectedClientTypeId = widget.client?.clientTypeId;
+    _loadClientTypes();
   }
 
   @override
@@ -49,6 +59,26 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
     _munshiContactController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadClientTypes() async {
+    try {
+      final types = await _clientTypeService.getActive();
+      setState(() {
+        _clientTypes = types.map((type) => {
+          'id': type.id,
+          'name': type.name,
+        }).toList();
+        _isLoadingTypes = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingTypes = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading client types: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _handleSubmit() async {
@@ -66,6 +96,7 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
           munshiContact: _munshiContactController.text.isEmpty ? null : _munshiContactController.text,
           description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
           isActive: _isActive,
+          clientTypeId: _selectedClientTypeId,
         );
 
         if (widget.client?.id != null) {
@@ -125,6 +156,36 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
               ),
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Business name is required' : null,
+            ),
+            const SizedBox(height: 16),
+            // Client Type Dropdown
+            DropdownButtonFormField<int>(
+              value: _selectedClientTypeId,
+              decoration: InputDecoration(
+                labelText: 'Client Type (Optional)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                filled: true,
+                fillColor: AppColors.surface,
+              ),
+              items: _isLoadingTypes
+                  ? []
+                  : [
+                      const DropdownMenuItem<int>(
+                        value: null,
+                        child: Text('No Type'),
+                      ),
+                      ..._clientTypes.map((type) {
+                        return DropdownMenuItem<int>(
+                          value: type['id'] as int,
+                          child: Text(type['name'] as String),
+                        );
+                      }).toList(),
+                    ],
+              onChanged: _isLoadingTypes
+                  ? null
+                  : (value) {
+                      setState(() => _selectedClientTypeId = value);
+                    },
             ),
             const SizedBox(height: 16),
             TextFormField(

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/auth_service.dart';
 import '../../services/expense_service.dart';
 import '../../services/income_service.dart';
+import '../../providers/site_context_provider.dart';
 // TODO: Add production service when endpoint is created
 // import '../../services/production_service.dart';
 import '../auth/login_screen.dart';
+import '../site_selection/site_selection_screen.dart';
 import '../clients/clients_list_screen.dart';
 import '../expense_categories/expense_categories_list_screen.dart';
 import '../expenses/expenses_list_screen.dart';
@@ -374,12 +377,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final siteContext = Provider.of<SiteContextProvider>(context);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Dashboard', style: TextStyle(fontSize: 18)),
+            if (siteContext.hasSelection)
+              Text(
+                siteContext.getContextDisplay(),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+              ),
+          ],
+        ),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnPrimary,
         elevation: 0,
+        actions: [
+          // Site context button
+          IconButton(
+            icon: const Icon(Icons.location_on),
+            tooltip: 'Change Lease/Site',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SiteSelectionScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(

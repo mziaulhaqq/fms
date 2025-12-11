@@ -9,6 +9,7 @@ class Client {
   final String? description;
   final String? onboardingDate;
   final bool isActive;
+  final int? clientTypeId;
   final List<String> documentFiles;
   final String? createdAt;
   final String? updatedAt;
@@ -24,6 +25,7 @@ class Client {
     this.description,
     this.onboardingDate,
     this.isActive = true,
+    this.clientTypeId,
     this.documentFiles = const [],
     this.createdAt,
     this.updatedAt,
@@ -41,6 +43,7 @@ class Client {
       description: json['description'],
       onboardingDate: json['onboardingDate'],
       isActive: json['isActive'] ?? true,
+      clientTypeId: json['clientTypeId'],
       documentFiles: json['documentFiles'] != null 
           ? List<String>.from(json['documentFiles'])
           : [],
@@ -61,6 +64,7 @@ class Client {
       if (description != null) 'description': description,
       if (onboardingDate != null) 'onboardingDate': onboardingDate,
       'isActive': isActive,
+      if (clientTypeId != null) 'clientTypeId': clientTypeId,
       'documentFiles': documentFiles,
     };
   }

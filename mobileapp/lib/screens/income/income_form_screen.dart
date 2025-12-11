@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/income.dart';
 import '../../models/mining_site.dart';
 import '../../services/income_service.dart';
 import '../../services/mining_site_service.dart';
+import '../../providers/site_context_provider.dart';
 
 class IncomeFormScreen extends StatefulWidget {
   final Income? income;
@@ -37,6 +39,17 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Get site context
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      if (siteContext.selectedSiteId != null && _selectedSiteId == null) {
+        setState(() {
+          _selectedSiteId = siteContext.selectedSiteId;
+        });
+      }
+    });
+    
     _isEditing = widget.income != null;
     _truckNumberController = TextEditingController(text: widget.income?.truckNumber ?? '');
     _driverNameController = TextEditingController(text: widget.income?.driverName ?? '');

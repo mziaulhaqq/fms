@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/partner.dart';
 import '../../models/mining_site.dart';
+import '../../models/lease.dart';
 import '../../services/partner_service.dart';
 import '../../services/mining_site_service.dart';
+import '../../services/lease_service.dart';
+import '../../providers/site_context_provider.dart';
 
 class PartnerFormScreen extends StatefulWidget {
   final Partner? partner;
@@ -18,8 +22,11 @@ class _PartnerFormScreenState extends State<PartnerFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _partnerService = PartnerService();
   final _miningSiteService = MiningSiteService();
+  final _leaseService = LeaseService();
   bool _isLoading = false;
+  bool _isLoadingData = true;
   List<MiningSite> _miningSites = [];
+  List<Lease> _leases = [];
 
   late TextEditingController _nameController;
   late TextEditingController _cnicController;
@@ -27,13 +34,29 @@ class _PartnerFormScreenState extends State<PartnerFormScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
   late TextEditingController _sharePercentageController;
-  late TextEditingController _leaseController;
+  int? _selectedLeaseId;
   int? _selectedMineId;
   bool _isActive = true;
 
   @override
   void initState() {
     super.initState();
+    
+    // Get site context
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      if (siteContext.selectedLeaseId != null && _selectedLeaseId == null) {
+        setState(() {
+          _selectedLeaseId = siteContext.selectedLeaseId;
+        });
+      }
+      if (siteContext.selectedSiteId != null && _selectedMineId == null) {
+        setState(() {
+          _selectedMineId = siteContext.selectedSiteId;
+        });
+      }
+    });
+    
     _nameController = TextEditingController(text: widget.partner?.name ?? '');
     _cnicController = TextEditingController(text: widget.partner?.cnic ?? '');
     _emailController = TextEditingController(text: widget.partner?.email ?? '');
@@ -42,10 +65,10 @@ class _PartnerFormScreenState extends State<PartnerFormScreen> {
     _sharePercentageController = TextEditingController(
       text: widget.partner?.sharePercentage?.toString() ?? '',
     );
-    _leaseController = TextEditingController(text: widget.partner?.lease ?? '');
-    _selectedMineId = widget.partner?.mineNumber;
+    _selectedLeaseId = widget.partner?.leaseId;
+    _selectedMineId = widget.partner?.miningSiteId;
     _isActive = widget.partner?.isActive ?? true;
-    _loadMiningSites();
+    _loadData();
   }
 
   @override
@@ -56,19 +79,24 @@ class _PartnerFormScreenState extends State<PartnerFormScreen> {
     _phoneController.dispose();
     _addressController.dispose();
     _sharePercentageController.dispose();
-    _leaseController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadMiningSites() async {
+  Future<void> _loadData() async {
     try {
       final sites = await _miningSiteService.getAllMiningSites();
-      setState(() => _miningSites = sites);
+      final leases = await _leaseService.getActive();
+      setState(() {
+        _miningSites = sites;
+        _leases = leases;
+        _isLoadingData = false;
+      });
     } catch (e) {
+      setState(() => _isLoadingData = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load mining sites: $e', style: const TextStyle(fontSize: 13)),
+            content: Text('Failed to load data: $e', style: const TextStyle(fontSize: 13)),
             backgroundColor: AppColors.error,
           ),
         );
@@ -91,8 +119,8 @@ class _PartnerFormScreenState extends State<PartnerFormScreen> {
           sharePercentage: _sharePercentageController.text.isEmpty
               ? null
               : double.tryParse(_sharePercentageController.text),
-          lease: _leaseController.text.isEmpty ? null : _leaseController.text,
-          mineNumber: _selectedMineId,
+          leaseId: _selectedLeaseId,
+          miningSiteId: _selectedMineId,
           isActive: _isActive,
           createdAt: widget.partner?.createdAt ?? DateTime.now(),
           updatedAt: DateTime.now(),
@@ -261,45 +289,68 @@ class _PartnerFormScreenState extends State<PartnerFormScreen> {
             ),
             const SizedBox(height: 14),
 
-            // Lease
-            TextFormField(
-              controller: _leaseController,
-              style: const TextStyle(fontSize: 14),
-              decoration: InputDecoration(
-                labelText: 'Lease',
-                labelStyle: const TextStyle(fontSize: 13),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                filled: true,
-                fillColor: AppColors.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              ),
-            ),
+            // Lease Dropdown
+            _isLoadingData
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<int>(
+                    value: _selectedLeaseId,
+                    style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                    decoration: InputDecoration(
+                      labelText: 'Lease',
+                      labelStyle: const TextStyle(fontSize: 13),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    items: [
+                      const DropdownMenuItem<int>(
+                        value: null,
+                        child: Text('Select Lease', style: TextStyle(fontSize: 14)),
+                      ),
+                      ..._leases.map((lease) => DropdownMenuItem<int>(
+                            value: lease.id,
+                            child: Text(lease.leaseName, style: const TextStyle(fontSize: 14)),
+                          )),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedLeaseId = value;
+                        // Reset mine selection when lease changes
+                        _selectedMineId = null;
+                      });
+                    },
+                  ),
             const SizedBox(height: 14),
 
-            // Mining Site Dropdown
-            DropdownButtonFormField<int>(
-              value: _selectedMineId,
-              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                labelText: 'Mining Site',
-                labelStyle: const TextStyle(fontSize: 13),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                filled: true,
-                fillColor: AppColors.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              ),
-              items: [
-                const DropdownMenuItem<int>(
-                  value: null,
-                  child: Text('Select Mining Site', style: TextStyle(fontSize: 14)),
-                ),
-                ..._miningSites.map((site) => DropdownMenuItem<int>(
-                      value: site.id,
-                      child: Text(site.name, style: const TextStyle(fontSize: 14)),
-                    )),
-              ],
-              onChanged: (value) => setState(() => _selectedMineId = value),
-            ),
+            // Mining Site Dropdown (filtered by lease)
+            _isLoadingData
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<int>(
+                    value: _selectedMineId,
+                    style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                    decoration: InputDecoration(
+                      labelText: 'Mining Site',
+                      labelStyle: const TextStyle(fontSize: 13),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    items: [
+                      const DropdownMenuItem<int>(
+                        value: null,
+                        child: Text('Select Mining Site', style: TextStyle(fontSize: 14)),
+                      ),
+                      ..._miningSites
+                          .where((site) => _selectedLeaseId == null || site.leaseId == _selectedLeaseId)
+                          .map((site) => DropdownMenuItem<int>(
+                                value: site.id,
+                                child: Text(site.name, style: const TextStyle(fontSize: 14)),
+                              )),
+                    ],
+                    onChanged: (value) => setState(() => _selectedMineId = value),
+                  ),
             const SizedBox(height: 14),
 
             // Active Switch

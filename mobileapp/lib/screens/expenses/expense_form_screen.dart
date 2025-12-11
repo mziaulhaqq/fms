@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import '../../core/constants/app_colors.dart';
 import '../../models/expense.dart';
@@ -9,6 +10,8 @@ import '../../models/expense_category.dart';
 import '../../services/expense_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../services/expense_category_service.dart';
+import '../../services/expense_type_service.dart';
+import '../../providers/site_context_provider.dart';
 
 class ExpenseFormScreen extends StatefulWidget {
   final Expense? expense;
@@ -24,6 +27,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   final ExpenseService _expenseService = ExpenseService();
   final MiningSiteService _siteService = MiningSiteService();
   final ExpenseCategoryService _categoryService = ExpenseCategoryService();
+  final ExpenseTypeService _expenseTypeService = ExpenseTypeService();
 
   late TextEditingController _amountController;
   late TextEditingController _notesController;
@@ -31,11 +35,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   DateTime _selectedDate = DateTime.now();
   int? _selectedSiteId;
   int? _selectedCategoryId;
+  int? _selectedExpenseTypeId;
   List<XFile> _selectedImages = [];
   final ImagePicker _imagePicker = ImagePicker();
   
   List<MiningSite> _sites = [];
   List<ExpenseCategory> _categories = [];
+  List<Map<String, dynamic>> _expenseTypes = [];
   bool _isLoading = false;
   bool _isLoadingData = true;
   bool get _isEditMode => widget.expense != null;
@@ -43,6 +49,17 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Get site context
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      if (siteContext.selectedSiteId != null && _selectedSiteId == null) {
+        setState(() {
+          _selectedSiteId = siteContext.selectedSiteId;
+        });
+      }
+    });
+    
     _amountController = TextEditingController(
       text: widget.expense?.amount.toString() ?? '',
     );
@@ -53,6 +70,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     if (_isEditMode) {
       _selectedSiteId = widget.expense!.siteId;
       _selectedCategoryId = widget.expense!.categoryId;
+      _selectedExpenseTypeId = widget.expense!.expenseTypeId;
       try {
         _selectedDate = DateTime.parse(widget.expense!.expenseDate);
       } catch (e) {
@@ -67,9 +85,14 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     try {
       final sites = await _siteService.getAllMiningSites();
       final categories = await _categoryService.getExpenseCategories();
+      final types = await _expenseTypeService.getActive();
       setState(() {
         _sites = sites;
         _categories = categories;
+        _expenseTypes = types.map((type) => {
+          'id': type.id,
+          'name': type.name,
+        }).toList();
         _isLoadingData = false;
       });
     } catch (e) {
@@ -198,6 +221,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         id: widget.expense?.id,
         siteId: _selectedSiteId!,
         categoryId: _selectedCategoryId,
+        expenseTypeId: _selectedExpenseTypeId,
         expenseDate: _selectedDate.toIso8601String().split('T')[0],
         amount: double.parse(_amountController.text.trim()),
         notes: _notesController.text.trim().isEmpty
@@ -301,6 +325,38 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                               setState(() => _selectedCategoryId = value);
                             },
                           ),
+                        ),
+                        
+                        const Divider(height: 1),
+                        
+                        // Expense Type Dropdown
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: _isLoadingData
+                              ? const Center(child: CircularProgressIndicator())
+                              : DropdownButtonFormField<int>(
+                                  value: _selectedExpenseTypeId,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Expense Type',
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  ),
+                                  items: [
+                                    const DropdownMenuItem<int>(
+                                      value: null,
+                                      child: Text('No Type', style: TextStyle(color: AppColors.textSecondary)),
+                                    ),
+                                    ..._expenseTypes.map((type) {
+                                      return DropdownMenuItem<int>(
+                                        value: type['id'] as int,
+                                        child: Text(type['name'] as String),
+                                      );
+                                    }).toList(),
+                                  ],
+                                  onChanged: _isLoading ? null : (value) {
+                                    setState(() => _selectedExpenseTypeId = value);
+                                  },
+                                ),
                         ),
                         
                         const Divider(height: 1),

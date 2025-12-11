@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'core/constants/app_colors.dart';
 import 'core/navigation_service.dart';
 import 'services/auth_service.dart';
+import 'providers/site_context_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/settings/settings_screen.dart';
@@ -11,6 +13,7 @@ import 'screens/account_types/account_types_screen.dart';
 import 'screens/leases/leases_screen.dart';
 import 'screens/general_ledger/general_ledger_screen.dart';
 import 'screens/liabilities/liabilities_screen.dart';
+import 'screens/site_selection/site_selection_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,11 +24,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Coal Mining FMS',
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey, // Add global navigator key for navigation from anywhere
-      theme: ThemeData(
+    return ChangeNotifierProvider(
+      create: (_) => SiteContextProvider()..initialize(),
+      child: MaterialApp(
+        title: 'Coal Mining FMS',
+        debugShowCheckedModeBanner: false,
+        navigatorKey: navigatorKey, // Add global navigator key for navigation from anywhere
+        theme: ThemeData(
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
@@ -86,6 +91,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/site-selection': (context) => const SiteSelectionScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/client-types': (context) => const ClientTypesScreen(),
         '/expense-types': (context) => const ExpenseTypesScreen(),
@@ -95,6 +101,7 @@ class MyApp extends StatelessWidget {
         '/liabilities': (context) => const LiabilitiesScreen(),
       },
       home: const SplashScreen(),
+      ),
     );
   }
 }

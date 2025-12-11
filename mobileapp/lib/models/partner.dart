@@ -6,11 +6,15 @@ class Partner {
   final String cnic;
   final double? sharePercentage;
   final String? address;
-  final String? lease;
-  final int? mineNumber;
+  final int? leaseId;
+  final int? miningSiteId;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  // Navigation properties (from backend relations)
+  final String? leaseName;
+  final String? siteName;
 
   Partner({
     required this.id,
@@ -20,11 +24,13 @@ class Partner {
     required this.cnic,
     this.sharePercentage,
     this.address,
-    this.lease,
-    this.mineNumber,
+    this.leaseId,
+    this.miningSiteId,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
+    this.leaseName,
+    this.siteName,
   });
 
   factory Partner.fromJson(Map<String, dynamic> json) {
@@ -38,15 +44,17 @@ class Partner {
           ? double.tryParse(json['sharePercentage'].toString())
           : null,
       address: json['address'] as String?,
-      lease: json['lease'] as String?,
-      mineNumber: json['mineNumber'] != null
-          ? (json['mineNumber'] is Map
-              ? json['mineNumber']['id'] as int?
-              : json['mineNumber'] as int?)
+      leaseId: json['leaseId'] as int?,
+      miningSiteId: json['miningSiteId'] != null
+          ? (json['miningSiteId'] is Map
+              ? json['miningSiteId']['id'] as int?
+              : json['miningSiteId'] as int?)
           : null,
       isActive: json['isActive'] as bool? ?? true,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      leaseName: json['leaseName'] as String?,
+      siteName: json['siteName'] as String?,
     );
   }
 
@@ -59,8 +67,8 @@ class Partner {
       'cnic': cnic,
       'sharePercentage': sharePercentage,
       'address': address,
-      'lease': lease,
-      'mineNumber': mineNumber,
+      'leaseId': leaseId,
+      'miningSiteId': miningSiteId,
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),

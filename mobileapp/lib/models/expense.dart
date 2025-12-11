@@ -2,6 +2,7 @@ class Expense {
   final int? id;
   final int siteId;
   final int? categoryId;
+  final int? expenseTypeId;
   final String expenseDate;
   final double amount;
   final String? notes;
@@ -18,6 +19,7 @@ class Expense {
     this.id,
     required this.siteId,
     this.categoryId,
+    this.expenseTypeId,
     required this.expenseDate,
     required this.amount,
     this.notes,
@@ -34,6 +36,7 @@ class Expense {
       id: json['id'],
       siteId: json['siteId'] ?? json['site_id'] ?? 0,
       categoryId: json['categoryId'] ?? json['category_id'],
+      expenseTypeId: json['expenseTypeId'] ?? json['expense_type_id'],
       expenseDate: json['expenseDate'] ?? json['expense_date'] ?? '',
       amount: _parseAmount(json['amount']),
       notes: json['notes'],
@@ -63,6 +66,7 @@ class Expense {
       if (id != null) 'id': id,
       'siteId': siteId,
       if (categoryId != null) 'categoryId': categoryId,
+      if (expenseTypeId != null) 'expenseTypeId': expenseTypeId,
       'expenseDate': expenseDate,
       'amount': amount,
       if (notes != null && notes!.isNotEmpty) 'notes': notes,
@@ -74,6 +78,7 @@ class Expense {
     return {
       'siteId': siteId,
       if (categoryId != null) 'categoryId': categoryId,
+      if (expenseTypeId != null) 'expenseTypeId': expenseTypeId,
       'expenseDate': expenseDate,
       'amount': amount,
       if (notes != null && notes!.isNotEmpty) 'notes': notes,
