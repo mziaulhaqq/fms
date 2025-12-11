@@ -4,7 +4,8 @@ import '../../core/constants/app_colors.dart';
 import '../../services/auth_service.dart';
 import '../../services/expense_service.dart';
 import '../../services/income_service.dart';
-import '../../services/production_service.dart';
+// TODO: Add production service when endpoint is created
+// import '../../services/production_service.dart';
 import '../auth/login_screen.dart';
 import '../clients/clients_list_screen.dart';
 import '../expense_categories/expense_categories_list_screen.dart';
@@ -31,7 +32,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _authService = AuthService();
   final _expenseService = ExpenseService();
   final _incomeService = IncomeService();
-  final _productionService = ProductionService();
+  // TODO: Add production service when endpoint is created
+  // final _productionService = ProductionService();
   
   String? _userEmail;
   bool _isAdmin = false;
@@ -115,19 +117,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }).toList();
       print('📊 Filtered income records: ${filteredIncome.length} (from $startDate to $now)');
       
-      // Load production
-      final production = await _productionService.getProduction();
-      print('📊 Total production records: ${production.length}');
-      final filteredProduction = production.where((prod) {
-        return prod.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
-               prod.date.isBefore(now.add(const Duration(days: 1)));
-      }).toList();
-      print('📊 Filtered production records: ${filteredProduction.length}');
+      // TODO: Load production when endpoint is created
+      // final production = await _productionService.getProduction();
+      // final filteredProduction = production.where((prod) {
+      //   return prod.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+      //          prod.date.isBefore(now.add(const Duration(days: 1)));
+      // }).toList();
+      final filteredProduction = []; // Empty list for now
       
       setState(() {
         _totalExpenses = filteredExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
         _totalIncome = filteredIncome.fold(0.0, (sum, inc) => sum + (inc.netAmount ?? 0.0));
-        _totalProduction = filteredProduction.fold(0.0, (sum, prod) => sum + prod.quantity);
+        _totalProduction = 0.0; // Set to 0 for now
         
         print('📊 TOTALS - Expenses: $_totalExpenses, Income: $_totalIncome, Production: $_totalProduction');
         
@@ -518,38 +519,107 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
+            const Divider(),
+            // Financial Management Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'FINANCIAL MANAGEMENT',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
             ListTile(
-              leading: const Icon(Icons.local_shipping, color: AppColors.primary),
-              title: const Text('Truck Deliveries'),
+              leading: const Icon(Icons.account_balance, color: AppColors.success),
+              title: const Text('General Ledger'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const TruckDeliveriesListScreen(),
+                Navigator.pushNamed(context, '/general-ledger');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.credit_card, color: AppColors.warning),
+              title: const Text('Liabilities'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/liabilities');
+              },
+            ),
+            const Divider(),
+            // Lease Management Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'LEASE MANAGEMENT',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description, color: AppColors.info),
+              title: const Text('Leases'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/leases');
+              },
+            ),
+            const Divider(),
+            // Configuration Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'CONFIGURATION',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.category_outlined, color: AppColors.secondary),
+              title: const Text('Client Types'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/client-types');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.monetization_on_outlined, color: AppColors.accent),
+              title: const Text('Expense Types'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/expense-types');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_tree_outlined, color: AppColors.primaryLight),
+              title: const Text('Account Types'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/account-types');
+              },
+            ),
+            const Divider(),
+            // Admin Section
+            if (_isAdmin) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  'ADMINISTRATION',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textSecondary,
                   ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.analytics, color: AppColors.primary),
-              title: const Text('Production'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Create ProductionListScreen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Production screen coming soon')),
-                );
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (_) => const ProductionListScreen(),
-                //   ),
-                // );
-              },
-            ),
-            // Profit Distributions - Admin only
-            if (_isAdmin)
+                ),
+              ),
               ListTile(
                 leading: const Icon(Icons.pie_chart, color: AppColors.primary),
                 title: const Text('Profit Distributions'),
@@ -563,8 +633,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                 },
               ),
-            // Users - Admin only
-            if (_isAdmin)
               ListTile(
                 leading: const Icon(Icons.admin_panel_settings, color: AppColors.primary),
                 title: const Text('Users'),
@@ -578,7 +646,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                 },
               ),
-            const Divider(),
+              const Divider(),
+            ],
             ListTile(
               leading: const Icon(Icons.settings, color: AppColors.primary),
               title: const Text('Settings'),
@@ -662,9 +731,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 8),
                     _buildMetricCard(
                       'Production',
-                      '${_totalProduction.toStringAsFixed(1)} tons',
+                      'Coming Soon',
                       Icons.business_center,
-                      AppColors.secondary,
+                      AppColors.textSecondary,
                     ),
                     const SizedBox(height: 8),
                     _buildMetricCard(
