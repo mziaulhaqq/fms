@@ -23,7 +23,7 @@ class ClientService {
       final List<dynamic> data = response.data;
       return data.map((json) => {
         'id': json['id'],
-        'clientName': json['clientName'],
+        'clientName': json['businessName'], // Map businessName to clientName for dropdown
       }).toList();
     } catch (e) {
       throw Exception('Failed to load clients: $e');
@@ -46,9 +46,17 @@ class ClientService {
   // Create client
   Future<Client> createClient(Client client) async {
     try {
+      final data = client.toJson();
+      // Remove fields that shouldn't be in create DTO
+      data.remove('id');
+      data.remove('createdAt');
+      data.remove('updatedAt');
+      data.remove('createdById');
+      data.remove('modifiedById');
+      
       final response = await _apiClient.post(
         ApiConfig.clients,
-        data: client.toJson(),
+        data: data,
       );
       return Client.fromJson(response.data);
     } catch (e) {
@@ -59,9 +67,17 @@ class ClientService {
   // Update client
   Future<Client> updateClient(int id, Client client) async {
     try {
+      final data = client.toJson();
+      // Remove fields that shouldn't be in update DTO
+      data.remove('id');
+      data.remove('createdAt');
+      data.remove('updatedAt');
+      data.remove('createdById');
+      data.remove('modifiedById');
+      
       final response = await _apiClient.patch(
         '${ApiConfig.clients}/$id',
-        data: client.toJson(),
+        data: data,
       );
       return Client.fromJson(response.data);
     } catch (e) {

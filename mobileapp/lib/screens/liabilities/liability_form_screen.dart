@@ -185,7 +185,7 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                     items: _clients.map((client) {
                       return DropdownMenuItem<int>(
                         value: client['id'] as int,
-                        child: Text(client['clientName'] as String),
+                        child: Text((client['clientName'] as String?) ?? 'Unknown Client'),
                       );
                     }).toList(),
                     onChanged: (value) => setState(() => _clientId = value),
@@ -205,7 +205,7 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                     items: _miningSites.map((site) {
                       return DropdownMenuItem<int>(
                         value: site['id'] as int,
-                        child: Text(site['name'] as String),
+                        child: Text((site['name'] as String?) ?? 'Unknown Site'),
                       );
                     }).toList(),
                     onChanged: (value) => setState(() => _miningSiteId = value),
@@ -215,18 +215,19 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Date *'),
-                    subtitle: Text(
-                      _selectedDate.toString().split(' ')[0],
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    trailing: const Icon(Icons.calendar_today),
+                  // Date field with consistent styling
+                  InkWell(
                     onTap: _selectDate,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                      side: const BorderSide(color: Colors.grey),
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Date *',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.calendar_today),
+                      ),
+                      child: Text(
+                        _selectedDate.toString().split(' ')[0],
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

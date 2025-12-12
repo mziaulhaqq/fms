@@ -169,7 +169,7 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
                             children: [
                               Expanded(
                                 child: Text(
-                                  liability.client?['name'] ?? 'Unknown Client',
+                                  liability.client?['businessName'] ?? 'Unknown Client',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),

@@ -1,6 +1,7 @@
 class Income {
   final int? id;
   final int siteId;
+  final int? clientId;
   final String truckNumber;
   final String loadingDate;
   final String driverName;
@@ -10,15 +11,20 @@ class Income {
   final String? destinationFactory;
   final double? netAmount;
   final String? paymentStatus;
+  final int? liabilityId;
+  final double? amountFromLiability;
   final String? createdAt;
   final String? updatedAt;
 
-  // Navigation property
+  // Navigation properties
   final String? siteName;
+  final Map<String, dynamic>? client;
+  final Map<String, dynamic>? liability;
 
   Income({
     this.id,
     required this.siteId,
+    this.clientId,
     required this.truckNumber,
     required this.loadingDate,
     required this.driverName,
@@ -28,15 +34,20 @@ class Income {
     this.destinationFactory,
     this.netAmount,
     this.paymentStatus,
+    this.liabilityId,
+    this.amountFromLiability,
     this.createdAt,
     this.updatedAt,
     this.siteName,
+    this.client,
+    this.liability,
   });
 
   factory Income.fromJson(Map<String, dynamic> json) {
     return Income(
       id: json['id'],
       siteId: json['siteId'] ?? json['site_id'] ?? 0,
+      clientId: json['clientId'] ?? json['client_id'],
       truckNumber: json['truckNumber'] ?? json['truck_number'] ?? '',
       loadingDate: json['loadingDate'] ?? json['loading_date'] ?? '',
       driverName: json['driverName'] ?? json['driver_name'] ?? '',
@@ -46,9 +57,13 @@ class Income {
       destinationFactory: json['destinationFactory'] ?? json['destination_factory'],
       netAmount: _parseDouble(json['netAmount'] ?? json['net_amount'] ?? json['totalPrice'] ?? json['total_price']),
       paymentStatus: json['paymentStatus'] ?? json['payment_status'],
+      liabilityId: json['liabilityId'] ?? json['liability_id'],
+      amountFromLiability: _parseDouble(json['amountFromLiability'] ?? json['amount_from_liability']),
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],
       siteName: json['site']?['name'] ?? json['siteName'],
+      client: json['client'],
+      liability: json['liability'],
     );
   }
 
@@ -79,6 +94,7 @@ class Income {
   Map<String, dynamic> toJsonRequest() {
     return {
       'siteId': siteId,
+      if (clientId != null) 'clientId': clientId,
       'truckNumber': truckNumber,
       'loadingDate': loadingDate,
       'driverName': driverName,
@@ -88,6 +104,8 @@ class Income {
       if (destinationFactory != null && destinationFactory!.isNotEmpty) 'destinationFactory': destinationFactory,
       if (netAmount != null) 'netAmount': netAmount,
       if (paymentStatus != null && paymentStatus!.isNotEmpty) 'paymentStatus': paymentStatus,
+      if (liabilityId != null) 'liabilityId': liabilityId,
+      if (amountFromLiability != null) 'amountFromLiability': amountFromLiability,
     };
   }
 }

@@ -4,8 +4,12 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/income.dart';
 import '../../models/mining_site.dart';
+import '../../models/client.dart';
+import '../../models/liability.dart';
 import '../../services/income_service.dart';
 import '../../services/mining_site_service.dart';
+import '../../services/client_service.dart';
+import '../../services/liability_service.dart';
 import '../../providers/site_context_provider.dart';
 
 class IncomeFormScreen extends StatefulWidget {
@@ -21,6 +25,8 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final IncomeService _incomeService = IncomeService();
   final MiningSiteService _miningSiteService = MiningSiteService();
+  final ClientService _clientService = ClientService();
+  final LiabilityService _liabilityService = LiabilityService();
 
   late TextEditingController _truckNumberController;
   late TextEditingController _driverNameController;
@@ -29,11 +35,16 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
   late TextEditingController _companyCommissionController;
 
   int? _selectedSiteId;
+  int? _selectedClientId;
+  int? _selectedLiabilityId;
   DateTime? _loadingDate;
 
   List<MiningSite> _sites = [];
+  List<Client> _clients = [];
+  List<Liability> _liabilities = [];
   bool _isLoading = false;
   bool _isLoadingData = true;
+  bool _isLoadingLiabilities = false;
   bool _isEditing = false;
 
   @override
@@ -61,6 +72,8 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
       text: widget.income?.companyCommission.toStringAsFixed(2) ?? '',
     );
     _selectedSiteId = widget.income?.siteId;
+    _selectedClientId = widget.income?.clientId;
+    _selectedLiabilityId = widget.income?.liabilityId;
     if (widget.income?.loadingDate != null) {
       try {
         _loadingDate = DateTime.parse(widget.income!.loadingDate);
@@ -68,7 +81,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
         _loadingDate = null;
       }
     }
-    _loadSites();
+    _loadInitialData();
   }
 
   @override
@@ -90,6 +103,60 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
       });
     } catch (e) {
       setState(() => _isLoadingData = false);
+    }
+  }
+
+  Future<void> _loadClients() async {
+    try {
+      final clients = await _clientService.getAllClients();
+      setState(() {
+        _clients = clients;
+      });
+    } catch (e) {
+      // Handle error silently or show message
+      print('Error loading clients: $e');
+    }
+  }
+
+  Future<void> _loadInitialData() async {
+    await Future.wait([
+      _loadSites(),
+      _loadClients(),
+    ]);
+    
+    // If editing and has client, load liabilities
+    if (_selectedClientId != null) {
+      await _loadLiabilitiesForClient(_selectedClientId!);
+    }
+  }
+
+  Future<void> _loadLiabilitiesForClient(int clientId) async {
+    setState(() => _isLoadingLiabilities = true);
+    try {
+      final liabilities = await _liabilityService.getActiveByClient(clientId);
+      setState(() {
+        _liabilities = liabilities;
+        _isLoadingLiabilities = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingLiabilities = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading liabilities: $e')),
+        );
+      }
+    }
+  }
+
+  void _onClientChanged(int? clientId) {
+    setState(() {
+      _selectedClientId = clientId;
+      _selectedLiabilityId = null; // Reset liability selection
+      _liabilities = [];
+    });
+    
+    if (clientId != null) {
+      _loadLiabilitiesForClient(clientId);
     }
   }
 
@@ -133,6 +200,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     final income = Income(
       id: widget.income?.id,
       siteId: _selectedSiteId!,
+      clientId: _selectedClientId,
       truckNumber: _truckNumberController.text.trim(),
       loadingDate: _loadingDate!.toIso8601String(),
       driverName: _driverNameController.text.trim(),
@@ -141,6 +209,10 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
           : _driverPhoneController.text.trim(),
       coalPrice: double.parse(_coalPriceController.text.trim()),
       companyCommission: double.parse(_companyCommissionController.text.trim()),
+      liabilityId: _selectedLiabilityId,
+      amountFromLiability: _selectedLiabilityId != null 
+          ? _liabilities.firstWhere((l) => l.id == _selectedLiabilityId).totalAmount
+          : null,
     );
 
     try {
@@ -212,6 +284,78 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
+
+                  // Client Dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedClientId,
+                    decoration: const InputDecoration(
+                      labelText: 'Client (Optional)',
+                      hintText: 'Select a client',
+                      prefixIcon: Icon(Icons.business),
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _clients.map((client) {
+                      return DropdownMenuItem<int>(
+                        value: client.id,
+                        child: Text(client.businessName),
+                      );
+                    }).toList(),
+                    onChanged: _onClientChanged,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Liability Dropdown (only show if client is selected)
+                  if (_selectedClientId != null) ...[
+                    if (_isLoadingLiabilities)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (_liabilities.isEmpty)
+                      Card(
+                        color: Colors.blue.shade50,
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.blue),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'No active liabilities found for this client',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      DropdownButtonFormField<int>(
+                        value: _selectedLiabilityId,
+                        decoration: const InputDecoration(
+                          labelText: 'Liability (Optional)',
+                          hintText: 'Select a liability to link',
+                          prefixIcon: Icon(Icons.account_balance),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _liabilities.map((liability) {
+                          return DropdownMenuItem<int>(
+                            value: liability.id,
+                            child: Text(
+                              '${liability.type} - \$${liability.totalAmount.toStringAsFixed(2)}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedLiabilityId = value);
+                        },
+                      ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Truck Number
                   TextFormField(
