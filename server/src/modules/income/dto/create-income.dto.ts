@@ -84,6 +84,10 @@ export class CreateIncomeDto {
   @IsOptional()
   amountFromLiability?: string | number;
 
+  @ApiPropertyOptional({ description: 'Amount paid in cash' })
+  @IsOptional()
+  amountCash?: string | number;
+
   @ApiPropertyOptional({ description: 'Liability ID' })
   @IsOptional()
   @IsNumber()

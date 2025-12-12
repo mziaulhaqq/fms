@@ -111,6 +111,15 @@ export class Income extends AuditEntity {
   })
   amountFromLiability: string | null;
 
+  @Column("numeric", {
+    name: "amount_cash",
+    nullable: true,
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
+  amountCash: string | null;
+
   @Column("integer", { name: "liability_id", nullable: true })
   liabilityId: number | null;
 

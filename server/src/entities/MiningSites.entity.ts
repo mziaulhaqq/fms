@@ -16,7 +16,9 @@ import { LaborCosts } from "./LaborCosts.entity";
 import { Partners } from "./Partners.entity";
 import { SiteSupervisors } from "./SiteSupervisors.entity";
 import { GeneralLedger } from "./GeneralLedger.entity";
-import { Liability } from "./Liability.entity";
+import { Payable } from "./Payable.entity";
+import { Receivable } from "./Receivable.entity";
+import { Payment } from "./Payment.entity";
 
 @Index("mining_sites_pkey", ["id"], { unique: true })
 @Index("idx_mining_site_lease", ["leaseId"], {})
@@ -65,6 +67,12 @@ export class MiningSites extends AuditEntity {
   @OneToMany(() => GeneralLedger, (generalLedger) => generalLedger.miningSite)
   generalLedgers: GeneralLedger[];
 
-  @OneToMany(() => Liability, (liability) => liability.miningSite)
-  liabilities: Liability[];
+  @OneToMany(() => Payable, (payable) => payable.miningSite)
+  payables: Payable[];
+
+  @OneToMany(() => Receivable, (receivable) => receivable.miningSite)
+  receivables: Receivable[];
+
+  @OneToMany(() => Payment, (payment) => payment.miningSite)
+  payments: Payment[];
 }

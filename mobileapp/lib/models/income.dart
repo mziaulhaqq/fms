@@ -13,6 +13,7 @@ class Income {
   final String? paymentStatus;
   final int? liabilityId;
   final double? amountFromLiability;
+  final double? amountCash;
   final String? createdAt;
   final String? updatedAt;
 
@@ -36,6 +37,7 @@ class Income {
     this.paymentStatus,
     this.liabilityId,
     this.amountFromLiability,
+    this.amountCash,
     this.createdAt,
     this.updatedAt,
     this.siteName,
@@ -59,6 +61,7 @@ class Income {
       paymentStatus: json['paymentStatus'] ?? json['payment_status'],
       liabilityId: json['liabilityId'] ?? json['liability_id'],
       amountFromLiability: _parseDouble(json['amountFromLiability'] ?? json['amount_from_liability']),
+      amountCash: _parseDouble(json['amountCash'] ?? json['amount_cash']),
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],
       siteName: json['site']?['name'] ?? json['siteName'],
@@ -106,6 +109,7 @@ class Income {
       if (paymentStatus != null && paymentStatus!.isNotEmpty) 'paymentStatus': paymentStatus,
       if (liabilityId != null) 'liabilityId': liabilityId,
       if (amountFromLiability != null) 'amountFromLiability': amountFromLiability,
+      if (amountCash != null) 'amountCash': amountCash,
     };
   }
 }

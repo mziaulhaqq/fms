@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Income } from '../../entities/Income.entity';
+import { Payable } from '../../entities/Payable.entity';
 import { CreateIncomeDto, UpdateIncomeDto } from './dto';
 
 @Injectable()
@@ -9,24 +10,70 @@ export class IncomesService {
   constructor(
     @InjectRepository(Income)
     private readonly repository: Repository<Income>,
+    @InjectRepository(Payable)
+    private readonly payableRepository: Repository<Payable>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createDto: CreateIncomeDto, userId?: number): Promise<Income> {
-    // Convert numeric values to strings for the entity
-    const data: any = {
-      ...createDto,
-      coalPrice: String(createDto.coalPrice),
-      companyCommission: createDto.companyCommission ? String(createDto.companyCommission) : null,
-      quantityTons: createDto.quantityTons ? String(createDto.quantityTons) : null,
-      totalPrice: createDto.totalPrice ? String(createDto.totalPrice) : null,
-      amountFromLiability: createDto.amountFromLiability ? String(createDto.amountFromLiability) : null,
-    };
-    
-    const entity = this.repository.create(data) as unknown as Income;
-    if (userId) {
-      (entity as any)._userId = userId;
-    }
-    return await this.repository.save(entity);
+    // Use transaction to ensure data consistency
+    return await this.dataSource.transaction(async (manager) => {
+      // Convert numeric values to strings for the entity
+      const data: any = {
+        ...createDto,
+        coalPrice: String(createDto.coalPrice),
+        companyCommission: createDto.companyCommission ? String(createDto.companyCommission) : null,
+        quantityTons: createDto.quantityTons ? String(createDto.quantityTons) : null,
+        totalPrice: createDto.totalPrice ? String(createDto.totalPrice) : null,
+        amountFromLiability: createDto.amountFromLiability ? String(createDto.amountFromLiability) : null,
+        amountCash: createDto.amountCash ? String(createDto.amountCash) : null,
+      };
+
+      const entity = manager.create(Income, data);
+      if (userId) {
+        (entity as any)._userId = userId;
+      }
+
+      const savedIncome = await manager.save(Income, entity);
+
+      // Handle payable deduction if liabilityId (payableId) and amountFromLiability are provided
+      if (createDto.liabilityId && createDto.amountFromLiability) {
+        const payable = await manager.findOne(Payable, {
+          where: { id: createDto.liabilityId },
+        });
+
+        if (!payable) {
+          throw new NotFoundException(`Payable with ID ${createDto.liabilityId} not found`);
+        }
+
+        const amountFromPayable = parseFloat(String(createDto.amountFromLiability));
+        const previousBalance = parseFloat(payable.remainingBalance);
+
+        if (amountFromPayable > previousBalance) {
+          throw new BadRequestException(
+            `Amount from payable ($${amountFromPayable}) exceeds remaining balance ($${previousBalance})`
+          );
+        }
+
+        const newBalance = previousBalance - amountFromPayable;
+
+        // Update payable remaining balance
+        payable.remainingBalance = String(newBalance);
+        
+        // Update status based on new balance
+        if (newBalance === 0) {
+          payable.status = 'Fully Used';
+        } else if (newBalance < parseFloat(payable.totalAmount)) {
+          payable.status = 'Partially Used';
+        }
+
+        await manager.save(Payable, payable);
+
+        // TODO: Create payable transaction record when PayableTransaction entity is created
+      }
+
+      return savedIncome;
+    });
   }
 
   async findAll(): Promise<Income[]> {

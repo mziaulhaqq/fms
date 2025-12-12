@@ -11,7 +11,9 @@ import { AuditEntity } from "./AuditEntity";
 import { ClientType } from "./ClientType.entity";
 import { Users } from "./Users.entity";
 import { Income } from "./Income.entity";
-import { Liability } from "./Liability.entity";
+import { Payable } from "./Payable.entity";
+import { Receivable } from "./Receivable.entity";
+import { Payment } from "./Payment.entity";
 import { Expenses } from "./Expenses.entity";
 import { MiningSites } from "./MiningSites.entity";
 
@@ -90,8 +92,14 @@ export class Clients extends AuditEntity {
   @OneToMany(() => Income, (income) => income.client)
   incomes: Income[];
 
-  @OneToMany(() => Liability, (liability) => liability.client)
-  liabilities: Liability[];
+  @OneToMany(() => Payable, (payable) => payable.client)
+  payables: Payable[];
+
+  @OneToMany(() => Receivable, (receivable) => receivable.client)
+  receivables: Receivable[];
+
+  @OneToMany(() => Payment, (payment) => payment.client)
+  payments: Payment[];
 
   @OneToMany(() => Expenses, (expense) => expense.client)
   expenses: Expenses[];

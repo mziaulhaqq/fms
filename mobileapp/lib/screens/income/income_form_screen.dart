@@ -33,11 +33,14 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
   late TextEditingController _driverPhoneController;
   late TextEditingController _coalPriceController;
   late TextEditingController _companyCommissionController;
+  late TextEditingController _amountFromLiabilityController;
+  late TextEditingController _amountCashController;
 
   int? _selectedSiteId;
   int? _selectedClientId;
   int? _selectedLiabilityId;
   DateTime? _loadingDate;
+  double? _selectedLiabilityBalance;
 
   List<MiningSite> _sites = [];
   List<Client> _clients = [];
@@ -71,6 +74,12 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     _companyCommissionController = TextEditingController(
       text: widget.income?.companyCommission.toStringAsFixed(2) ?? '',
     );
+    _amountFromLiabilityController = TextEditingController(
+      text: widget.income?.amountFromLiability?.toStringAsFixed(2) ?? '',
+    );
+    _amountCashController = TextEditingController(
+      text: widget.income?.amountCash?.toStringAsFixed(2) ?? '',
+    );
     _selectedSiteId = widget.income?.siteId;
     _selectedClientId = widget.income?.clientId;
     _selectedLiabilityId = widget.income?.liabilityId;
@@ -91,6 +100,8 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     _driverPhoneController.dispose();
     _coalPriceController.dispose();
     _companyCommissionController.dispose();
+    _amountFromLiabilityController.dispose();
+    _amountCashController.dispose();
     super.dispose();
   }
 
@@ -152,11 +163,45 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     setState(() {
       _selectedClientId = clientId;
       _selectedLiabilityId = null; // Reset liability selection
+      _selectedLiabilityBalance = null;
       _liabilities = [];
+      _amountFromLiabilityController.clear();
+      _amountCashController.clear();
     });
     
     if (clientId != null) {
       _loadLiabilitiesForClient(clientId);
+    }
+  }
+
+  void _onLiabilityChanged(int? liabilityId) {
+    setState(() {
+      _selectedLiabilityId = liabilityId;
+      if (liabilityId != null) {
+        final liability = _liabilities.firstWhere((l) => l.id == liabilityId);
+        _selectedLiabilityBalance = liability.remainingBalance;
+        _calculatePaymentBreakdown();
+      } else {
+        _selectedLiabilityBalance = null;
+        _amountFromLiabilityController.clear();
+        _amountCashController.clear();
+      }
+    });
+  }
+
+  void _calculatePaymentBreakdown() {
+    if (_selectedLiabilityBalance == null) return;
+    
+    final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
+    
+    if (coalPrice <= _selectedLiabilityBalance!) {
+      // Full amount can be deducted from liability
+      _amountFromLiabilityController.text = coalPrice.toStringAsFixed(2);
+      _amountCashController.text = '0.00';
+    } else {
+      // Partial from liability, rest in cash
+      _amountFromLiabilityController.text = _selectedLiabilityBalance!.toStringAsFixed(2);
+      _amountCashController.text = (coalPrice - _selectedLiabilityBalance!).toStringAsFixed(2);
     }
   }
 
@@ -197,6 +242,14 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
 
     setState(() => _isLoading = true);
 
+    // Parse payment amounts
+    final amountFromLiability = _amountFromLiabilityController.text.trim().isEmpty
+        ? null
+        : double.tryParse(_amountFromLiabilityController.text.trim());
+    final amountCash = _amountCashController.text.trim().isEmpty
+        ? null
+        : double.tryParse(_amountCashController.text.trim());
+
     final income = Income(
       id: widget.income?.id,
       siteId: _selectedSiteId!,
@@ -210,9 +263,8 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
       coalPrice: double.parse(_coalPriceController.text.trim()),
       companyCommission: double.parse(_companyCommissionController.text.trim()),
       liabilityId: _selectedLiabilityId,
-      amountFromLiability: _selectedLiabilityId != null 
-          ? _liabilities.firstWhere((l) => l.id == _selectedLiabilityId).totalAmount
-          : null,
+      amountFromLiability: amountFromLiability,
+      amountCash: amountCash,
     );
 
     try {
@@ -345,16 +397,175 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                           return DropdownMenuItem<int>(
                             value: liability.id,
                             child: Text(
-                              '${liability.type} - \$${liability.totalAmount.toStringAsFixed(2)}',
+                              '${liability.type} - \$${liability.remainingBalance.toStringAsFixed(2)} remaining',
                               overflow: TextOverflow.ellipsis,
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() => _selectedLiabilityId = value);
-                        },
+                        onChanged: _onLiabilityChanged,
                       ),
                     const SizedBox(height: 16),
+
+                    // Payment Breakdown - Show if liability is selected
+                    if (_selectedLiabilityId != null) ...[
+                      Card(
+                        color: Colors.purple.shade50,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.payment, color: Colors.purple.shade700),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Payment Breakdown',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.purple.shade700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              // Liability Balance Info
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.purple.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.account_balance_wallet, size: 20, color: Colors.purple.shade600),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Available in Liability:',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      '\$${_selectedLiabilityBalance?.toStringAsFixed(2) ?? '0.00'}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.purple.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Amount from Liability
+                              TextFormField(
+                                controller: _amountFromLiabilityController,
+                                decoration: InputDecoration(
+                                  labelText: 'Amount from Liability',
+                                  hintText: '0.00',
+                                  prefixIcon: const Icon(Icons.remove_circle),
+                                  border: const OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                onChanged: (value) {
+                                  // Auto-calculate cash amount
+                                  final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
+                                  final fromLiability = double.tryParse(value.trim()) ?? 0;
+                                  final cashAmount = coalPrice - fromLiability;
+                                  _amountCashController.text = cashAmount > 0 ? cashAmount.toStringAsFixed(2) : '0.00';
+                                  setState(() {});
+                                },
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter amount from liability';
+                                  }
+                                  final amount = double.tryParse(value.trim());
+                                  if (amount == null || amount < 0) {
+                                    return 'Please enter a valid amount';
+                                  }
+                                  if (amount > (_selectedLiabilityBalance ?? 0)) {
+                                    return 'Amount exceeds available balance';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Amount in Cash
+                              TextFormField(
+                                controller: _amountCashController,
+                                decoration: InputDecoration(
+                                  labelText: 'Amount in Cash',
+                                  hintText: '0.00',
+                                  prefixIcon: const Icon(Icons.attach_money),
+                                  border: const OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                onChanged: (value) {
+                                  // Auto-calculate liability amount
+                                  final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
+                                  final cash = double.tryParse(value.trim()) ?? 0;
+                                  final fromLiability = coalPrice - cash;
+                                  if (fromLiability >= 0 && fromLiability <= (_selectedLiabilityBalance ?? 0)) {
+                                    _amountFromLiabilityController.text = fromLiability.toStringAsFixed(2);
+                                  }
+                                  setState(() {});
+                                },
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter cash amount';
+                                  }
+                                  final amount = double.tryParse(value.trim());
+                                  if (amount == null || amount < 0) {
+                                    return 'Please enter a valid amount';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Total verification
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.green.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.check_circle, size: 20, color: Colors.green.shade700),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Total Payment: \$${((double.tryParse(_amountFromLiabilityController.text.trim()) ?? 0) + (double.tryParse(_amountCashController.text.trim()) ?? 0)).toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green.shade700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ],
 
                   // Truck Number
@@ -505,7 +716,13 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                       }
                       return null;
                     },
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (_) {
+                      // Recalculate payment breakdown if liability is selected
+                      if (_selectedLiabilityId != null) {
+                        _calculatePaymentBreakdown();
+                      }
+                      setState(() {});
+                    },
                   ),
                   const SizedBox(height: 16),
 

@@ -10,20 +10,14 @@ import { AuditEntity } from './AuditEntity';
 import { Clients } from './Clients.entity';
 import { MiningSites } from './MiningSites.entity';
 
-@Index('liabilities_pkey', ['id'], { unique: true })
-@Index('idx_liability_client', ['clientId'], {})
-@Index('idx_liability_mining_site', ['miningSiteId'], {})
-@Index('idx_liability_date', ['date'], {})
-@Entity('liabilities', { schema: 'coal_mining' })
-export class Liability extends AuditEntity {
+@Index('receivables_pkey', ['id'], { unique: true })
+@Index('idx_receivable_client', ['clientId'], {})
+@Index('idx_receivable_mining_site', ['miningSiteId'], {})
+@Index('idx_receivable_date', ['date'], {})
+@Entity('receivables', { schema: 'coal_mining' })
+export class Receivable extends AuditEntity {
   @PrimaryGeneratedColumn({ type: 'integer', name: 'id' })
   id: number;
-
-  @Column('enum', {
-    name: 'type',
-    enum: ['Loan', 'Advanced Payment'],
-  })
-  type: 'Loan' | 'Advanced Payment';
 
   @Column('integer', { name: 'client_id' })
   clientId: number;
@@ -48,26 +42,18 @@ export class Liability extends AuditEntity {
   })
   remainingBalance: string;
 
-  @Column('text', {
-    name: 'proof',
-    array: true,
-    nullable: true,
-    default: () => "'{}'",
-  })
-  proof: string[] | null;
-
-  @Column('enum', {
+  @Column('varchar', {
     name: 'status',
-    enum: ['Active', 'Partially Settled', 'Fully Settled'],
-    default: () => "'Active'",
+    length: 50,
+    default: () => "'Pending'",
   })
-  status: 'Active' | 'Partially Settled' | 'Fully Settled';
+  status: 'Pending' | 'Partially Paid' | 'Fully Paid';
 
-  @ManyToOne(() => Clients, (client) => client.liabilities)
+  @ManyToOne(() => Clients, (client) => client.receivables)
   @JoinColumn([{ name: 'client_id', referencedColumnName: 'id' }])
   client: Clients;
 
-  @ManyToOne(() => MiningSites, (miningSite) => miningSite.liabilities)
+  @ManyToOne(() => MiningSites, (miningSite) => miningSite.receivables)
   @JoinColumn([{ name: 'mining_site_id', referencedColumnName: 'id' }])
   miningSite: MiningSites;
 }

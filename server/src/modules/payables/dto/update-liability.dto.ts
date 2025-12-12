@@ -4,13 +4,13 @@ import { IsEnum, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateLiabilityDto extends PartialType(CreateLiabilityDto) {
   @ApiProperty({ 
-    description: 'Liability status', 
-    enum: ['Active', 'Partially Settled', 'Fully Settled'],
+    description: 'Payable status', 
+    enum: ['Active', 'Partially Used', 'Fully Used'],
     required: false 
   })
   @IsOptional()
-  @IsEnum(['Active', 'Partially Settled', 'Fully Settled'])
-  status?: 'Active' | 'Partially Settled' | 'Fully Settled';
+  @IsEnum(['Active', 'Partially Used', 'Fully Used'])
+  status?: 'Active' | 'Partially Used' | 'Fully Used';
 
   @ApiProperty({ description: 'Remaining balance', required: false })
   @IsOptional()

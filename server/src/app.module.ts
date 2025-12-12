@@ -30,7 +30,9 @@ import { ExpenseTypesModule } from './modules/expense-types/expense-types.module
 import { AccountTypesModule } from './modules/account-types/account-types.module';
 import { LeasesModule } from './modules/leases/leases.module';
 import { GeneralLedgerModule } from './modules/general-ledger/general-ledger.module';
-import { LiabilitiesModule } from './modules/liabilities/liabilities.module';
+import { PayablesModule } from './modules/payables/payables.module';
+import { ReceivablesModule } from './modules/receivables/receivables.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -66,7 +68,9 @@ import { LiabilitiesModule } from './modules/liabilities/liabilities.module';
     AccountTypesModule,
     LeasesModule,
     GeneralLedgerModule,
-    LiabilitiesModule,
+    PayablesModule,
+    ReceivablesModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
