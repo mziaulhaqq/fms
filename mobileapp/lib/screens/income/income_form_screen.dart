@@ -5,11 +5,11 @@ import '../../core/constants/app_colors.dart';
 import '../../models/income.dart';
 import '../../models/mining_site.dart';
 import '../../models/client.dart';
-import '../../models/liability.dart';
+import '../../models/payable.dart';
 import '../../services/income_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../services/client_service.dart';
-import '../../services/liability_service.dart';
+import '../../services/payable_service.dart';
 import '../../providers/site_context_provider.dart';
 
 class IncomeFormScreen extends StatefulWidget {
@@ -26,28 +26,28 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
   final IncomeService _incomeService = IncomeService();
   final MiningSiteService _miningSiteService = MiningSiteService();
   final ClientService _clientService = ClientService();
-  final LiabilityService _liabilityService = LiabilityService();
+  final PayableService _payableService = PayableService();
 
   late TextEditingController _truckNumberController;
   late TextEditingController _driverNameController;
   late TextEditingController _driverPhoneController;
   late TextEditingController _coalPriceController;
   late TextEditingController _companyCommissionController;
-  late TextEditingController _amountFromLiabilityController;
+  late TextEditingController _amountFromPayableController;
   late TextEditingController _amountCashController;
 
   int? _selectedSiteId;
   int? _selectedClientId;
-  int? _selectedLiabilityId;
+  int? _selectedPayableId;
   DateTime? _loadingDate;
-  double? _selectedLiabilityBalance;
+  double? _selectedPayableBalance;
 
   List<MiningSite> _sites = [];
   List<Client> _clients = [];
-  List<Liability> _liabilities = [];
+  List<Payable> _payables = [];
   bool _isLoading = false;
   bool _isLoadingData = true;
-  bool _isLoadingLiabilities = false;
+  bool _isLoadingPayables = false;
   bool _isEditing = false;
 
   @override
@@ -74,7 +74,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     _companyCommissionController = TextEditingController(
       text: widget.income?.companyCommission.toStringAsFixed(2) ?? '',
     );
-    _amountFromLiabilityController = TextEditingController(
+    _amountFromPayableController = TextEditingController(
       text: widget.income?.amountFromLiability?.toStringAsFixed(2) ?? '',
     );
     _amountCashController = TextEditingController(
@@ -82,7 +82,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     );
     _selectedSiteId = widget.income?.siteId;
     _selectedClientId = widget.income?.clientId;
-    _selectedLiabilityId = widget.income?.liabilityId;
+    _selectedPayableId = widget.income?.liabilityId;
     if (widget.income?.loadingDate != null) {
       try {
         _loadingDate = DateTime.parse(widget.income!.loadingDate);
@@ -100,7 +100,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     _driverPhoneController.dispose();
     _coalPriceController.dispose();
     _companyCommissionController.dispose();
-    _amountFromLiabilityController.dispose();
+    _amountFromPayableController.dispose();
     _amountCashController.dispose();
     super.dispose();
   }
@@ -135,25 +135,25 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
       _loadClients(),
     ]);
     
-    // If editing and has client, load liabilities
+    // If editing and has client, load payables
     if (_selectedClientId != null) {
-      await _loadLiabilitiesForClient(_selectedClientId!);
+      await _loadPayablesForClient(_selectedClientId!);
     }
   }
 
-  Future<void> _loadLiabilitiesForClient(int clientId) async {
-    setState(() => _isLoadingLiabilities = true);
+  Future<void> _loadPayablesForClient(int clientId) async {
+    setState(() => _isLoadingPayables = true);
     try {
-      final liabilities = await _liabilityService.getActiveByClient(clientId);
+      final payables = await _payableService.getActiveByClient(clientId);
       setState(() {
-        _liabilities = liabilities;
-        _isLoadingLiabilities = false;
+        _payables = payables;
+        _isLoadingPayables = false;
       });
     } catch (e) {
-      setState(() => _isLoadingLiabilities = false);
+      setState(() => _isLoadingPayables = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading liabilities: $e')),
+          SnackBar(content: Text('Error loading payables: $e')),
         );
       }
     }
@@ -162,46 +162,46 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
   void _onClientChanged(int? clientId) {
     setState(() {
       _selectedClientId = clientId;
-      _selectedLiabilityId = null; // Reset liability selection
-      _selectedLiabilityBalance = null;
-      _liabilities = [];
-      _amountFromLiabilityController.clear();
+      _selectedPayableId = null; // Reset payable selection
+      _selectedPayableBalance = null;
+      _payables = [];
+      _amountFromPayableController.clear();
       _amountCashController.clear();
     });
     
     if (clientId != null) {
-      _loadLiabilitiesForClient(clientId);
+      _loadPayablesForClient(clientId);
     }
   }
 
-  void _onLiabilityChanged(int? liabilityId) {
+  void _onPayableChanged(int? payableId) {
     setState(() {
-      _selectedLiabilityId = liabilityId;
-      if (liabilityId != null) {
-        final liability = _liabilities.firstWhere((l) => l.id == liabilityId);
-        _selectedLiabilityBalance = liability.remainingBalance;
+      _selectedPayableId = payableId;
+      if (payableId != null) {
+        final payable = _payables.firstWhere((l) => l.id == payableId);
+        _selectedPayableBalance = payable.remainingBalance;
         _calculatePaymentBreakdown();
       } else {
-        _selectedLiabilityBalance = null;
-        _amountFromLiabilityController.clear();
+        _selectedPayableBalance = null;
+        _amountFromPayableController.clear();
         _amountCashController.clear();
       }
     });
   }
 
   void _calculatePaymentBreakdown() {
-    if (_selectedLiabilityBalance == null) return;
+    if (_selectedPayableBalance == null) return;
     
     final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
     
-    if (coalPrice <= _selectedLiabilityBalance!) {
-      // Full amount can be deducted from liability
-      _amountFromLiabilityController.text = coalPrice.toStringAsFixed(2);
+    if (coalPrice <= _selectedPayableBalance!) {
+      // Full amount can be deducted from payable
+      _amountFromPayableController.text = coalPrice.toStringAsFixed(2);
       _amountCashController.text = '0.00';
     } else {
       // Partial from liability, rest in cash
-      _amountFromLiabilityController.text = _selectedLiabilityBalance!.toStringAsFixed(2);
-      _amountCashController.text = (coalPrice - _selectedLiabilityBalance!).toStringAsFixed(2);
+      _amountFromPayableController.text = _selectedPayableBalance!.toStringAsFixed(2);
+      _amountCashController.text = (coalPrice - _selectedPayableBalance!).toStringAsFixed(2);
     }
   }
 
@@ -243,9 +243,9 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
     setState(() => _isLoading = true);
 
     // Parse payment amounts
-    final amountFromLiability = _amountFromLiabilityController.text.trim().isEmpty
+    final amountFromLiability = _amountFromPayableController.text.trim().isEmpty
         ? null
-        : double.tryParse(_amountFromLiabilityController.text.trim());
+        : double.tryParse(_amountFromPayableController.text.trim());
     final amountCash = _amountCashController.text.trim().isEmpty
         ? null
         : double.tryParse(_amountCashController.text.trim());
@@ -262,7 +262,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
           : _driverPhoneController.text.trim(),
       coalPrice: double.parse(_coalPriceController.text.trim()),
       companyCommission: double.parse(_companyCommissionController.text.trim()),
-      liabilityId: _selectedLiabilityId,
+      liabilityId: _selectedPayableId,
       amountFromLiability: amountFromLiability,
       amountCash: amountCash,
     );
@@ -356,16 +356,16 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Liability Dropdown (only show if client is selected)
+                  // Payable Dropdown (only show if client is selected)
                   if (_selectedClientId != null) ...[
-                    if (_isLoadingLiabilities)
+                    if (_isLoadingPayables)
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(16.0),
                           child: CircularProgressIndicator(),
                         ),
                       )
-                    else if (_liabilities.isEmpty)
+                    else if (_payables.isEmpty)
                       Card(
                         color: Colors.blue.shade50,
                         child: const Padding(
@@ -376,7 +376,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                               SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'No active liabilities found for this client',
+                                  'No active payables found for this client',
                                   style: TextStyle(color: Colors.blue),
                                 ),
                               ),
@@ -386,14 +386,14 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                       )
                     else
                       DropdownButtonFormField<int>(
-                        value: _selectedLiabilityId,
+                        value: _selectedPayableId,
                         decoration: const InputDecoration(
                           labelText: 'Liability (Optional)',
                           hintText: 'Select a liability to link',
                           prefixIcon: Icon(Icons.account_balance),
                           border: OutlineInputBorder(),
                         ),
-                        items: _liabilities.map((liability) {
+                        items: _payables.map((liability) {
                           return DropdownMenuItem<int>(
                             value: liability.id,
                             child: Text(
@@ -402,12 +402,12 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                             ),
                           );
                         }).toList(),
-                        onChanged: _onLiabilityChanged,
+                        onChanged: _onPayableChanged,
                       ),
                     const SizedBox(height: 16),
 
                     // Payment Breakdown - Show if liability is selected
-                    if (_selectedLiabilityId != null) ...[
+                    if (_selectedPayableId != null) ...[
                       Card(
                         color: Colors.purple.shade50,
                         child: Padding(
@@ -452,7 +452,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                     ),
                                     const Spacer(),
                                     Text(
-                                      '\$${_selectedLiabilityBalance?.toStringAsFixed(2) ?? '0.00'}',
+                                      '\$${_selectedPayableBalance?.toStringAsFixed(2) ?? '0.00'}',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -466,7 +466,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
 
                               // Amount from Liability
                               TextFormField(
-                                controller: _amountFromLiabilityController,
+                                controller: _amountFromPayableController,
                                 decoration: InputDecoration(
                                   labelText: 'Amount from Liability',
                                   hintText: '0.00',
@@ -492,7 +492,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                   if (amount == null || amount < 0) {
                                     return 'Please enter a valid amount';
                                   }
-                                  if (amount > (_selectedLiabilityBalance ?? 0)) {
+                                  if (amount > (_selectedPayableBalance ?? 0)) {
                                     return 'Amount exceeds available balance';
                                   }
                                   return null;
@@ -517,8 +517,8 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                   final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
                                   final cash = double.tryParse(value.trim()) ?? 0;
                                   final fromLiability = coalPrice - cash;
-                                  if (fromLiability >= 0 && fromLiability <= (_selectedLiabilityBalance ?? 0)) {
-                                    _amountFromLiabilityController.text = fromLiability.toStringAsFixed(2);
+                                  if (fromLiability >= 0 && fromLiability <= (_selectedPayableBalance ?? 0)) {
+                                    _amountFromPayableController.text = fromLiability.toStringAsFixed(2);
                                   }
                                   setState(() {});
                                 },
@@ -549,7 +549,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'Total Payment: \$${((double.tryParse(_amountFromLiabilityController.text.trim()) ?? 0) + (double.tryParse(_amountCashController.text.trim()) ?? 0)).toStringAsFixed(2)}',
+                                        'Total Payment: \$${((double.tryParse(_amountFromPayableController.text.trim()) ?? 0) + (double.tryParse(_amountCashController.text.trim()) ?? 0)).toStringAsFixed(2)}',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -718,7 +718,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                     },
                     onChanged: (_) {
                       // Recalculate payment breakdown if liability is selected
-                      if (_selectedLiabilityId != null) {
+                      if (_selectedPayableId != null) {
                         _calculatePaymentBreakdown();
                       }
                       setState(() {});

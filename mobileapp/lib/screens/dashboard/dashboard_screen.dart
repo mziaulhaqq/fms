@@ -556,11 +556,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.credit_card, color: AppColors.warning),
-              title: const Text('Liabilities'),
+              leading: const Icon(Icons.account_balance_wallet, color: Colors.blue),
+              title: const Text('Payables'),
+              subtitle: const Text('Advance Payments'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushNamed(context, '/liabilities');
+                Navigator.pushNamed(context, '/payables');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.payments, color: Colors.green),
+              title: const Text('Receivables'),
+              subtitle: const Text('Client Debts'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/receivables');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.receipt_long, color: Colors.orange),
+              title: const Text('Payments'),
+              subtitle: const Text('Transaction Records'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/payments');
               },
             ),
             const Divider(),

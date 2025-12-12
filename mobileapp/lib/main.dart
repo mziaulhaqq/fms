@@ -4,6 +4,9 @@ import 'core/constants/app_colors.dart';
 import 'core/navigation_service.dart';
 import 'services/auth_service.dart';
 import 'providers/site_context_provider.dart';
+import 'providers/payable_provider.dart';
+import 'providers/receivable_provider.dart';
+import 'providers/payment_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/settings/settings_screen.dart';
@@ -12,7 +15,9 @@ import 'screens/expense_types/expense_types_screen.dart';
 import 'screens/account_types/account_types_screen.dart';
 import 'screens/leases/leases_screen.dart';
 import 'screens/general_ledger/general_ledger_screen.dart';
-import 'screens/liabilities/liabilities_screen.dart';
+import 'screens/payables/payables_list_screen.dart';
+import 'screens/receivables/receivables_list_screen.dart';
+import 'screens/payments/payments_list_screen.dart';
 import 'screens/site_selection/site_selection_screen.dart';
 
 void main() {
@@ -24,8 +29,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => SiteContextProvider()..initialize(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SiteContextProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => PayableProvider()),
+        ChangeNotifierProvider(create: (_) => ReceivableProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
+      ],
       child: MaterialApp(
         title: 'Coal Mining FMS',
         debugShowCheckedModeBanner: false,
@@ -98,7 +108,9 @@ class MyApp extends StatelessWidget {
         '/account-types': (context) => const AccountTypesScreen(),
         '/leases': (context) => const LeasesScreen(),
         '/general-ledger': (context) => const GeneralLedgerScreen(),
-        '/liabilities': (context) => const LiabilitiesScreen(),
+        '/payables': (context) => const PayablesListScreen(),
+        '/receivables': (context) => const ReceivablesListScreen(),
+        '/payments': (context) => const PaymentsListScreen(),
       },
       home: const SplashScreen(),
       ),

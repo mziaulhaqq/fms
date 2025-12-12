@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
-import '../../models/liability.dart';
-import '../../services/liability_service.dart';
+import '../../models/payable.dart';
+import '../../services/payable_service.dart';
 import '../../services/client_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../core/constants/app_colors.dart';
 
-class LiabilityFormScreen extends StatefulWidget {
-  final Liability? liability;
+class PayableFormScreen extends StatefulWidget {
+  final Payable? payable;
 
-  const LiabilityFormScreen({Key? key, this.liability}) : super(key: key);
+  const PayableFormScreen({Key? key, this.payable}) : super(key: key);
 
   @override
-  State<LiabilityFormScreen> createState() => _LiabilityFormScreenState();
+  State<PayableFormScreen> createState() => _PayableFormScreenState();
 }
 
-class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
+class _PayableFormScreenState extends State<PayableFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final LiabilityService _service = LiabilityService();
+  final PayableService _service = PayableService();
   final ClientService _clientService = ClientService();
   final MiningSiteService _siteService = MiningSiteService();
 
   late TextEditingController _amountController;
   late TextEditingController _descriptionController;
-  String _type = 'Loan';
   int? _clientId;
   int? _miningSiteId;
   DateTime _selectedDate = DateTime.now();
@@ -34,15 +33,14 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
   void initState() {
     super.initState();
     _amountController = TextEditingController(
-      text: widget.liability?.totalAmount.toString() ?? '',
+      text: widget.payable?.totalAmount.toString() ?? '',
     );
     _descriptionController = TextEditingController(
-      text: widget.liability?.description ?? '',
+      text: widget.payable?.description ?? '',
     );
-    _type = widget.liability?.type ?? 'Loan';
-    _clientId = widget.liability?.clientId;
-    _miningSiteId = widget.liability?.miningSiteId;
-    _selectedDate = widget.liability?.date ?? DateTime.now();
+    _clientId = widget.payable?.clientId;
+    _miningSiteId = widget.payable?.miningSiteId;
+    _selectedDate = widget.payable?.date ?? DateTime.now();
     _loadDropdownData();
   }
 
@@ -90,7 +88,7 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
     setState(() => _isLoading = true);
 
     final data = {
-      'type': _type,
+      'type': 'Advance Payment', // Always Advance Payment for payables
       'clientId': _clientId,
       'miningSiteId': _miningSiteId,
       'date': _selectedDate.toIso8601String().split('T')[0],
@@ -101,18 +99,18 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
     };
 
     try {
-      if (widget.liability == null) {
+      if (widget.payable == null) {
         await _service.create(data);
       } else {
-        await _service.update(widget.liability!.id, data);
+        await _service.update(widget.payable!.id, data);
       }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.liability == null
-                ? 'Liability created successfully'
-                : 'Liability updated successfully'),
+            content: Text(widget.payable == null
+                ? 'Payable created successfully'
+                : 'Payable updated successfully'),
           ),
         );
         Navigator.pop(context, true);
@@ -143,9 +141,9 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.liability == null
-            ? 'Add Liability'
-            : 'Edit Liability'),
+        title: Text(widget.payable == null
+            ? 'Add Payable (Advance Payment)'
+            : 'Edit Payable'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnPrimary,
       ),
@@ -156,23 +154,27 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  DropdownButtonFormField<String>(
-                    value: _type,
-                    decoration: const InputDecoration(
-                      labelText: 'Liability Type *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.category),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'Loan', child: Text('Loan')),
-                      DropdownMenuItem(
-                        value: 'Advanced Payment',
-                        child: Text('Advanced Payment'),
+                  // Info card
+                  Card(
+                    color: Colors.blue.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.blue.shade700),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Record advance payment received from client',
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) setState(() => _type = value);
-                    },
+                    ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
@@ -273,7 +275,7 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: Text(
-                      widget.liability == null ? 'Create' : 'Update',
+                      widget.payable == null ? 'Create' : 'Update',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),

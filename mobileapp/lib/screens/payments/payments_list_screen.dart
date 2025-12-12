@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import '../../models/liability.dart';
-import '../../services/liability_service.dart';
+import '../../models/payment.dart';
+import '../../services/payment_service.dart';
 import '../../core/constants/app_colors.dart';
-import 'liability_form_screen.dart';
+import 'payment_form_screen.dart';
 
-class LiabilitiesScreen extends StatefulWidget {
-  const LiabilitiesScreen({Key? key}) : super(key: key);
+class PaymentsListScreen extends StatefulWidget {
+  const PaymentsListScreen({Key? key}) : super(key: key);
 
   @override
-  State<LiabilitiesScreen> createState() => _LiabilitiesScreenState();
+  State<PaymentsListScreen> createState() => _PaymentsListScreenState();
 }
 
-class _LiabilitiesScreenState extends State<LiabilitiesScreen>
+class _PaymentsListScreenState extends State<PaymentsListScreen>
     with SingleTickerProviderStateMixin {
-  final LiabilityService _service = LiabilityService();
+  final PaymentService _service = PaymentService();
   late TabController _tabController;
-  List<Liability> _liabilities = [];
+  List<Payment> _payments = [];
   bool _isLoading = true;
   String _currentType = 'All';
 
@@ -24,7 +24,7 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
-    _loadLiabilities();
+    _loadPayments();
   }
 
   @override
@@ -39,24 +39,24 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
         _currentType = _tabController.index == 0
             ? 'All'
             : _tabController.index == 1
-                ? 'Loan'
-                : 'Advanced Payment';
+                ? 'Payable Deduction'
+                : 'Receivable Payment';
       });
-      _loadLiabilities();
+      _loadPayments();
     }
   }
 
-  Future<void> _loadLiabilities() async {
+  Future<void> _loadPayments() async {
     setState(() => _isLoading = true);
     try {
-      List<Liability> liabilities;
+      List<Payment> payments;
       if (_currentType == 'All') {
-        liabilities = await _service.getAll();
+        payments = await _service.getAll();
       } else {
-        liabilities = await _service.getAll(type: _currentType);
+        payments = await _service.getAll(type: _currentType);
       }
       setState(() {
-        _liabilities = liabilities;
+        _payments = payments;
         _isLoading = false;
       });
     } catch (e) {
@@ -72,10 +72,10 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
   Future<void> _delete(int id) async {
     try {
       await _service.delete(id);
-      _loadLiabilities();
+      _loadPayments();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Liability deleted successfully')),
+          const SnackBar(content: Text('Payment deleted successfully')),
         );
       }
     } catch (e) {
@@ -87,24 +87,11 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
     }
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Active':
-        return Colors.green;
-      case 'Partially Settled':
-        return Colors.orange;
-      case 'Fully Settled':
-        return Colors.grey;
-      default:
-        return Colors.blue;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Liabilities'),
+        title: const Text('Payments'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnPrimary,
         bottom: TabBar(
@@ -114,8 +101,8 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
           indicatorColor: AppColors.secondary,
           tabs: const [
             Tab(text: 'All'),
-            Tab(text: 'Loans'),
-            Tab(text: 'Advanced Payments'),
+            Tab(text: 'Payable Deductions'),
+            Tab(text: 'Receivable Payments'),
           ],
         ),
       ),
@@ -124,30 +111,30 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const LiabilityFormScreen(),
+              builder: (context) => const PaymentFormScreen(),
             ),
           );
-          if (result == true) _loadLiabilities();
+          if (result == true) _loadPayments();
         },
         child: const Icon(Icons.add),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _liabilities.isEmpty
+          : _payments.isEmpty
               ? Center(
                   child: Text(
                     _currentType == 'All'
-                        ? 'No liabilities found\nTap + to add one'
+                        ? 'No payments found\nTap + to add one'
                         : 'No ${_currentType.toLowerCase()}s found\nTap + to add one',
                     textAlign: TextAlign.center,
                   ),
                 )
               : RefreshIndicator(
-                  onRefresh: _loadLiabilities,
+                  onRefresh: _loadPayments,
                   child: ListView.builder(
-                    itemCount: _liabilities.length,
+                    itemCount: _payments.length,
                     itemBuilder: (context, index) {
-                      final liability = _liabilities[index];
+                      final payment = _payments[index];
                       return Card(
                         margin: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -155,21 +142,23 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: liability.isLoan
-                                ? Colors.red.shade100
-                                : Colors.blue.shade100,
+                            backgroundColor: payment.isPayableDeduction
+                                ? Colors.blue.shade100
+                                : Colors.green.shade100,
                             child: Icon(
-                              liability.isLoan
-                                  ? Icons.trending_up
-                                  : Icons.trending_down,
-                              color: liability.isLoan ? Colors.red : Colors.blue,
+                              payment.isPayableDeduction
+                                  ? Icons.remove_circle_outline
+                                  : Icons.payment,
+                              color: payment.isPayableDeduction
+                                  ? Colors.blue
+                                  : Colors.green,
                             ),
                           ),
                           title: Row(
                             children: [
                               Expanded(
                                 child: Text(
-                                  liability.client?['businessName'] ?? 'Unknown Client',
+                                  payment.client?['businessName'] ?? 'Unknown Client',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -180,11 +169,13 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _getStatusColor(liability.status),
+                                  color: payment.isPayableDeduction
+                                      ? Colors.blue
+                                      : Colors.green,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  liability.status,
+                                  payment.paymentType,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -197,33 +188,29 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Type: ${liability.type}'),
                               Text(
-                                'Total: \$${liability.totalAmount.toStringAsFixed(2)} | Remaining: \$${liability.remainingBalance.toStringAsFixed(2)}',
+                                'Amount: \$${payment.amount.toStringAsFixed(2)}',
                                 style: TextStyle(
-                                  color: Colors.blue.shade700,
+                                  color: payment.isPayableDeduction
+                                      ? Colors.blue.shade700
+                                      : Colors.green.shade700,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                'Date: ${liability.date.toString().split(' ')[0]}',
+                                'Date: ${payment.paymentDate.toString().split(' ')[0]}',
                                 style: const TextStyle(fontSize: 12),
                               ),
+                              if (payment.paymentMethod != null)
+                                Text(
+                                  'Method: ${payment.paymentMethod}',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
                             ],
                           ),
                           isThreeLine: true,
                           trailing: PopupMenuButton(
                             itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit),
-                                    SizedBox(width: 8),
-                                    Text('Edit'),
-                                  ],
-                                ),
-                              ),
                               const PopupMenuItem(
                                 value: 'delete',
                                 child: Row(
@@ -237,22 +224,13 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
                               ),
                             ],
                             onSelected: (value) async {
-                              if (value == 'edit') {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        LiabilityFormScreen(liability: liability),
-                                  ),
-                                );
-                                if (result == true) _loadLiabilities();
-                              } else if (value == 'delete') {
+                              if (value == 'delete') {
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     title: const Text('Confirm Delete'),
                                     content: const Text(
-                                        'Are you sure you want to delete this liability?'),
+                                        'Are you sure you want to delete this payment? This will restore the balance.'),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
@@ -270,7 +248,7 @@ class _LiabilitiesScreenState extends State<LiabilitiesScreen>
                                     ],
                                   ),
                                 );
-                                if (confirm == true) _delete(liability.id);
+                                if (confirm == true) _delete(payment.id);
                               }
                             },
                           ),
