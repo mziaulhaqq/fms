@@ -32,9 +32,15 @@ class PartnerService {
   // Create partner
   Future<Partner> createPartner(Partner partner) async {
     try {
+      final data = partner.toJson();
+      // Remove fields that shouldn't be in create DTO
+      data.remove('id');
+      data.remove('createdAt');
+      data.remove('updatedAt');
+      
       final response = await _apiClient.post(
         ApiConfig.partners,
-        data: partner.toJson(),
+        data: data,
       );
       return Partner.fromJson(response.data);
     } catch (e) {
@@ -45,9 +51,15 @@ class PartnerService {
   // Update partner
   Future<Partner> updatePartner(int id, Partner partner) async {
     try {
+      final data = partner.toJson();
+      // Remove fields that shouldn't be in update DTO
+      data.remove('id');
+      data.remove('createdAt');
+      data.remove('updatedAt');
+      
       final response = await _apiClient.patch(
         '${ApiConfig.partners}/$id',
-        data: partner.toJson(),
+        data: data,
       );
       return Partner.fromJson(response.data);
     } catch (e) {

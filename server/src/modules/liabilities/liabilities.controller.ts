@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
@@ -26,8 +25,8 @@ export class LiabilitiesController {
   @Post()
   @ApiOperation({ summary: 'Create a new liability (Loan or Advanced Payment)' })
   @ApiResponse({ status: 201, description: 'Liability created successfully' })
-  create(@Body() createDto: CreateLiabilityDto, @Request() req) {
-    return this.service.create(createDto, req.user.sub);
+  create(@Body() createDto: CreateLiabilityDto, @CurrentUserId() userId: number) {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -72,8 +71,8 @@ export class LiabilitiesController {
   @ApiOperation({ summary: 'Update liability' })
   @ApiResponse({ status: 200, description: 'Liability updated successfully' })
   @ApiResponse({ status: 404, description: 'Liability not found' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateLiabilityDto, @Request() req) {
-    return this.service.update(+id, updateDto, req.user.sub);
+  update(@Param('id') id: string, @Body() updateDto: UpdateLiabilityDto, @CurrentUserId() userId: number) {
+    return this.service.update(+id, updateDto, userId);
   }
 
   @Delete(':id')

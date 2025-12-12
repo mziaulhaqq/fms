@@ -63,6 +63,14 @@ class _GeneralLedgerScreenState extends State<GeneralLedgerScreen> {
         miningSiteId: _selectedSiteId,
         accountTypeId: _selectedAccountTypeId,
       );
+      
+      // Debug: Check what we're getting
+      if (accounts.isNotEmpty) {
+        print('DEBUG: First account data:');
+        print('  miningSite: ${accounts[0].miningSite}');
+        print('  accountType: ${accounts[0].accountType}');
+      }
+      
       setState(() {
         _accounts = accounts;
         _isLoading = false;

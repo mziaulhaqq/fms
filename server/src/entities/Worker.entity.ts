@@ -106,6 +106,13 @@ export class Worker {
   })
   status: "active" | "inactive";
 
+  // Audit fields
+  @Column("integer", { name: "created_by", nullable: true })
+  createdById: number | null;
+
+  @Column("integer", { name: "modified_by", nullable: true })
+  modifiedById: number | null;
+
   @OneToMany(() => Expenses, (expenses) => expenses.worker)
   expenses: Expenses[];
 

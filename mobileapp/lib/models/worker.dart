@@ -109,7 +109,7 @@ class Worker {
 
   Map<String, dynamic> toJsonRequest() {
     return {
-      if (siteId != null) 'siteId': siteId,
+      // Note: siteId is NOT sent to backend - it's managed server-side based on user's site access
       'fullName': fullName,
       'employeeId': employeeId,
       'role': role,

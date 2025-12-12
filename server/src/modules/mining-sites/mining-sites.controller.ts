@@ -32,7 +32,7 @@ export class MiningSitesController {
   @ApiResponse({ status: 201, description: 'Mining Site created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createDto: CreateMiningSiteDto, @CurrentUserId() userId: number): Promise<MiningSites> {
-    return this.service.create(createDto);
+    return this.service.create(createDto, userId);
   }
 
   @Get()

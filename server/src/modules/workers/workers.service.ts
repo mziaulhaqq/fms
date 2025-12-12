@@ -63,7 +63,11 @@ export class LaborsService {
 
   async create(createDto: CreateLaborDto, userId?: number): Promise<any> {
     const laborData = this.transformFromWorkerModel(createDto);
-    const entity = this.repository.create(laborData as Partial<Worker>);
+    const entity = this.repository.create({
+      ...(laborData as Partial<Worker>),
+      createdById: userId || null,
+      modifiedById: userId || null,
+    });
     if (userId) {
       (entity as any)._userId = userId;
     }
@@ -98,6 +102,7 @@ export class LaborsService {
     const laborData = this.transformFromWorkerModel(updateDto);
     Object.assign(entity, laborData);
     if (userId) {
+      entity.modifiedById = userId;
       (entity as any)._userId = userId;
     }
     const saved: Worker = await this.repository.save(entity);

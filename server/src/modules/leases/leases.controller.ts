@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
@@ -25,8 +24,8 @@ export class LeasesController {
   @Post()
   @ApiOperation({ summary: 'Create a new lease' })
   @ApiResponse({ status: 201, description: 'Lease created successfully' })
-  create(@Body() createDto: CreateLeaseDto, @Request() req) {
-    return this.service.create(createDto, req.user.sub);
+  create(@Body() createDto: CreateLeaseDto, @CurrentUserId() userId: number) {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -55,8 +54,8 @@ export class LeasesController {
   @ApiOperation({ summary: 'Update lease' })
   @ApiResponse({ status: 200, description: 'Lease updated successfully' })
   @ApiResponse({ status: 404, description: 'Lease not found' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateLeaseDto, @Request() req) {
-    return this.service.update(+id, updateDto, req.user.sub);
+  update(@Param('id') id: string, @Body() updateDto: UpdateLeaseDto, @CurrentUserId() userId: number) {
+    return this.service.update(+id, updateDto, userId);
   }
 
   @Delete(':id')

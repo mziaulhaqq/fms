@@ -23,8 +23,8 @@ export class LaborsController {
   @Post()
   @ApiOperation({ summary: 'Create a new worker' })
   @ApiResponse({ status: 201, description: 'Worker created successfully' })
-  create(@Body() createDto: CreateLaborDto): Promise<any> {
-    return this.service.create(createDto);
+  create(@Body() createDto: CreateLaborDto, @CurrentUserId() userId: number): Promise<any> {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -50,8 +50,9 @@ export class LaborsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateLaborDto,
+    @CurrentUserId() userId: number,
   ): Promise<any> {
-    return this.service.update(id, updateDto);
+    return this.service.update(id, updateDto, userId);
   }
 
   @Delete(':id')

@@ -32,7 +32,7 @@ export class IncomesController {
   @ApiResponse({ status: 201, description: 'Income created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createDto: CreateIncomeDto, @CurrentUserId() userId: number): Promise<Income> {
-    return this.service.create(createDto);
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -58,8 +58,9 @@ export class IncomesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateIncomeDto,
+    @CurrentUserId() userId: number,
   ): Promise<Income> {
-    return this.service.update(id, updateDto);
+    return this.service.update(id, updateDto, userId);
   }
 
   @Delete(':id')

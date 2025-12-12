@@ -15,7 +15,12 @@ export class PartnersService {
     const entity = this.repository.create({
       ...createDto,
       sharePercentage: createDto.sharePercentage?.toString() || null,
+      createdById: userId,
+      modifiedById: userId,
     });
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 
@@ -44,8 +49,12 @@ export class PartnersService {
       sharePercentage: updateDto.sharePercentage !== undefined 
         ? updateDto.sharePercentage?.toString() || null 
         : entity.sharePercentage,
+      modifiedById: userId,
     };
     Object.assign(entity, updateData);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 
