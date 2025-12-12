@@ -184,8 +184,8 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                     ),
                     items: _clients.map((client) {
                       return DropdownMenuItem<int>(
-                        value: client['id'],
-                        child: Text(client['name']),
+                        value: client['id'] as int,
+                        child: Text(client['clientName'] as String),
                       );
                     }).toList(),
                     onChanged: (value) => setState(() => _clientId = value),
@@ -204,8 +204,8 @@ class _LiabilityFormScreenState extends State<LiabilityFormScreen> {
                     ),
                     items: _miningSites.map((site) {
                       return DropdownMenuItem<int>(
-                        value: site['id'],
-                        child: Text(site['mineNumber']),
+                        value: site['id'] as int,
+                        child: Text(site['name'] as String),
                       );
                     }).toList(),
                     onChanged: (value) => setState(() => _miningSiteId = value),

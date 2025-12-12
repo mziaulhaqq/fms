@@ -32,7 +32,7 @@ export class PartnersController {
   @ApiResponse({ status: 201, description: 'Partner created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createDto: CreatePartnerDto, @CurrentUserId() userId: number): Promise<Partners> {
-    return this.service.create(createDto);
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -58,8 +58,9 @@ export class PartnersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePartnerDto,
+    @CurrentUserId() userId: number,
   ): Promise<Partners> {
-    return this.service.update(id, updateDto);
+    return this.service.update(id, updateDto, userId);
   }
 
   @Delete(':id')
