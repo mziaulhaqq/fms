@@ -28,7 +28,6 @@ export class AccountTypesService {
 
   async findAll(): Promise<AccountType[]> {
     return await this.repository.find({
-      relations: ['createdBy', 'modifiedBy'],
       order: { name: 'ASC' },
     });
   }
@@ -43,7 +42,6 @@ export class AccountTypesService {
   async findOne(id: number): Promise<AccountType> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['createdBy', 'modifiedBy'],
     });
     if (!entity) {
       throw new NotFoundException(`Account type with ID ${id} not found`);

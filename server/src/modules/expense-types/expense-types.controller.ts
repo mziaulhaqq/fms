@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
@@ -26,8 +25,8 @@ export class ExpenseTypesController {
   @ApiOperation({ summary: 'Create a new expense type' })
   @ApiResponse({ status: 201, description: 'Expense type created successfully' })
   @ApiResponse({ status: 409, description: 'Expense type already exists' })
-  create(@Body() createDto: CreateExpenseTypeDto, @Request() req) {
-    return this.service.create(createDto, req.user.sub);
+  create(@Body() createDto: CreateExpenseTypeDto, @CurrentUserId() userId: number) {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -56,8 +55,8 @@ export class ExpenseTypesController {
   @ApiOperation({ summary: 'Update expense type' })
   @ApiResponse({ status: 200, description: 'Expense type updated successfully' })
   @ApiResponse({ status: 404, description: 'Expense type not found' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateExpenseTypeDto, @Request() req) {
-    return this.service.update(+id, updateDto, req.user.sub);
+  update(@Param('id') id: string, @Body() updateDto: UpdateExpenseTypeDto, @CurrentUserId() userId: number) {
+    return this.service.update(+id, updateDto, userId);
   }
 
   @Delete(':id')

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/general_ledger.dart';
 import '../../services/general_ledger_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../services/account_type_service.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/site_context_provider.dart';
 import 'general_ledger_form_screen.dart';
 
 class GeneralLedgerScreen extends StatefulWidget {
@@ -29,7 +31,16 @@ class _GeneralLedgerScreenState extends State<GeneralLedgerScreen> {
   void initState() {
     super.initState();
     _loadDropdownData();
-    _loadAccounts();
+    // Get selected site from context after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      if (siteContext.selectedSiteId != null) {
+        setState(() {
+          _selectedSiteId = siteContext.selectedSiteId;
+        });
+      }
+      _loadAccounts();
+    });
   }
 
   Future<void> _loadDropdownData() async {
@@ -112,29 +123,30 @@ class _GeneralLedgerScreenState extends State<GeneralLedgerScreen> {
             color: Colors.grey.shade100,
             child: Column(
               children: [
-                DropdownButtonFormField<int>(
-                  value: _selectedSiteId,
-                  decoration: const InputDecoration(
-                    labelText: 'Filter by Mining Site',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  items: [
-                    const DropdownMenuItem<int>(
-                      value: null,
-                      child: Text('All Sites'),
-                    ),
-                    ..._miningSites.map((site) {
-                      return DropdownMenuItem<int>(
-                        value: site['id'],
-                        child: Text(site['mineNumber']),
-                      );
-                    }).toList(),
-                  ],
-                  onChanged: (value) {
-                    setState(() => _selectedSiteId = value);
-                    _loadAccounts();
+                // Show current site info
+                Consumer<SiteContextProvider>(
+                  builder: (context, siteContext, _) {
+                    final siteName = siteContext.selectedSiteName ?? 'No site selected';
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.location_on, color: AppColors.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Site: $siteName',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 12),
@@ -211,7 +223,7 @@ class _GeneralLedgerScreenState extends State<GeneralLedgerScreen> {
                                       'Type: ${account.accountType?['name'] ?? 'N/A'}',
                                     ),
                                     Text(
-                                      'Site: ${account.miningSite?['mineNumber'] ?? 'N/A'}',
+                                      'Site: ${account.miningSite?['name'] ?? 'N/A'}',
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                   ],

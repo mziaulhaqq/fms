@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
@@ -26,8 +25,8 @@ export class ClientTypesController {
   @ApiOperation({ summary: 'Create a new client type' })
   @ApiResponse({ status: 201, description: 'Client type created successfully' })
   @ApiResponse({ status: 409, description: 'Client type already exists' })
-  create(@Body() createDto: CreateClientTypeDto, @Request() req) {
-    return this.service.create(createDto, req.user.sub);
+  create(@Body() createDto: CreateClientTypeDto, @CurrentUserId() userId: number) {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -56,8 +55,8 @@ export class ClientTypesController {
   @ApiOperation({ summary: 'Update client type' })
   @ApiResponse({ status: 200, description: 'Client type updated successfully' })
   @ApiResponse({ status: 404, description: 'Client type not found' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateClientTypeDto, @Request() req) {
-    return this.service.update(+id, updateDto, req.user.sub);
+  update(@Param('id') id: string, @Body() updateDto: UpdateClientTypeDto, @CurrentUserId() userId: number) {
+    return this.service.update(+id, updateDto, userId);
   }
 
   @Delete(':id')

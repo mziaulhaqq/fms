@@ -21,14 +21,14 @@ class AccountType {
 
   factory AccountType.fromJson(Map<String, dynamic> json) {
     return AccountType(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      isActive: json['isActive'] ?? true,
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      createdById: json['createdById'],
-      modifiedById: json['modifiedById'],
+      id: json['id'] as int,
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      isActive: json['isActive'] as bool? ?? true,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdById: json['createdById'] as int?,
+      modifiedById: json['modifiedById'] as int?,
     );
   }
 

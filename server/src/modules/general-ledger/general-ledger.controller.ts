@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
@@ -27,8 +26,8 @@ export class GeneralLedgerController {
   @ApiOperation({ summary: 'Create a new general ledger account' })
   @ApiResponse({ status: 201, description: 'Account created successfully' })
   @ApiResponse({ status: 409, description: 'Account code already exists in this mining site' })
-  create(@Body() createDto: CreateGeneralLedgerDto, @Request() req) {
-    return this.service.create(createDto, req.user.sub);
+  create(@Body() createDto: CreateGeneralLedgerDto, @CurrentUserId() userId: number) {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -61,8 +60,8 @@ export class GeneralLedgerController {
   @ApiOperation({ summary: 'Update general ledger account' })
   @ApiResponse({ status: 200, description: 'Account updated successfully' })
   @ApiResponse({ status: 404, description: 'Account not found' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateGeneralLedgerDto, @Request() req) {
-    return this.service.update(+id, updateDto, req.user.sub);
+  update(@Param('id') id: string, @Body() updateDto: UpdateGeneralLedgerDto, @CurrentUserId() userId: number) {
+    return this.service.update(+id, updateDto, userId);
   }
 
   @Delete(':id')

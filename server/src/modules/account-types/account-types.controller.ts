@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
@@ -26,8 +25,8 @@ export class AccountTypesController {
   @ApiOperation({ summary: 'Create a new account type' })
   @ApiResponse({ status: 201, description: 'Account type created successfully' })
   @ApiResponse({ status: 409, description: 'Account type already exists' })
-  create(@Body() createDto: CreateAccountTypeDto, @Request() req) {
-    return this.service.create(createDto, req.user.sub);
+  create(@Body() createDto: CreateAccountTypeDto, @CurrentUserId() userId: number) {
+    return this.service.create(createDto, userId);
   }
 
   @Get()
@@ -56,8 +55,8 @@ export class AccountTypesController {
   @ApiOperation({ summary: 'Update account type' })
   @ApiResponse({ status: 200, description: 'Account type updated successfully' })
   @ApiResponse({ status: 404, description: 'Account type not found' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateAccountTypeDto, @Request() req) {
-    return this.service.update(+id, updateDto, req.user.sub);
+  update(@Param('id') id: string, @Body() updateDto: UpdateAccountTypeDto, @CurrentUserId() userId: number) {
+    return this.service.update(+id, updateDto, userId);
   }
 
   @Delete(':id')

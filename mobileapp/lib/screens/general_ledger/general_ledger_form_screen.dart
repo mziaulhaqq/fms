@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/general_ledger.dart';
 import '../../services/general_ledger_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../services/account_type_service.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/site_context_provider.dart';
 
 class GeneralLedgerFormScreen extends StatefulWidget {
   final GeneralLedger? account;
@@ -23,6 +25,7 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
 
   late TextEditingController _accountCodeController;
   late TextEditingController _accountNameController;
+  late TextEditingController _descriptionController;
   int? _accountTypeId;
   int? _miningSiteId;
   bool _isActive = true;
@@ -37,10 +40,24 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
         TextEditingController(text: widget.account?.accountCode ?? '');
     _accountNameController =
         TextEditingController(text: widget.account?.accountName ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.account?.description ?? '');
     _accountTypeId = widget.account?.accountTypeId;
     _miningSiteId = widget.account?.miningSiteId;
     _isActive = widget.account?.isActive ?? true;
     _loadDropdownData();
+    
+    // Auto-populate site from context if creating new account
+    if (widget.account == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+        if (siteContext.selectedSiteId != null && _miningSiteId == null) {
+          setState(() {
+            _miningSiteId = siteContext.selectedSiteId;
+          });
+        }
+      });
+    }
   }
 
   Future<void> _loadDropdownData() async {
@@ -69,6 +86,9 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
       final data = {
         'accountCode': _accountCodeController.text.trim(),
         'accountName': _accountNameController.text.trim(),
+        'description': _descriptionController.text.trim().isNotEmpty 
+            ? _descriptionController.text.trim() 
+            : null,
         'accountTypeId': _accountTypeId,
         'miningSiteId': _miningSiteId,
         'isActive': _isActive,
@@ -97,6 +117,7 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
   void dispose() {
     _accountCodeController.dispose();
     _accountNameController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -172,28 +193,38 @@ class _GeneralLedgerFormScreenState extends State<GeneralLedgerFormScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
-                      value: _miningSiteId,
-                      decoration: const InputDecoration(
-                        labelText: 'Mining Site *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_on),
-                      ),
-                      items: _miningSites.map((site) {
-                        return DropdownMenuItem<int>(
-                          value: site['id'],
-                          child: Text(site['mineNumber']),
+                    // Read-only Mining Site field
+                    Consumer<SiteContextProvider>(
+                      builder: (context, siteContext, _) {
+                        final siteName = _miningSites
+                            .firstWhere(
+                              (site) => site['id'] == _miningSiteId,
+                              orElse: () => {'name': siteContext.selectedSiteName ?? 'Unknown'},
+                            )['name'] ?? 'Unknown';
+                        
+                        return TextFormField(
+                          initialValue: siteName,
+                          enabled: false,
+                          decoration: InputDecoration(
+                            labelText: 'Mining Site *',
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.location_on),
+                            filled: true,
+                            fillColor: Colors.grey.shade200,
+                          ),
                         );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() => _miningSiteId = value);
                       },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Please select a mining site';
-                        }
-                        return null;
-                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.description),
+                      ),
+                      maxLines: 3,
+                      textCapitalization: TextCapitalization.sentences,
                     ),
                     const SizedBox(height: 16),
                     SwitchListTile(
