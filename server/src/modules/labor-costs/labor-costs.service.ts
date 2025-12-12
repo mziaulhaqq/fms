@@ -11,7 +11,7 @@ export class LaborCostsService {
     private readonly repository: Repository<LaborCosts>,
   ) {}
 
-  async create(createDto: CreateLaborCostDto): Promise<LaborCosts> {
+  async create(createDto: CreateLaborCostDto, userId?: number): Promise<LaborCosts> {
     const entity = this.repository.create(createDto);
     return await this.repository.save(entity);
   }
@@ -30,7 +30,7 @@ export class LaborCostsService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdateLaborCostDto): Promise<LaborCosts> {
+  async update(id: number, updateDto: UpdateLaborCostDto, userId?: number): Promise<LaborCosts> {
     const entity = await this.findOne(id);
     Object.assign(entity, updateDto);
     return await this.repository.save(entity);

@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/
 import { ClientsService } from './clients.service';
 import { CreateClientDto, UpdateClientDto } from './dto';
 import { Clients } from '../../entities/Clients.entity';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('clients')
 @Controller('clients')
@@ -25,8 +26,8 @@ export class ClientsController {
   @ApiOperation({ summary: 'Create a new client' })
   @ApiResponse({ status: 201, description: 'Client created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  create(@Body() createClientDto: CreateClientDto): Promise<Clients> {
-    return this.clientsService.create(createClientDto);
+  create(@Body() createClientDto: CreateClientDto, @CurrentUserId() userId: number): Promise<Clients> {
+    return this.clientsService.create(createClientDto, userId);
   }
 
   @Get()
@@ -57,8 +58,9 @@ export class ClientsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateClientDto: UpdateClientDto,
+    @CurrentUserId() userId: number,
   ): Promise<Clients> {
-    return this.clientsService.update(id, updateClientDto);
+    return this.clientsService.update(id, updateClientDto, userId);
   }
 
   @Delete(':id')

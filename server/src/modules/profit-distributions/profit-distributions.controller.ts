@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { ProfitDistributionsService } from './profit-distributions.service';
 import { CreateProfitDistributionDto, UpdateProfitDistributionDto } from './dto';
 import { ProfitDistributions } from '../../entities/ProfitDistributions.entity';
@@ -30,7 +31,7 @@ export class ProfitDistributionsController {
   @ApiOperation({ summary: 'Create a new profit distribution (Admin only)' })
   @ApiResponse({ status: 201, description: 'Profit Distribution created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
-  create(@Body() createDto: CreateProfitDistributionDto): Promise<ProfitDistributions> {
+  create(@Body() createDto: CreateProfitDistributionDto, @CurrentUserId() userId: number): Promise<ProfitDistributions> {
     return this.service.create(createDto);
   }
 

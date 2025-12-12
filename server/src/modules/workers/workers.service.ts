@@ -61,9 +61,12 @@ export class LaborsService {
     };
   }
 
-  async create(createDto: CreateLaborDto): Promise<any> {
+  async create(createDto: CreateLaborDto, userId?: number): Promise<any> {
     const laborData = this.transformFromWorkerModel(createDto);
     const entity = this.repository.create(laborData as Partial<Worker>);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     const saved: Worker = await this.repository.save(entity);
     return this.transformToWorkerModel(saved);
   }
@@ -87,13 +90,16 @@ export class LaborsService {
     return this.transformToWorkerModel(entity);
   }
 
-  async update(id: number, updateDto: UpdateLaborDto): Promise<any> {
+  async update(id: number, updateDto: UpdateLaborDto, userId?: number): Promise<any> {
     const entity = await this.repository.findOne({ where: { id } });
     if (!entity) {
       throw new NotFoundException(`Worker with ID ${id} not found`);
     }
     const laborData = this.transformFromWorkerModel(updateDto);
     Object.assign(entity, laborData);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     const saved: Worker = await this.repository.save(entity);
     return this.transformToWorkerModel(saved);
   }

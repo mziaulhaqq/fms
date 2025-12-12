@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiConsumes } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ExpensesService } from './expenses.service';

@@ -11,6 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { LaborCostsService } from './labor-costs.service';
 import { CreateLaborCostDto, UpdateLaborCostDto } from './dto';
 import { LaborCosts } from '../../entities/LaborCosts.entity';
@@ -23,7 +24,7 @@ export class LaborCostsController {
   @Post()
   @ApiOperation({ summary: 'Create a new labor cost' })
   @ApiResponse({ status: 201, description: 'Labor Cost created successfully' })
-  create(@Body() createDto: CreateLaborCostDto): Promise<LaborCosts> {
+  create(@Body() createDto: CreateLaborCostDto, @CurrentUserId() userId: number): Promise<LaborCosts> {
     return this.service.create(createDto);
   }
 

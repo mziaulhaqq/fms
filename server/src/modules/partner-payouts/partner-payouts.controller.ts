@@ -11,6 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { PartnerPayoutsService } from './partner-payouts.service';
 import { CreatePartnerPayoutDto, UpdatePartnerPayoutDto } from './dto';
 import { PartnerPayouts } from '../../entities/PartnerPayouts.entity';
@@ -23,7 +24,7 @@ export class PartnerPayoutsController {
   @Post()
   @ApiOperation({ summary: 'Create a new partner payout' })
   @ApiResponse({ status: 201, description: 'Partner Payout created successfully' })
-  create(@Body() createDto: CreatePartnerPayoutDto): Promise<PartnerPayouts> {
+  create(@Body() createDto: CreatePartnerPayoutDto, @CurrentUserId() userId: number): Promise<PartnerPayouts> {
     return this.service.create(createDto);
   }
 

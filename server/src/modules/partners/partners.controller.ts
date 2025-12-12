@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { PartnersService } from './partners.service';
 import { CreatePartnerDto, UpdatePartnerDto } from './dto';
 import { Partners } from '../../entities/Partners.entity';
@@ -30,7 +31,7 @@ export class PartnersController {
   @ApiOperation({ summary: 'Create a new partner (Admin only)' })
   @ApiResponse({ status: 201, description: 'Partner created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
-  create(@Body() createDto: CreatePartnerDto): Promise<Partners> {
+  create(@Body() createDto: CreatePartnerDto, @CurrentUserId() userId: number): Promise<Partners> {
     return this.service.create(createDto);
   }
 

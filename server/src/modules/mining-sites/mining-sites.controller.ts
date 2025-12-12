@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { MiningSitesService } from './mining-sites.service';
 import { CreateMiningSiteDto, UpdateMiningSiteDto } from './dto';
 import { MiningSites } from '../../entities/MiningSites.entity';
@@ -30,7 +31,7 @@ export class MiningSitesController {
   @ApiOperation({ summary: 'Create a new mining site (Admin only)' })
   @ApiResponse({ status: 201, description: 'Mining Site created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
-  create(@Body() createDto: CreateMiningSiteDto): Promise<MiningSites> {
+  create(@Body() createDto: CreateMiningSiteDto, @CurrentUserId() userId: number): Promise<MiningSites> {
     return this.service.create(createDto);
   }
 

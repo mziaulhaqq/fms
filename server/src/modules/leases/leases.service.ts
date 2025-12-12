@@ -11,7 +11,7 @@ export class LeasesService {
     private readonly repository: Repository<Lease>,
   ) {}
 
-  async create(createDto: CreateLeaseDto, userId: number): Promise<Lease> {
+  async create(createDto: CreateLeaseDto, userId?: number): Promise<Lease> {
     const entity = this.repository.create({
       ...createDto,
       createdById: userId,

@@ -11,8 +11,11 @@ export class ClientsService {
     private readonly clientRepository: Repository<Clients>,
   ) {}
 
-  async create(createClientDto: CreateClientDto): Promise<Clients> {
+  async create(createClientDto: CreateClientDto, userId?: number): Promise<Clients> {
     const client = this.clientRepository.create(createClientDto);
+    if (userId) {
+      (client as any)._userId = userId;
+    }
     return await this.clientRepository.save(client);
   }
 
@@ -42,9 +45,12 @@ export class ClientsService {
     return client;
   }
 
-  async update(id: number, updateClientDto: UpdateClientDto): Promise<Clients> {
+  async update(id: number, updateClientDto: UpdateClientDto, userId?: number): Promise<Clients> {
     const client = await this.findOne(id);
     Object.assign(client, updateClientDto);
+    if (userId) {
+      (client as any)._userId = userId;
+    }
     return await this.clientRepository.save(client);
   }
 

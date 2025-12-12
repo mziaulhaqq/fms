@@ -11,6 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { GeneralLedgerService } from './general-ledger.service';
 import { CreateGeneralLedgerDto, UpdateGeneralLedgerDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

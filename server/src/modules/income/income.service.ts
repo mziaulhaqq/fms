@@ -11,8 +11,11 @@ export class IncomesService {
     private readonly repository: Repository<Income>,
   ) {}
 
-  async create(createDto: CreateIncomeDto): Promise<Income> {
+  async create(createDto: CreateIncomeDto, userId?: number): Promise<Income> {
     const entity = this.repository.create(createDto);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 
@@ -30,9 +33,12 @@ export class IncomesService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdateIncomeDto): Promise<Income> {
+  async update(id: number, updateDto: UpdateIncomeDto, userId?: number): Promise<Income> {
     const entity = await this.findOne(id);
     Object.assign(entity, updateDto);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 

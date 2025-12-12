@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { IncomesService } from './income.service';
 import { CreateIncomeDto, UpdateIncomeDto } from './dto';
 import { Income } from '../../entities/Income.entity';
@@ -30,7 +31,7 @@ export class IncomesController {
   @ApiOperation({ summary: 'Create a new income (Admin only)' })
   @ApiResponse({ status: 201, description: 'Income created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
-  create(@Body() createDto: CreateIncomeDto): Promise<Income> {
+  create(@Body() createDto: CreateIncomeDto, @CurrentUserId() userId: number): Promise<Income> {
     return this.service.create(createDto);
   }
 

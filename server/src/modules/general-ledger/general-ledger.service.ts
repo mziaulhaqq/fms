@@ -11,7 +11,7 @@ export class GeneralLedgerService {
     private readonly repository: Repository<GeneralLedger>,
   ) {}
 
-  async create(createDto: CreateGeneralLedgerDto, userId: number): Promise<GeneralLedger> {
+  async create(createDto: CreateGeneralLedgerDto, userId?: number): Promise<GeneralLedger> {
     // Check for duplicate account code in the same mining site
     const existing = await this.repository.findOne({
       where: {
@@ -30,6 +30,9 @@ export class GeneralLedgerService {
       createdById: userId,
       modifiedById: userId,
     });
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 
@@ -86,6 +89,9 @@ export class GeneralLedgerService {
     }
 
     Object.assign(entity, updateDto);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     entity.modifiedById = userId;
     return await this.repository.save(entity);
   }

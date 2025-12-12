@@ -11,7 +11,7 @@ export class ProfitDistributionsService {
     private readonly repository: Repository<ProfitDistributions>,
   ) {}
 
-  async create(createDto: CreateProfitDistributionDto): Promise<ProfitDistributions> {
+  async create(createDto: CreateProfitDistributionDto, userId?: number): Promise<ProfitDistributions> {
     const { approvedBy, totalRevenue, totalExpenses, totalProfit, ...rest } = createDto;
     const entity = this.repository.create({
       ...rest,
@@ -49,7 +49,7 @@ export class ProfitDistributionsService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdateProfitDistributionDto): Promise<ProfitDistributions> {
+  async update(id: number, updateDto: UpdateProfitDistributionDto, userId?: number): Promise<ProfitDistributions> {
     const entity = await this.findOne(id);
     const updateData: any = { ...updateDto };
     if (updateDto.totalRevenue !== undefined) {
@@ -65,6 +65,9 @@ export class ProfitDistributionsService {
       updateData.approvedBy = { id: updateDto.approvedBy };
     }
     Object.assign(entity, updateData);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 

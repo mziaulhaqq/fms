@@ -11,7 +11,7 @@ export class ExpenseTypesService {
     private readonly repository: Repository<ExpenseType>,
   ) {}
 
-  async create(createDto: CreateExpenseTypeDto, userId: number): Promise<ExpenseType> {
+  async create(createDto: CreateExpenseTypeDto, userId?: number): Promise<ExpenseType> {
     // Check for duplicate name
     const existing = await this.repository.findOne({ where: { name: createDto.name } });
     if (existing) {

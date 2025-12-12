@@ -11,7 +11,7 @@ export class AccountTypesService {
     private readonly repository: Repository<AccountType>,
   ) {}
 
-  async create(createDto: CreateAccountTypeDto, userId: number): Promise<AccountType> {
+  async create(createDto: CreateAccountTypeDto, userId?: number): Promise<AccountType> {
     // Check for duplicate name
     const existing = await this.repository.findOne({ where: { name: createDto.name } });
     if (existing) {

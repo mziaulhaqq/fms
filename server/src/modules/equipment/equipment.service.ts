@@ -12,8 +12,11 @@ export class EquipmentService {
     private readonly equipmentRepository: Repository<Equipment>,
   ) {}
 
-  async create(createEquipmentDto: CreateEquipmentDto): Promise<Equipment> {
-    const equipment = this.equipmentRepository.create(createEquipmentDto);
+  async create(createDto: CreateEquipmentDto, userId?: number): Promise<Equipment> {
+    const equipment = this.equipmentRepository.create(createDto);
+    if (userId) {
+      (equipment as any)._userId = userId;
+    }
     return await this.equipmentRepository.save(equipment);
   }
 
@@ -31,9 +34,12 @@ export class EquipmentService {
     return equipment;
   }
 
-  async update(id: number, updateEquipmentDto: UpdateEquipmentDto): Promise<Equipment> {
+  async update(id: number, updateDto: UpdateEquipmentDto, userId?: number): Promise<Equipment> {
     const equipment = await this.findOne(id);
-    Object.assign(equipment, updateEquipmentDto);
+    Object.assign(equipment, updateDto);
+    if (userId) {
+      (equipment as any)._userId = userId;
+    }
     return await this.equipmentRepository.save(equipment);
   }
 

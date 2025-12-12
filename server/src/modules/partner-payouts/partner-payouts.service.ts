@@ -11,7 +11,7 @@ export class PartnerPayoutsService {
     private readonly repository: Repository<PartnerPayouts>,
   ) {}
 
-  async create(createDto: CreatePartnerPayoutDto): Promise<PartnerPayouts> {
+  async create(createDto: CreatePartnerPayoutDto, userId?: number): Promise<PartnerPayouts> {
     const entity = this.repository.create({
       ...createDto,
       sharePercentage: createDto.sharePercentage.toString(),
@@ -46,7 +46,7 @@ export class PartnerPayoutsService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdatePartnerPayoutDto): Promise<PartnerPayouts> {
+  async update(id: number, updateDto: UpdatePartnerPayoutDto, userId?: number): Promise<PartnerPayouts> {
     const entity = await this.findOne(id);
     const updateData: any = { ...updateDto };
     if (updateDto.sharePercentage !== undefined) {
@@ -56,6 +56,9 @@ export class PartnerPayoutsService {
       updateData.payoutAmount = updateDto.payoutAmount.toString();
     }
     Object.assign(entity, updateData);
+    if (userId) {
+      (entity as any)._userId = userId;
+    }
     return await this.repository.save(entity);
   }
 

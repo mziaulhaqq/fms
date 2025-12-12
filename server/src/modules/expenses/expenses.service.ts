@@ -27,7 +27,7 @@ export class ExpensesService {
     return expense;
   }
 
-  async create(createDto: CreateExpenseDto): Promise<Expenses> {
+  async create(createDto: CreateExpenseDto, userId?: number): Promise<Expenses> {
     const entity = this.repository.create({
       ...createDto,
       amount: createDto.amount.toString(),
@@ -55,7 +55,7 @@ export class ExpensesService {
     return this.transformProofPhotos(entity);
   }
 
-  async update(id: number, updateDto: UpdateExpenseDto): Promise<Expenses> {
+  async update(id: number, updateDto: UpdateExpenseDto, userId?: number): Promise<Expenses> {
     const entity = await this.findOne(id);
     const updateData = { ...updateDto };
     if (updateDto.amount !== undefined) {

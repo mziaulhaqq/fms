@@ -11,7 +11,7 @@ export class PartnersService {
     private readonly repository: Repository<Partners>,
   ) {}
 
-  async create(createDto: CreatePartnerDto): Promise<Partners> {
+  async create(createDto: CreatePartnerDto, userId?: number): Promise<Partners> {
     const entity = this.repository.create({
       ...createDto,
       sharePercentage: createDto.sharePercentage?.toString() || null,
@@ -37,7 +37,7 @@ export class PartnersService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdatePartnerDto): Promise<Partners> {
+  async update(id: number, updateDto: UpdatePartnerDto, userId?: number): Promise<Partners> {
     const entity = await this.findOne(id);
     const updateData = {
       ...updateDto,

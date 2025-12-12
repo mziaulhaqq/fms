@@ -11,7 +11,7 @@ export class MiningSitesService {
     private readonly repository: Repository<MiningSites>,
   ) {}
 
-  async create(createDto: CreateMiningSiteDto): Promise<MiningSites> {
+  async create(createDto: CreateMiningSiteDto, userId?: number): Promise<MiningSites> {
     const entity = this.repository.create(createDto);
     return await this.repository.save(entity);
   }
@@ -30,7 +30,7 @@ export class MiningSitesService {
     return entity;
   }
 
-  async update(id: number, updateDto: UpdateMiningSiteDto): Promise<MiningSites> {
+  async update(id: number, updateDto: UpdateMiningSiteDto, userId?: number): Promise<MiningSites> {
     const entity = await this.findOne(id);
     Object.assign(entity, updateDto);
     return await this.repository.save(entity);

@@ -10,6 +10,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { ExpenseTypesService } from './expense-types.service';
 import { CreateExpenseTypeDto, UpdateExpenseTypeDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

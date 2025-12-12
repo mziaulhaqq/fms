@@ -11,7 +11,7 @@ export class ClientTypesService {
     private readonly repository: Repository<ClientType>,
   ) {}
 
-  async create(createDto: CreateClientTypeDto, userId: number): Promise<ClientType> {
+  async create(createDto: CreateClientTypeDto, userId?: number): Promise<ClientType> {
     // Check for duplicate name
     const existing = await this.repository.findOne({ where: { name: createDto.name } });
     if (existing) {

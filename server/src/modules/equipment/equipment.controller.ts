@@ -10,6 +10,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { EquipmentService } from './equipment.service';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { UpdateEquipmentDto } from './dto/update-equipment.dto';
@@ -23,8 +24,8 @@ export class EquipmentController {
   @Post()
   @ApiOperation({ summary: 'Create a new equipment' })
   @ApiResponse({ status: 201, description: 'Equipment created successfully', type: Equipment })
-  create(@Body() createEquipmentDto: CreateEquipmentDto): Promise<Equipment> {
-    return this.equipmentService.create(createEquipmentDto);
+  create(@Body() createDto: CreateEquipmentDto, @CurrentUserId() userId: number): Promise<Equipment> {
+    return this.equipmentService.create(createDto, userId);
   }
 
   @Get()
@@ -49,8 +50,9 @@ export class EquipmentController {
   update(
     @Param('id') id: string,
     @Body() updateEquipmentDto: UpdateEquipmentDto,
+    @CurrentUserId() userId: number,
   ): Promise<Equipment> {
-    return this.equipmentService.update(+id, updateEquipmentDto);
+    return this.equipmentService.update(+id, updateEquipmentDto, userId);
   }
 
   @Delete(':id')
