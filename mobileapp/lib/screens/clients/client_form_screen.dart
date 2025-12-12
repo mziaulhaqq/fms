@@ -30,6 +30,7 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
   late TextEditingController _descriptionController;
   bool _isActive = true;
   int? _selectedClientTypeId;
+  DateTime? _selectedOnboardingDate;
   
   List<Map<String, dynamic>> _clientTypes = [];
   bool _isLoadingTypes = true;
@@ -46,6 +47,9 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
     _descriptionController = TextEditingController(text: widget.client?.description ?? '');
     _isActive = widget.client?.isActive ?? true;
     _selectedClientTypeId = widget.client?.clientTypeId;
+    if (widget.client?.onboardingDate != null) {
+      _selectedOnboardingDate = DateTime.tryParse(widget.client!.onboardingDate!);
+    }
     _loadClientTypes();
   }
 
@@ -81,6 +85,33 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
     }
   }
 
+  Future<void> _selectOnboardingDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedOnboardingDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: AppColors.textOnPrimary,
+              surface: AppColors.surface,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    
+    if (picked != null && picked != _selectedOnboardingDate) {
+      setState(() {
+        _selectedOnboardingDate = picked;
+      });
+    }
+  }
+
   Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -98,6 +129,7 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
           munshiName: _munshiNameController.text.isEmpty ? null : _munshiNameController.text,
           munshiContact: _munshiContactController.text.isEmpty ? null : _munshiContactController.text,
           description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+          onboardingDate: _selectedOnboardingDate?.toIso8601String().split('T')[0],
           isActive: _isActive,
           clientTypeId: _selectedClientTypeId,
         );
@@ -255,6 +287,30 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
                 fillColor: AppColors.surface,
               ),
               maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            // Onboarding Date Picker
+            InkWell(
+              onTap: _selectOnboardingDate,
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Onboarding Date',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  suffixIcon: const Icon(Icons.calendar_today),
+                ),
+                child: Text(
+                  _selectedOnboardingDate != null
+                      ? '${_selectedOnboardingDate!.day.toString().padLeft(2, '0')}/${_selectedOnboardingDate!.month.toString().padLeft(2, '0')}/${_selectedOnboardingDate!.year}'
+                      : 'Select date',
+                  style: TextStyle(
+                    color: _selectedOnboardingDate != null 
+                        ? Colors.black87 
+                        : Colors.grey[600],
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             SwitchListTile(
