@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/receivable.dart';
 import '../../services/receivable_service.dart';
 import '../../services/client_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/site_context_provider.dart';
 
 class ReceivableFormScreen extends StatefulWidget {
   final Receivable? receivable;
@@ -42,6 +44,16 @@ class _ReceivableFormScreenState extends State<ReceivableFormScreen> {
     _miningSiteId = widget.receivable?.miningSiteId;
     _selectedDate = widget.receivable?.date ?? DateTime.now();
     _loadDropdownData();
+    
+    // Auto-populate mining site from context if creating new receivable
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      if (widget.receivable == null && siteContext.selectedSiteId != null) {
+        setState(() {
+          _miningSiteId = siteContext.selectedSiteId;
+        });
+      }
+    });
   }
 
   @override

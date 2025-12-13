@@ -93,8 +93,8 @@ export class IncomesService {
           totalAmount: String(outstandingAmount),
           remainingBalance: String(outstandingAmount),
           status: 'Pending',
-          date: createDto.loadingDate,
-          description: `Outstanding from Truck ${createDto.truckNumber} - Loading Date: ${createDto.loadingDate}`,
+          date: createDto.loadingDate.split('T')[0], // Remove time portion
+          description: `Outstanding from Truck ${createDto.truckNumber}`,
         };
 
         const receivable = manager.create(Receivable, receivableData);
@@ -109,7 +109,13 @@ export class IncomesService {
         await manager.save(Income, savedIncome);
       }
 
-      return savedIncome;
+      // Reload income with all relationships to ensure client/receivable data is included
+      const reloadedIncome = await manager.findOne(Income, {
+        where: { id: savedIncome.id },
+        relations: ['client', 'miningSite', 'liability', 'receivable', 'receivable.client', 'receivable.miningSite', 'creator', 'modifier'],
+      });
+
+      return reloadedIncome || savedIncome;
     });
   }
 

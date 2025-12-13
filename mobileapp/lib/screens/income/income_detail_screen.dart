@@ -158,6 +158,17 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if (_income.client != null) ...[
+                                  Text(
+                                    _income.client!['businessName'] ?? _income.client!['name'] ?? 'Unknown Client',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ],
                                 Text(
                                   'Truck ${_income.truckNumber}',
                                   style: const TextStyle(
@@ -211,7 +222,7 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                           if (_income.client != null) ...[
                             _buildInfoRow(
                               'Client',
-                              _income.client!['name'] ?? 'Unknown Client',
+                              _income.client!['businessName'] ?? _income.client!['name'] ?? 'Unknown Client',
                               Icons.business,
                             ),
                             const Divider(height: 24),
@@ -549,11 +560,13 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                                         children: [
                                           Row(
                                             children: [
-                                              const Text(
-                                                'Outstanding Amount (Receivable)',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppColors.textSecondary,
+                                              const Flexible(
+                                                child: Text(
+                                                  'Outstanding Amount (Receivable)',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: AppColors.textSecondary,
+                                                  ),
                                                 ),
                                               ),
                                               if (_income.receivableId != null)

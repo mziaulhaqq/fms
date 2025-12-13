@@ -1,21 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/receivable.dart';
+import '../../models/income.dart';
 import '../../core/constants/app_colors.dart';
+import '../../services/income_service.dart';
+import '../income/income_detail_screen.dart';
 
-class ReceivableDetailsScreen extends StatelessWidget {
+class ReceivableDetailsScreen extends StatefulWidget {
   final Receivable receivable;
 
   const ReceivableDetailsScreen({Key? key, required this.receivable}) : super(key: key);
+
+  @override
+  State<ReceivableDetailsScreen> createState() => _ReceivableDetailsScreenState();
+}
+
+class _ReceivableDetailsScreenState extends State<ReceivableDetailsScreen> {
+  final IncomeService _incomeService = IncomeService();
+  bool _isLoadingIncome = false;
+
+  Future<void> _navigateToRelatedIncome() async {
+    setState(() => _isLoadingIncome = true);
+    
+    try {
+      // Find income record with this receivableId
+      final allIncome = await _incomeService.getAllIncome();
+      final relatedIncome = allIncome.firstWhere(
+        (income) => income.receivableId == widget.receivable.id,
+        orElse: () => throw Exception('Income record not found'),
+      );
+      
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => IncomeDetailScreen(income: relatedIncome),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not find related income: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingIncome = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd, yyyy');
     
-    final totalPaid = receivable.totalAmount - receivable.remainingBalance;
-    final usagePercentage = receivable.totalAmount > 0 
-        ? (totalPaid / receivable.totalAmount * 100).toStringAsFixed(1)
+    final totalPaid = widget.receivable.totalAmount - widget.receivable.remainingBalance;
+    final usagePercentage = widget.receivable.totalAmount > 0 
+        ? (totalPaid / widget.receivable.totalAmount * 100).toStringAsFixed(1)
         : '0.0';
 
     return Scaffold(
@@ -48,7 +91,7 @@ class ReceivableDetailsScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          receivable.client?['businessName'] ?? 'Unknown Client',
+                          widget.receivable.client?['businessName'] ?? 'Unknown Client',
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -62,11 +105,11 @@ class ReceivableDetailsScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(receivable.status),
+                      color: _getStatusColor(widget.receivable.status),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      receivable.status,
+                      widget.receivable.status,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -90,13 +133,64 @@ class ReceivableDetailsScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          _buildInfoRow('Date', dateFormat.format(receivable.date), Icons.calendar_today),
-                          if (receivable.description != null) ...[
+                          _buildInfoRow('Date', dateFormat.format(widget.receivable.date), Icons.calendar_today),
+                          if (widget.receivable.description != null) ...[
                             const Divider(height: 24),
-                            _buildInfoRow('Description', receivable.description!, Icons.notes),
+                            // Clickable description if it's from an income
+                            if (widget.receivable.description!.contains('Outstanding from Truck'))
+                              InkWell(
+                                onTap: _isLoadingIncome ? null : _navigateToRelatedIncome,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.blue.shade200),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.description, size: 18, color: Colors.grey.shade600),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Description',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              widget.receivable.description!.split(' - Loading Date:')[0],
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey.shade800,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      if (_isLoadingIncome)
+                                        const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      else
+                                        Icon(Icons.chevron_right, color: Colors.blue.shade700),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else
+                              _buildInfoRow('Description', widget.receivable.description!, Icons.notes),
                           ],
                           const Divider(height: 24),
-                          _buildInfoRow('Mining Site', receivable.siteName, Icons.location_on),
+                          _buildInfoRow('Mining Site', widget.receivable.siteName, Icons.location_on),
                         ],
                       ),
                     ),
@@ -122,7 +216,7 @@ class ReceivableDetailsScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                           _buildFinancialRow(
                             'Total Amount',
-                            currencyFormat.format(receivable.totalAmount),
+                            currencyFormat.format(widget.receivable.totalAmount),
                             Colors.orange.shade700,
                             isBold: true,
                           ),
@@ -135,7 +229,7 @@ class ReceivableDetailsScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           _buildFinancialRow(
                             'Remaining Balance',
-                            currencyFormat.format(receivable.remainingBalance),
+                            currencyFormat.format(widget.receivable.remainingBalance),
                             Colors.red.shade700,
                             isBold: true,
                           ),
@@ -165,14 +259,14 @@ class ReceivableDetailsScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               LinearProgressIndicator(
-                                value: receivable.totalAmount > 0 
-                                    ? totalPaid / receivable.totalAmount 
+                                value: widget.receivable.totalAmount > 0 
+                                    ? totalPaid / widget.receivable.totalAmount 
                                     : 0,
                                 backgroundColor: Colors.grey.shade300,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  receivable.status == 'Collected'
+                                  widget.receivable.status == 'Collected'
                                       ? Colors.green
-                                      : receivable.status == 'Partially Collected'
+                                      : widget.receivable.status == 'Partially Collected'
                                           ? Colors.orange
                                           : Colors.red,
                                 ),
