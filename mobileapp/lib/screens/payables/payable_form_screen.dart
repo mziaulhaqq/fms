@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/payable.dart';
 import '../../services/payable_service.dart';
 import '../../services/client_service.dart';
 import '../../services/mining_site_service.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/site_context_provider.dart';
 
 class PayableFormScreen extends StatefulWidget {
   final Payable? payable;
@@ -39,7 +41,19 @@ class _PayableFormScreenState extends State<PayableFormScreen> {
       text: widget.payable?.description ?? '',
     );
     _clientId = widget.payable?.clientId;
-    _miningSiteId = widget.payable?.miningSiteId;
+    
+    // Initialize with selected site from context or existing payable site
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final siteContext = Provider.of<SiteContextProvider>(context, listen: false);
+      if (widget.payable == null && siteContext.selectedSiteId != null) {
+        setState(() {
+          _miningSiteId = siteContext.selectedSiteId;
+        });
+      } else {
+        _miningSiteId = widget.payable?.miningSiteId;
+      }
+    });
+    
     _selectedDate = widget.payable?.date ?? DateTime.now();
     _loadDropdownData();
   }
@@ -197,12 +211,15 @@ class _PayableFormScreenState extends State<PayableFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  // Mining Site Dropdown (Read-only - from context)
                   DropdownButtonFormField<int>(
                     value: _miningSiteId,
                     decoration: const InputDecoration(
                       labelText: 'Mining Site *',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.landscape),
+                      filled: true,
+                      fillColor: Color(0xFFF5F5F5),
                     ),
                     items: _miningSites.map((site) {
                       return DropdownMenuItem<int>(
@@ -210,7 +227,10 @@ class _PayableFormScreenState extends State<PayableFormScreen> {
                         child: Text((site['name'] as String?) ?? 'Unknown Site'),
                       );
                     }).toList(),
-                    onChanged: (value) => setState(() => _miningSiteId = value),
+                    onChanged: null, // Read-only - site is selected from context
+                    disabledHint: _miningSiteId != null && _miningSites.isNotEmpty
+                        ? Text(_miningSites.firstWhere((s) => s['id'] == _miningSiteId)['name'] as String)
+                        : const Text('No site selected'),
                     validator: (value) {
                       if (value == null) return 'Please select a mining site';
                       return null;

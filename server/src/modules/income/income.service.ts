@@ -78,12 +78,16 @@ export class IncomesService {
 
   async findAll(): Promise<Income[]> {
     return await this.repository.find({
+      relations: ['client', 'miningSite', 'liability', 'receivable', 'creator', 'modifier'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Income> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ 
+      where: { id },
+      relations: ['client', 'miningSite', 'liability', 'receivable', 'creator', 'modifier'],
+    });
     if (!entity) {
       throw new NotFoundException(`Income with ID ${id} not found`);
     }

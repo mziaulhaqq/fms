@@ -14,6 +14,9 @@ class Income {
   final int? liabilityId;
   final double? amountFromLiability;
   final double? amountCash;
+  final int? receivableId;
+  final int? createdBy;
+  final int? modifiedBy;
   final String? createdAt;
   final String? updatedAt;
 
@@ -21,6 +24,9 @@ class Income {
   final String? siteName;
   final Map<String, dynamic>? client;
   final Map<String, dynamic>? liability;
+  final Map<String, dynamic>? receivable;
+  final Map<String, dynamic>? creator;
+  final Map<String, dynamic>? modifier;
 
   Income({
     this.id,
@@ -38,11 +44,17 @@ class Income {
     this.liabilityId,
     this.amountFromLiability,
     this.amountCash,
+    this.receivableId,
+    this.createdBy,
+    this.modifiedBy,
     this.createdAt,
     this.updatedAt,
     this.siteName,
     this.client,
     this.liability,
+    this.receivable,
+    this.creator,
+    this.modifier,
   });
 
   factory Income.fromJson(Map<String, dynamic> json) {
@@ -62,11 +74,17 @@ class Income {
       liabilityId: json['liabilityId'] ?? json['liability_id'],
       amountFromLiability: _parseDouble(json['amountFromLiability'] ?? json['amount_from_liability']),
       amountCash: _parseDouble(json['amountCash'] ?? json['amount_cash']),
+      receivableId: json['receivableId'] ?? json['receivable_id'],
+      createdBy: json['createdBy'] ?? json['created_by'],
+      modifiedBy: json['modifiedBy'] ?? json['modified_by'],
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],
       siteName: json['site']?['name'] ?? json['siteName'],
       client: json['client'],
       liability: json['liability'],
+      receivable: json['receivable'],
+      creator: json['creator'],
+      modifier: json['modifier'],
     );
   }
 

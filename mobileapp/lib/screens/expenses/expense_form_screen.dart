@@ -440,7 +440,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     ),
                     child: Column(
                       children: [
-                        // Mining Site Dropdown
+                        // Mining Site Dropdown (Read-only - from context)
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: DropdownButtonFormField<int>(
@@ -449,6 +449,8 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                               labelText: 'Project/Site',
                               border: OutlineInputBorder(),
                               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              filled: true,
+                              fillColor: Color(0xFFF5F5F5),
                             ),
                             items: _sites.map((site) {
                               return DropdownMenuItem(
@@ -456,9 +458,10 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                                 child: Text(site.name),
                               );
                             }).toList(),
-                            onChanged: _isLoading ? null : (value) {
-                              setState(() => _selectedSiteId = value);
-                            },
+                            onChanged: null, // Read-only - site is selected from context
+                            disabledHint: _selectedSiteId != null && _sites.isNotEmpty
+                                ? Text(_sites.firstWhere((s) => s.id == _selectedSiteId).name)
+                                : const Text('No site selected'),
                             validator: (value) => value == null ? 'Please select a site' : null,
                           ),
                         ),

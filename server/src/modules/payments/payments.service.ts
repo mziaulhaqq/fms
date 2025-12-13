@@ -82,6 +82,8 @@ export class PaymentsService {
         clientId: createDto.clientId,
         miningSiteId: createDto.miningSiteId,
         paymentType: createDto.paymentType,
+        payableId: createDto.payableId || null,
+        receivableId: createDto.receivableId || null,
         amount: createDto.amount.toString(),
         paymentDate: createDto.paymentDate,
         paymentMethod: createDto.paymentMethod,
@@ -122,6 +124,22 @@ export class PaymentsService {
     return await this.repository.find({
       where: { paymentType },
       relations: ['client', 'miningSite', 'creator'],
+      order: { paymentDate: 'DESC' },
+    });
+  }
+
+  async findByPayable(payableId: number): Promise<Payment[]> {
+    return await this.repository.find({
+      where: { payableId },
+      relations: ['client', 'miningSite', 'payable', 'creator'],
+      order: { paymentDate: 'DESC' },
+    });
+  }
+
+  async findByReceivable(receivableId: number): Promise<Payment[]> {
+    return await this.repository.find({
+      where: { receivableId },
+      relations: ['client', 'miningSite', 'receivable', 'creator'],
       order: { paymentDate: 'DESC' },
     });
   }

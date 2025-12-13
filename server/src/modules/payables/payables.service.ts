@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Payable } from '../../entities/Payable.entity';
 import { CreateLiabilityDto, UpdateLiabilityDto } from './dto';
 
@@ -44,10 +44,11 @@ export class PayablesService {
   }
 
   async findActiveByClient(clientId: number): Promise<Payable[]> {
+    // Return payables with status 'Active' or 'Partially Used' (i.e., those with remaining balance > 0)
     return await this.repository.find({
       where: { 
         clientId,
-        status: 'Active'
+        status: In(['Active', 'Partially Used'])
       },
       relations: ['miningSite'],
       order: { date: 'ASC' },

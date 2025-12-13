@@ -310,7 +310,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  // Mining Site Dropdown
+                  // Mining Site Dropdown (Read-only - from context)
                   DropdownButtonFormField<int>(
                     value: _selectedSiteId,
                     decoration: const InputDecoration(
@@ -318,6 +318,8 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                       hintText: 'Select a mining site',
                       prefixIcon: Icon(Icons.location_on),
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Color(0xFFF5F5F5),
                     ),
                     items: _sites.map((site) {
                       return DropdownMenuItem<int>(
@@ -325,9 +327,10 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                         child: Text(site.name),
                       );
                     }).toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedSiteId = value);
-                    },
+                    onChanged: null, // Read-only - site is selected from context
+                    disabledHint: _selectedSiteId != null
+                        ? Text(_sites.firstWhere((s) => s.id == _selectedSiteId).name)
+                        : const Text('No site selected'),
                     validator: (value) {
                       if (value == null) {
                         return 'Please select a mining site';
@@ -388,17 +391,41 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                       DropdownButtonFormField<int>(
                         value: _selectedPayableId,
                         decoration: const InputDecoration(
-                          labelText: 'Liability (Optional)',
-                          hintText: 'Select a liability to link',
-                          prefixIcon: Icon(Icons.account_balance),
+                          labelText: 'Payable (Optional)',
+                          hintText: 'Select payable to deduct',
+                          prefixIcon: Icon(Icons.account_balance_wallet),
                           border: OutlineInputBorder(),
                         ),
-                        items: _payables.map((liability) {
+                        items: _payables.map((payable) {
+                          final statusBadge = payable.status == 'Partially Used' 
+                              ? '⚠️ Partial' 
+                              : '✓ Active';
+                          final statusColor = payable.status == 'Partially Used' 
+                              ? Colors.orange.shade700 
+                              : Colors.green.shade700;
                           return DropdownMenuItem<int>(
-                            value: liability.id,
-                            child: Text(
-                              '${liability.type} - \$${liability.remainingBalance.toStringAsFixed(2)} remaining',
-                              overflow: TextOverflow.ellipsis,
+                            value: payable.id,
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '$statusBadge - ${payable.type}\n',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: 'Balance: \$${payable.remainingBalance.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         }).toList(),
@@ -406,7 +433,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                       ),
                     const SizedBox(height: 16),
 
-                    // Payment Breakdown - Show if liability is selected
+                    // Payment Breakdown - Show if payable is selected
                     if (_selectedPayableId != null) ...[
                       Card(
                         color: Colors.purple.shade50,
@@ -431,7 +458,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                               ),
                               const SizedBox(height: 12),
                               
-                              // Liability Balance Info
+                              // Payable Balance Info
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -444,7 +471,7 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                     Icon(Icons.account_balance_wallet, size: 20, color: Colors.purple.shade600),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Available in Liability:',
+                                      'Available in Payable:',
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.grey.shade700,
@@ -464,11 +491,11 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                               ),
                               const SizedBox(height: 12),
 
-                              // Amount from Liability
+                              // Amount from Payable
                               TextFormField(
                                 controller: _amountFromPayableController,
                                 decoration: InputDecoration(
-                                  labelText: 'Amount from Liability',
+                                  labelText: 'Amount from Payable',
                                   hintText: '0.00',
                                   prefixIcon: const Icon(Icons.remove_circle),
                                   border: const OutlineInputBorder(),
@@ -477,16 +504,19 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                 ),
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 onChanged: (value) {
-                                  // Auto-calculate cash amount
-                                  final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
-                                  final fromLiability = double.tryParse(value.trim()) ?? 0;
-                                  final cashAmount = coalPrice - fromLiability;
-                                  _amountCashController.text = cashAmount > 0 ? cashAmount.toStringAsFixed(2) : '0.00';
+                                  // Only auto-calculate cash if it's currently empty or zero
+                                  final currentCash = _amountCashController.text.trim();
+                                  if (currentCash.isEmpty || currentCash == '0.00' || currentCash == '0') {
+                                    final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
+                                    final fromLiability = double.tryParse(value.trim()) ?? 0;
+                                    final cashAmount = coalPrice - fromLiability;
+                                    _amountCashController.text = cashAmount > 0 ? cashAmount.toStringAsFixed(2) : '0.00';
+                                  }
                                   setState(() {});
                                 },
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter amount from liability';
+                                    return 'Please enter amount from payable';
                                   }
                                   final amount = double.tryParse(value.trim());
                                   if (amount == null || amount < 0) {
@@ -513,12 +543,20 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                 ),
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 onChanged: (value) {
-                                  // Auto-calculate liability amount
-                                  final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
-                                  final cash = double.tryParse(value.trim()) ?? 0;
-                                  final fromLiability = coalPrice - cash;
-                                  if (fromLiability >= 0 && fromLiability <= (_selectedPayableBalance ?? 0)) {
-                                    _amountFromPayableController.text = fromLiability.toStringAsFixed(2);
+                                  // Only auto-calculate payable amount if it's currently empty or zero
+                                  final currentFromPayable = _amountFromPayableController.text.trim();
+                                  if (currentFromPayable.isEmpty || currentFromPayable == '0.00' || currentFromPayable == '0') {
+                                    final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
+                                    final cash = double.tryParse(value.trim()) ?? 0;
+                                    
+                                    if (coalPrice > 0) {
+                                      final fromLiability = coalPrice - cash;
+                                      if (fromLiability > 0 && fromLiability <= (_selectedPayableBalance ?? 0)) {
+                                        _amountFromPayableController.text = fromLiability.toStringAsFixed(2);
+                                      } else if (fromLiability <= 0) {
+                                        _amountFromPayableController.text = '0.00';
+                                      }
+                                    }
                                   }
                                   setState(() {});
                                 },

@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsEnum, IsDateString, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsDateString, IsArray } from 'class-validator';
 
 export class CreateLiabilityDto {
-  @ApiProperty({ description: 'Liability type', enum: ['Loan', 'Advanced Payment'] })
-  @IsEnum(['Loan', 'Advanced Payment'])
-  type: 'Loan' | 'Advanced Payment';
+  @ApiProperty({ description: 'Payable type (always Advance Payment)', example: 'Advance Payment' })
+  @IsOptional()
+  @IsString()
+  type?: string;
 
   @ApiProperty({ description: 'Client ID (FK to clients)' })
   @IsNumber()
@@ -14,7 +15,7 @@ export class CreateLiabilityDto {
   @IsNumber()
   miningSiteId: number;
 
-  @ApiProperty({ description: 'Liability date', example: '2025-12-11' })
+  @ApiProperty({ description: 'Payable date', example: '2025-12-11' })
   @IsDateString()
   date: string;
 

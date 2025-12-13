@@ -4,11 +4,13 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuditEntity } from './AuditEntity';
 import { Clients } from './Clients.entity';
 import { MiningSites } from './MiningSites.entity';
+import { Payment } from './Payment.entity';
 
 @Index('receivables_pkey', ['id'], { unique: true })
 @Index('idx_receivable_client', ['clientId'], {})
@@ -56,4 +58,7 @@ export class Receivable extends AuditEntity {
   @ManyToOne(() => MiningSites, (miningSite) => miningSite.receivables)
   @JoinColumn([{ name: 'mining_site_id', referencedColumnName: 'id' }])
   miningSite: MiningSites;
+
+  @OneToMany(() => Payment, (payment) => payment.receivable)
+  payments: Payment[];
 }

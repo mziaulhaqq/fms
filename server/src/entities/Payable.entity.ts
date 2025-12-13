@@ -4,11 +4,13 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuditEntity } from './AuditEntity';
 import { Clients } from './Clients.entity';
 import { MiningSites } from './MiningSites.entity';
+import { Payment } from './Payment.entity';
 
 @Index('payables_pkey', ['id'], { unique: true })
 @Index('idx_payable_client', ['clientId'], {})
@@ -67,4 +69,7 @@ export class Payable extends AuditEntity {
   @ManyToOne(() => MiningSites, (miningSite) => miningSite.payables)
   @JoinColumn([{ name: 'mining_site_id', referencedColumnName: 'id' }])
   miningSite: MiningSites;
+
+  @OneToMany(() => Payment, (payment) => payment.payable)
+  payments: Payment[];
 }

@@ -4,6 +4,10 @@ import '../../core/constants/app_colors.dart';
 import '../../models/income.dart';
 import '../../services/income_service.dart';
 import 'income_form_screen.dart';
+import '../payables/payable_details_screen.dart';
+import '../receivables/receivable_details_screen.dart';
+import '../../models/payable.dart';
+import '../../models/receivable.dart';
 
 class IncomeDetailScreen extends StatefulWidget {
   final Income income;
@@ -92,6 +96,18 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
 
   double _calculateTotal() {
     return _income.coalPrice - _income.companyCommission;
+  }
+
+  double _calculateTotalPaid() {
+    final fromPayable = _income.amountFromLiability ?? 0.0;
+    final cash = _income.amountCash ?? 0.0;
+    return fromPayable + cash;
+  }
+
+  double _calculateOutstanding() {
+    final totalPaid = _calculateTotalPaid();
+    final outstanding = _income.coalPrice - totalPaid;
+    return outstanding > 0 ? outstanding : 0.0;
   }
 
   @override
@@ -297,9 +313,251 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                   ),
                   const SizedBox(height: 20),
 
+                  // Payment Breakdown
+                  const Text(
+                    'Payment Breakdown',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    color: Colors.blue.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Amount from Payable (Clickable)
+                          if (_income.liabilityId != null && _income.amountFromLiability != null)
+                            InkWell(
+                              onTap: () {
+                                if (_income.liability != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PayableDetailsScreen(
+                                        payable: Payable.fromJson(_income.liability!),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.orange.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.account_balance_wallet, 
+                                      size: 20, color: Colors.orange.shade700),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Paid from Payable (Advance Payment)',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '\$${_income.amountFromLiability!.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.orange.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(Icons.chevron_right, color: Colors.orange.shade700),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          
+                          if (_income.liabilityId != null && _income.amountFromLiability != null)
+                            const SizedBox(height: 12),
+
+                          // Amount in Cash
+                          if (_income.amountCash != null)
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.green.shade200),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.payments, size: 20, color: Colors.green.shade700),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Paid in Cash',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '\$${_income.amountCash!.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          if (_income.amountCash != null)
+                            const SizedBox(height: 12),
+
+                          // Total Paid
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.shade300, width: 2),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.check_circle, size: 20, color: Colors.blue.shade700),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Total Paid',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '\$${_calculateTotalPaid().toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Outstanding Amount / Receivable
+                          if (_calculateOutstanding() > 0) ...[
+                            const SizedBox(height: 12),
+                            InkWell(
+                              onTap: () {
+                                if (_income.receivableId != null && _income.receivable != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ReceivableDetailsScreen(
+                                        receivable: Receivable.fromJson(_income.receivable!),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.red.shade200, width: 2),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.warning_amber, size: 20, color: Colors.red.shade700),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Text(
+                                                'Outstanding Amount (Receivable)',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: AppColors.textSecondary,
+                                                ),
+                                              ),
+                                              if (_income.receivableId != null)
+                                                Container(
+                                                  margin: const EdgeInsets.only(left: 8),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: const Text(
+                                                    'Created',
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '\$${_calculateOutstanding().toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (_income.receivableId != null)
+                                      Icon(Icons.chevron_right, color: Colors.red.shade700),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
                   // Metadata
                   const Text(
-                    'Additional Information',
+                    'Record Information',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -317,6 +575,16 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                             _income.id?.toString() ?? 'N/A',
                             Icons.tag,
                           ),
+                          if (_income.creator != null || _income.createdBy != null) ...[
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              'Created By',
+                              _income.creator?['fullName'] ?? 
+                              _income.creator?['username'] ?? 
+                              'User #${_income.createdBy}',
+                              Icons.person_add,
+                            ),
+                          ],
                           if (_income.createdAt != null) ...[
                             const Divider(height: 24),
                             _buildInfoRow(
@@ -325,10 +593,20 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                               Icons.schedule,
                             ),
                           ],
+                          if (_income.modifier != null || _income.modifiedBy != null) ...[
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              'Modified By',
+                              _income.modifier?['fullName'] ?? 
+                              _income.modifier?['username'] ?? 
+                              'User #${_income.modifiedBy}',
+                              Icons.person_outline,
+                            ),
+                          ],
                           if (_income.updatedAt != null) ...[
                             const Divider(height: 24),
                             _buildInfoRow(
-                              'Updated At',
+                              'Last Updated',
                               _formatDateTime(_income.updatedAt!),
                               Icons.update,
                             ),

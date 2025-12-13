@@ -3,6 +3,7 @@ import '../../models/payable.dart';
 import '../../services/payable_service.dart';
 import '../../core/constants/app_colors.dart';
 import 'payable_form_screen.dart';
+import 'payable_details_screen.dart';
 
 class PayablesListScreen extends StatefulWidget {
   const PayablesListScreen({Key? key}) : super(key: key);
@@ -169,6 +170,16 @@ class _PayablesListScreenState extends State<PayablesListScreen> {
                           trailing: PopupMenuButton(
                             itemBuilder: (context) => [
                               const PopupMenuItem(
+                                value: 'details',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.info_outline, color: Colors.blue),
+                                    SizedBox(width: 8),
+                                    Text('Details'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem(
                                 value: 'edit',
                                 child: Row(
                                   children: [
@@ -191,7 +202,15 @@ class _PayablesListScreenState extends State<PayablesListScreen> {
                               ),
                             ],
                             onSelected: (value) async {
-                              if (value == 'edit') {
+                              if (value == 'details') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PayableDetailsScreen(payable: payable),
+                                  ),
+                                );
+                              } else if (value == 'edit') {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(

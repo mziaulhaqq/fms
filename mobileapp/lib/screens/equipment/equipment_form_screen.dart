@@ -275,7 +275,7 @@ class _EquipmentFormScreenState extends State<EquipmentFormScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Mining Site Dropdown
+                  // Mining Site Dropdown (Read-only - from context)
                   DropdownButtonFormField<int>(
                     value: _selectedSiteId,
                     decoration: const InputDecoration(
@@ -283,6 +283,8 @@ class _EquipmentFormScreenState extends State<EquipmentFormScreen> {
                       hintText: 'Select a mining site',
                       prefixIcon: Icon(Icons.location_on),
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Color(0xFFF5F5F5),
                     ),
                     items: [
                       const DropdownMenuItem<int>(
@@ -296,9 +298,10 @@ class _EquipmentFormScreenState extends State<EquipmentFormScreen> {
                         );
                       }),
                     ],
-                    onChanged: (value) {
-                      setState(() => _selectedSiteId = value);
-                    },
+                    onChanged: null, // Read-only - site is selected from context
+                    disabledHint: _selectedSiteId != null && _sites.isNotEmpty
+                        ? Text(_sites.firstWhere((s) => s.id == _selectedSiteId, orElse: () => _sites.first).name)
+                        : const Text('No site assigned'),
                   ),
                   const SizedBox(height: 16),
 

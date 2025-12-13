@@ -30,14 +30,18 @@ export class PaymentsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all payments or filter by client/mining site/type' })
+  @ApiOperation({ summary: 'Get all payments or filter by client/mining site/type/payable/receivable' })
   @ApiQuery({ name: 'clientId', required: false, description: 'Filter by client ID' })
   @ApiQuery({ name: 'miningSiteId', required: false, description: 'Filter by mining site ID' })
+  @ApiQuery({ name: 'payableId', required: false, description: 'Filter by payable ID' })
+  @ApiQuery({ name: 'receivableId', required: false, description: 'Filter by receivable ID' })
   @ApiQuery({ name: 'type', required: false, enum: ['Payable Deduction', 'Receivable Payment'] })
   @ApiResponse({ status: 200, description: 'Returns payments' })
   findAll(
     @Query('clientId') clientId?: string,
     @Query('miningSiteId') miningSiteId?: string,
+    @Query('payableId') payableId?: string,
+    @Query('receivableId') receivableId?: string,
     @Query('type') type?: 'Payable Deduction' | 'Receivable Payment',
   ) {
     if (clientId) {
@@ -45,6 +49,12 @@ export class PaymentsController {
     }
     if (miningSiteId) {
       return this.service.findByMiningSite(+miningSiteId);
+    }
+    if (payableId) {
+      return this.service.findByPayable(+payableId);
+    }
+    if (receivableId) {
+      return this.service.findByReceivable(+receivableId);
     }
     if (type) {
       return this.service.findByType(type);

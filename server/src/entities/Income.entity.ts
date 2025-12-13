@@ -10,6 +10,8 @@ import { AuditEntity } from "./AuditEntity";
 import { Clients } from "./Clients.entity";
 import { Users } from "./Users.entity";
 import { MiningSites } from "./MiningSites.entity";
+import { Payable } from "./Payable.entity";
+import { Receivable } from "./Receivable.entity";
 
 @Index("idx_income_date", ["loadingDate"], {})
 @Index("idx_income_site", ["siteId"], {})
@@ -123,6 +125,9 @@ export class Income extends AuditEntity {
   @Column("integer", { name: "liability_id", nullable: true })
   liabilityId: number | null;
 
+  @Column("integer", { name: "receivable_id", nullable: true })
+  receivableId: number | null;
+
   @ManyToOne(() => Clients, (clients) => clients.incomes)
   @JoinColumn([{ name: "client_id", referencedColumnName: "id" }])
   client: Clients;
@@ -130,4 +135,24 @@ export class Income extends AuditEntity {
   @ManyToOne(() => MiningSites, (miningSites) => miningSites.incomes)
   @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])
   site: MiningSites;
+
+  @ManyToOne(() => MiningSites)
+  @JoinColumn([{ name: "site_id", referencedColumnName: "id" }])
+  miningSite: MiningSites;
+
+  @ManyToOne(() => Payable)
+  @JoinColumn([{ name: "liability_id", referencedColumnName: "id" }])
+  liability: Payable;
+
+  @ManyToOne(() => Receivable)
+  @JoinColumn([{ name: "receivable_id", referencedColumnName: "id" }])
+  receivable: Receivable;
+
+  @ManyToOne(() => Users)
+  @JoinColumn([{ name: "created_by", referencedColumnName: "id" }])
+  creator: Users;
+
+  @ManyToOne(() => Users)
+  @JoinColumn([{ name: "modified_by", referencedColumnName: "id" }])
+  modifier: Users;
 }

@@ -196,12 +196,15 @@ class _ReceivableFormScreenState extends State<ReceivableFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  // Mining Site Dropdown (Read-only - from context)
                   DropdownButtonFormField<int>(
                     value: _miningSiteId,
                     decoration: const InputDecoration(
                       labelText: 'Mining Site *',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.landscape),
+                      filled: true,
+                      fillColor: Color(0xFFF5F5F5),
                     ),
                     items: _miningSites.map((site) {
                       return DropdownMenuItem<int>(
@@ -209,7 +212,10 @@ class _ReceivableFormScreenState extends State<ReceivableFormScreen> {
                         child: Text((site['name'] as String?) ?? 'Unknown Site'),
                       );
                     }).toList(),
-                    onChanged: (value) => setState(() => _miningSiteId = value),
+                    onChanged: null, // Read-only - site is selected from context
+                    disabledHint: _miningSiteId != null && _miningSites.isNotEmpty
+                        ? Text(_miningSites.firstWhere((s) => s['id'] == _miningSiteId)['name'] as String)
+                        : const Text('No site selected'),
                     validator: (value) {
                       if (value == null) return 'Please select a mining site';
                       return null;

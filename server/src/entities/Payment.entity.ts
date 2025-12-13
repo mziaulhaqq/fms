@@ -10,6 +10,8 @@ import {
 import { Clients } from './Clients.entity';
 import { MiningSites } from './MiningSites.entity';
 import { Users } from './Users.entity';
+import { Payable } from './Payable.entity';
+import { Receivable } from './Receivable.entity';
 
 @Index('payments_pkey', ['id'], { unique: true })
 @Index('idx_payment_client', ['clientId'], {})
@@ -32,6 +34,12 @@ export class Payment {
     comment: 'Payable Deduction or Receivable Payment',
   })
   paymentType: 'Payable Deduction' | 'Receivable Payment';
+
+  @Column('integer', { name: 'payable_id', nullable: true })
+  payableId: number | null;
+
+  @Column('integer', { name: 'receivable_id', nullable: true })
+  receivableId: number | null;
 
   @Column('numeric', { name: 'amount', precision: 12, scale: 2 })
   amount: string;
@@ -75,6 +83,14 @@ export class Payment {
   @ManyToOne(() => MiningSites, (miningSite) => miningSite.payments)
   @JoinColumn([{ name: 'mining_site_id', referencedColumnName: 'id' }])
   miningSite: MiningSites;
+
+  @ManyToOne(() => Payable, (payable) => payable.payments, { nullable: true })
+  @JoinColumn([{ name: 'payable_id', referencedColumnName: 'id' }])
+  payable: Payable | null;
+
+  @ManyToOne(() => Receivable, (receivable) => receivable.payments, { nullable: true })
+  @JoinColumn([{ name: 'receivable_id', referencedColumnName: 'id' }])
+  receivable: Receivable | null;
 
   @ManyToOne(() => Users)
   @JoinColumn([{ name: 'created_by', referencedColumnName: 'id' }])
