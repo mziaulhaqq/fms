@@ -91,8 +91,4 @@ export class Payment {
   @ManyToOne(() => Receivable, (receivable) => receivable.payments, { nullable: true })
   @JoinColumn([{ name: 'receivable_id', referencedColumnName: 'id' }])
   receivable: Receivable | null;
-
-  @ManyToOne(() => Users)
-  @JoinColumn([{ name: 'created_by', referencedColumnName: 'id' }])
-  creator: Users;
 }

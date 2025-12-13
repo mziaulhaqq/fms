@@ -99,7 +99,7 @@ export class PaymentsService {
 
   async findAll(): Promise<Payment[]> {
     return await this.repository.find({
-      relations: ['client', 'miningSite', 'creator'],
+      relations: ['client', 'miningSite', 'payable', 'receivable'],
       order: { paymentDate: 'DESC' },
     });
   }
@@ -107,7 +107,7 @@ export class PaymentsService {
   async findByClient(clientId: number): Promise<Payment[]> {
     return await this.repository.find({
       where: { clientId },
-      relations: ['miningSite', 'creator'],
+      relations: ['miningSite', 'payable', 'receivable'],
       order: { paymentDate: 'DESC' },
     });
   }
