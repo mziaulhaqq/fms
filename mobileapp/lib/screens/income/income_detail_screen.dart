@@ -208,6 +208,14 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
+                          if (_income.client != null) ...[
+                            _buildInfoRow(
+                              'Client',
+                              _income.client!['name'] ?? 'Unknown Client',
+                              Icons.business,
+                            ),
+                            const Divider(height: 24),
+                          ],
                           _buildInfoRow(
                             'Truck Number',
                             _income.truckNumber,
@@ -475,15 +483,52 @@ class _IncomeDetailScreenState extends State<IncomeDetailScreen> {
                           if (_calculateOutstanding() > 0) ...[
                             const SizedBox(height: 12),
                             InkWell(
-                              onTap: () {
-                                if (_income.receivableId != null && _income.receivable != null) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ReceivableDetailsScreen(
-                                        receivable: Receivable.fromJson(_income.receivable!),
+                              onTap: () async {
+                                if (_income.receivableId != null) {
+                                  if (_income.receivable != null) {
+                                    // Navigate with existing receivable data
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ReceivableDetailsScreen(
+                                          receivable: Receivable.fromJson(_income.receivable!),
+                                        ),
                                       ),
-                                    ),
+                                    );
+                                  } else {
+                                    // Fetch receivable by ID and then navigate
+                                    try {
+                                      // We'll need to reload the income to get the receivable
+                                      final updatedIncome = await _incomeService.getIncomeById(_income.id!);
+                                      if (updatedIncome.receivable != null) {
+                                        if (mounted) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ReceivableDetailsScreen(
+                                                receivable: Receivable.fromJson(updatedIncome.receivable!),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Receivable not found')),
+                                          );
+                                        }
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Error loading receivable: $e')),
+                                        );
+                                      }
+                                    }
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('No receivable record created yet')),
                                   );
                                 }
                               },

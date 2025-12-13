@@ -433,31 +433,32 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                       ),
                     const SizedBox(height: 16),
 
-                    // Payment Breakdown - Show if payable is selected
-                    if (_selectedPayableId != null) ...[
-                      Card(
-                        color: Colors.purple.shade50,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.payment, color: Colors.purple.shade700),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Payment Breakdown',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.purple.shade700,
-                                    ),
+                    // Payment Breakdown - Always show
+                    Card(
+                      color: Colors.purple.shade50,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.payment, color: Colors.purple.shade700),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Payment Breakdown',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.purple.shade700,
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            // Show payable section only if payable is selected
+                            if (_selectedPayableId != null) ...[
                               // Payable Balance Info
                               Container(
                                 padding: const EdgeInsets.all(12),
@@ -529,21 +530,23 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                 },
                               ),
                               const SizedBox(height: 12),
+                            ],
 
-                              // Amount in Cash
-                              TextFormField(
-                                controller: _amountCashController,
-                                decoration: InputDecoration(
-                                  labelText: 'Amount in Cash',
-                                  hintText: '0.00',
-                                  prefixIcon: const Icon(Icons.attach_money),
-                                  border: const OutlineInputBorder(),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                onChanged: (value) {
-                                  // Only auto-calculate payable amount if it's currently empty or zero
+                            // Amount in Cash - Always show
+                            TextFormField(
+                              controller: _amountCashController,
+                              decoration: InputDecoration(
+                                labelText: 'Amount in Cash',
+                                hintText: '0.00',
+                                prefixIcon: const Icon(Icons.attach_money),
+                                border: const OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Colors.white,
+                              ),
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (value) {
+                                // Only auto-calculate payable amount if it's currently empty or zero AND payable is selected
+                                if (_selectedPayableId != null) {
                                   final currentFromPayable = _amountFromPayableController.text.trim();
                                   if (currentFromPayable.isEmpty || currentFromPayable == '0.00' || currentFromPayable == '0') {
                                     final coalPrice = double.tryParse(_coalPriceController.text.trim()) ?? 0;
@@ -558,21 +561,26 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                       }
                                     }
                                   }
-                                  setState(() {});
-                                },
-                                validator: (value) {
+                                }
+                                setState(() {});
+                              },
+                              validator: (value) {
+                                // If no payable selected, cash is required
+                                if (_selectedPayableId == null) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Please enter cash amount';
                                   }
                                   final amount = double.tryParse(value.trim());
-                                  if (amount == null || amount < 0) {
+                                  if (amount == null || amount <= 0) {
                                     return 'Please enter a valid amount';
                                   }
-                                  return null;
-                                },
-                              ),
+                                }
+                                return null;
+                              },
+                            ),
+                            
+                            if (_selectedPayableId != null) ...[
                               const SizedBox(height: 12),
-
                               // Total verification
                               Container(
                                 padding: const EdgeInsets.all(12),
@@ -599,11 +607,11 @@ class _IncomeFormScreenState extends State<IncomeFormScreen> {
                                 ),
                               ),
                             ],
-                          ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
+                    ),
+                    const SizedBox(height: 16),
                   ],
 
                   // Truck Number

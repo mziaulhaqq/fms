@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Income } from '../../entities/Income.entity';
 import { Payable } from '../../entities/Payable.entity';
+import { Receivable } from '../../entities/Receivable.entity';
 import { CreateIncomeDto, UpdateIncomeDto } from './dto';
 
 @Injectable()
@@ -12,6 +13,8 @@ export class IncomesService {
     private readonly repository: Repository<Income>,
     @InjectRepository(Payable)
     private readonly payableRepository: Repository<Payable>,
+    @InjectRepository(Receivable)
+    private readonly receivableRepository: Repository<Receivable>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -70,6 +73,40 @@ export class IncomesService {
         await manager.save(Payable, payable);
 
         // TODO: Create payable transaction record when PayableTransaction entity is created
+      }
+
+      // Calculate outstanding amount and create receivable if needed
+      const coalPrice = parseFloat(String(createDto.coalPrice));
+      const companyCommission = createDto.companyCommission ? parseFloat(String(createDto.companyCommission)) : 0;
+      const netIncome = coalPrice - companyCommission;
+      
+      const amountFromPayable = createDto.amountFromLiability ? parseFloat(String(createDto.amountFromLiability)) : 0;
+      const amountCash = createDto.amountCash ? parseFloat(String(createDto.amountCash)) : 0;
+      const totalPaid = amountFromPayable + amountCash;
+      const outstandingAmount = netIncome - totalPaid;
+
+      // Create receivable if there's an outstanding amount and clientId exists
+      if (outstandingAmount > 0 && createDto.clientId) {
+        const receivableData: any = {
+          clientId: createDto.clientId,
+          miningSiteId: createDto.siteId,
+          totalAmount: String(outstandingAmount),
+          remainingBalance: String(outstandingAmount),
+          status: 'Pending',
+          date: createDto.loadingDate,
+          description: `Outstanding from Truck ${createDto.truckNumber} - Loading Date: ${createDto.loadingDate}`,
+        };
+
+        const receivable = manager.create(Receivable, receivableData);
+        if (userId) {
+          (receivable as any)._userId = userId;
+        }
+
+        const savedReceivable = await manager.save(Receivable, receivable);
+
+        // Link the receivable to the income
+        savedIncome.receivableId = savedReceivable.id;
+        await manager.save(Income, savedIncome);
       }
 
       return savedIncome;
